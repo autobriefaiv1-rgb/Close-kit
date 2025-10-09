@@ -7,10 +7,12 @@ export type Customer = {
   jobHistory: string[];
 };
 
+export type ProposalStatus = 'Draft' | 'Sent' | 'Accepted' | 'Rejected';
+
 export type Proposal = {
   id: string;
   customerName: string;
-  status: 'Draft' | 'Sent' | 'Accepted' | 'Rejected';
+  status: ProposalStatus;
   amount: number;
   createdAt: string;
 };

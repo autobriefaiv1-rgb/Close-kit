@@ -19,20 +19,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { mockProposals } from "@/lib/data";
+import type { Proposal } from "@/lib/types";
 
 export default function ProposalsPage() {
-  const statusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+  const statusVariant = (status: Proposal["status"]): 'default' | 'secondary' | 'destructive' | 'outline' => {
     if (status === 'Accepted') return 'default';
     if (status === 'Sent') return 'secondary';
     if (status === 'Draft') return 'outline';
     return 'destructive';
   }
 
-  const renderProposalRows = (statusFilter?: string) => {
-    const proposals = statusFilter
-      ? mockProposals.filter((p) => p.status === statusFilter)
-      : mockProposals;
-
+  const renderProposalRows = (proposals: Proposal[]) => {
     return proposals.map((proposal) => (
       <TableRow key={proposal.id}>
         <TableCell className="font-medium">{proposal.customerName}</TableCell>
@@ -49,6 +46,11 @@ export default function ProposalsPage() {
       </TableRow>
     ));
   };
+
+  const getFilteredProposals = (status?: Proposal["status"]) => {
+    if (!status) return mockProposals;
+    return mockProposals.filter((p) => p.status === status);
+  }
 
   return (
     <Tabs defaultValue="all">
@@ -70,35 +72,119 @@ export default function ProposalsPage() {
           </Button>
         </div>
       </div>
-      <Card className="mt-4">
-        <CardHeader>
-          <CardTitle>Proposals</CardTitle>
-          <CardDescription>
-            Manage your proposals and track their status.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>
-                    <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TabsContent value="all">{renderProposalRows()}</TabsContent>
-              <TabsContent value="draft">{renderProposalRows('Draft')}</TabsContent>
-              <TabsContent value="sent">{renderProposalRows('Sent')}</TabsContent>
-              <TabsContent value="accepted">{renderProposalRows('Accepted')}</TabsContent>
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      
+      <TabsContent value="all">
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>All Proposals</CardTitle>
+            <CardDescription>
+              Manage your proposals and track their status.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>
+                      <span className="sr-only">Actions</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {renderProposalRows(getFilteredProposals())}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </TabsContent>
+      <TabsContent value="draft">
+         <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>Draft Proposals</CardTitle>
+            <CardDescription>
+              These proposals have not been sent yet.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>
+                      <span className="sr-only">Actions</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {renderProposalRows(getFilteredProposals('Draft'))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </TabsContent>
+      <TabsContent value="sent">
+        <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Sent Proposals</CardTitle>
+              <CardDescription>
+                These proposals have been sent to customers and are awaiting a response.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>
+                        <span className="sr-only">Actions</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {renderProposalRows(getFilteredProposals('Sent'))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+      </TabsContent>
+      <TabsContent value="accepted">
+        <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Accepted Proposals</CardTitle>
+              <CardDescription>
+                These proposals have been accepted by customers.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>
+                        <span className="sr-only">Actions</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {renderProposalRows(getFilteredProposals('Accepted'))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+      </TabsContent>
     </Tabs>
   );
 }
