@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { Badge } from "@/components/ui/badge";
 
 const features = [
   {
@@ -132,38 +133,70 @@ export default function LandingPage() {
               Simple, Transparent Pricing
             </h2>
             <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Get full access to all our powerful features with one simple plan.
+              Choose the plan that's right for your business.
             </p>
           </div>
-          <div className="flex justify-center">
-            <Card className="w-full max-w-sm">
+          <div className="mt-8 grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:max-w-4xl">
+            <Card>
               <CardHeader>
                 <CardTitle className="font-headline">Solo Plan</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4">
                 <div className="text-4xl font-bold">
-                  $49<span className="text-xl font-normal text-muted-foreground">/mo</span>
+                  $69<span className="text-xl font-normal text-muted-foreground">/mo</span>
                 </div>
                 <ul className="grid gap-2 text-left text-muted-foreground">
                   <li className="flex items-center gap-2">
                     <CheckIcon className="h-4 w-4 text-primary" />
-                    Unlimited Proposals
+                    Unlimited proposals
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckIcon className="h-4 w-4 text-primary" />
-                    All AI-Powered Tools
+                    AI-powered proposal generation
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckIcon className="h-4 w-4 text-primary" />
-                    Customer Management
+                    Digital signatures
                   </li>
                    <li className="flex items-center gap-2">
                     <CheckIcon className="h-4 w-4 text-primary" />
-                    Price Book & Analytics
+                    Price book management
                   </li>
                 </ul>
                 <Button className="w-full" asChild>
-                  <Link href="/signup">Start Your 14-Day Trial</Link>
+                  <Link href="/signup">Start Solo Plan</Link>
+                </Button>
+              </CardContent>
+            </Card>
+            <Card className="relative border-primary">
+               <Badge variant="default" className="absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</Badge>
+              <CardHeader>
+                <CardTitle className="font-headline">Team</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <div className="text-4xl font-bold">
+                  $129<span className="text-xl font-normal text-muted-foreground">/mo</span>
+                </div>
+                <ul className="grid gap-2 text-left text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckIcon className="h-4 w-4 text-primary" />
+                    Everything in Solo
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckIcon className="h-4 w-4 text-primary" />
+                    Multiple team members
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckIcon className="h-4 w-4 text-primary" />
+                    Shared price books
+                  </li>
+                   <li className="flex items-center gap-2">
+                    <CheckIcon className="h-4 w-4 text-primary" />
+                    Analytics dashboard
+                  </li>
+                </ul>
+                <Button className="w-full" variant="default" asChild>
+                  <Link href="/signup">Start Team Plan</Link>
                 </Button>
               </CardContent>
             </Card>

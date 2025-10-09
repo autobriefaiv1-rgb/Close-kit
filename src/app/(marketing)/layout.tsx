@@ -16,6 +16,10 @@ export default function MarketingLayout({
               <Logo />
             </Link>
           </div>
+          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+            <Link href="/#features" className="text-muted-foreground transition-colors hover:text-foreground">Features</Link>
+            <Link href="/pricing" className="text-muted-foreground transition-colors hover:text-foreground">Pricing</Link>
+          </nav>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <Button variant="ghost" asChild>
               <Link href="/login">Login</Link>
