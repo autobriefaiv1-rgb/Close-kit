@@ -163,7 +163,7 @@ export default function LandingPage() {
                   Win More Bids, Effortlessly.
                 </h1>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                  HVAC AI Pro is the all-in-one platform that helps you build winning proposals in minutes, optimize your pricing with market data, and manage your business more efficiently. Stop leaving money on the table and start closing more profitable jobs.
+                  HVAC AI Pro is the all-in-one platform that empowers you to create winning proposals in minutes, optimize your pricing with market data, and manage your business more efficiently. Stop leaving money on the table. Start closing more profitable jobs and transforming your operations with the power of AI.
                 </p>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button size="lg" asChild>
@@ -208,7 +208,7 @@ export default function LandingPage() {
                 Your New Workflow, Supercharged
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                From initial quote to final payment, HVAC AI Pro simplifies every step. Spend less time on paperwork and more time on what you do best: quality installations and service.
+                From the initial quote to the final invoice, HVAC AI Pro simplifies every step of your process. Spend less time buried in paperwork and more time doing what you do best: providing quality installations and five-star service to your customers.
               </p>
             </div>
           </AnimatedSection>
@@ -219,7 +219,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">1. Build Proposals Fast</h3>
                 <p className="text-muted-foreground">
-                    Use our mobile app to gather job details on-site. Let our AI instantly generate Good-Better-Best options, pulling from your own price book to create a professional proposal in minutes, not hours.
+                  Ditch the clunky spreadsheets and Word docs. Use our intuitive mobile app to gather job details on-site, then let our AI instantly generate professional Good-Better-Best options. It pulls directly from your own price book, creating an accurate, impressive proposal in minutes, not hours.
                 </p>
             </AnimatedSection>
              <AnimatedSection className="grid gap-4 text-center">
@@ -228,7 +228,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">2. Win More Jobs</h3>
                 <p className="text-muted-foreground">
-                    Send beautiful, easy-to-understand proposals that allow clients to view options, accept, and sign digitally. Real-time analytics show you when your proposal is viewed, so you can follow up at the perfect moment.
+                    Send beautiful, easy-to-understand proposals that empower your clients. They can easily view options, accept the one that fits their budget, and sign digitally from any device. Our real-time analytics show you the exact moment your proposal is viewed, so you can follow up with perfect timing and close the deal.
                 </p>
             </AnimatedSection>
              <AnimatedSection className="grid gap-4 text-center">
@@ -237,7 +237,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">3. Analyze & Grow</h3>
                 <p className="text-muted-foreground">
-                    The powerful analytics dashboard gives you a bird's-eye view of your business. Track close rates, revenue trends, and your most profitable services to make data-driven decisions and scale your business with confidence.
+                    The powerful analytics dashboard gives you a bird's-eye view of your business's health. Track close rates, revenue trends, and your most profitable services to stop guessing and start making data-driven decisions. HVAC AI Pro gives you the insights you need to scale your business with confidence.
                 </p>
             </AnimatedSection>
           </div>
@@ -312,7 +312,7 @@ export default function LandingPage() {
                             The Contractor's Unfair Advantage
                         </h2>
                         <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                            In a competitive market, you need tools that give you an edge. We combine cutting-edge AI with deep industry knowledge to create a platform that doesn't just help you work—it helps you win.
+                            In a competitive market, you need tools that give you a definitive edge. We combine cutting-edge AI with deep industry knowledge to create a platform that doesn't just help you work—it helps you win more, earn more, and build a stronger business.
                         </p>
                     </div>
                 </AnimatedSection>
@@ -406,24 +406,4 @@ export default function LandingPage() {
     </div>
   );
 }
-
-function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
     
