@@ -16,6 +16,10 @@ import {
   Users,
   CalendarCheck,
   Star,
+  Check,
+  ShieldCheck,
+  Zap,
+  TrendingUp,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -29,30 +33,34 @@ const features = [
   {
     icon: <BrainCircuit className="w-10 h-10 text-primary" />,
     title: "AI-Powered GBB Generator",
-    description: "Instantly create Good-Better-Best options from job details. Our AI leverages your proprietary data to craft perfectly tiered options that upsell customers without pressure, increasing your average ticket size.",
+    description: "Instantly create Good-Better-Best options from job details. Our AI leverages your proprietary data to craft perfectly tiered options that upsell customers without pressure. This simple feature alone can dramatically increase your average ticket size by presenting clear, value-driven choices.",
     image: PlaceHolderImages.find((img) => img.id === 'feature-gbb'),
-    dataAiHint: "abstract options"
+    dataAiHint: "abstract options",
+    points: ["Increase average job value by 15-30%", "Reduce quoting time by 50%", "Empower techs to upsell confidently"]
   },
   {
     icon: <Languages className="w-10 h-10 text-primary" />,
     title: "Narrative Translator",
-    description: "Convert complex technical jargon into clear, customer-friendly explanations. Build trust and help clients understand the value you provide, leading to faster approvals and higher satisfaction.",
+    description: "Convert complex technical jargon into clear, customer-friendly explanations that anyone can understand. Build trust, demonstrate expertise, and help clients see the true value in your work, leading to faster approvals and higher customer satisfaction.",
     image: PlaceHolderImages.find((img) => img.id === 'feature-translator'),
-    dataAiHint: "abstract language"
+    dataAiHint: "abstract language",
+    points: ["Build customer trust and transparency", "Justify higher-end options effectively", "Reduce follow-up questions and delays"]
   },
   {
     icon: <FileText className="w-10 h-10 text-primary" />,
     title: "Mobile Proposal Builder",
-    description: "Don't wait to get back to the office. Craft professional, branded proposals on-the-go with a touch-optimized interface for managing customers, line items, and photos right from your tablet or phone.",
+    description: "Don't wait to get back to the office. Craft professional, branded proposals on-the-go with a touch-optimized interface. Manage customers, line items, and photos right from your tablet or phone, and send proposals before you even leave the driveway.",
     image: PlaceHolderImages.find((img) => img.id === 'feature-proposal'),
-    dataAiHint: "tablet work"
+    dataAiHint: "tablet work",
+    points: ["Create and send proposals in minutes", "Capture photos and notes on-site", "Works seamlessly on any device"]
   },
   {
     icon: <LineChart className="w-10 h-10 text-primary" />,
     title: "Proposal Analytics",
-    description: "Stop guessing what works. Gain critical insights with proposal tracking. See views, acceptance rates, and revenue per proposal to refine your sales strategy and close more deals.",
+    description: "Stop guessing what works. Gain critical insights with real-time proposal tracking. See when a customer opens your proposal, how long they view it, and which options they focus on. Use this data to refine your sales strategy and close more deals.",
     image: PlaceHolderImages.find((img) => img.id === 'feature-analytics'),
-    dataAiHint: "dashboard chart"
+    dataAiHint: "dashboard chart",
+    points: ["Track proposal views and acceptance rates", "Identify your most profitable services", "Optimize your sales follow-up process"]
   },
 ];
 
@@ -75,6 +83,24 @@ const reviews = [
     review: "The analytics are incredibly powerful. I finally have a clear picture of my sales pipeline and can see which proposals are getting viewed and accepted. It's like having a sales manager in my pocket.",
     avatar: PlaceHolderImages.find(img => img.id === 'avatar-3')
   }
+];
+
+const whyChooseUsPoints = [
+    {
+        icon: <ShieldCheck className="w-12 h-12 text-primary"/>,
+        title: "Built for Your Trade",
+        description: "We're not a generic, one-size-fits-all solution. HVAC AI Pro is purpose-built for the specific needs of HVAC and other field service contractors. Every feature is designed to solve the real-world problems you face daily."
+    },
+    {
+        icon: <Zap className="w-12 h-12 text-primary"/>,
+        title: "Unmatched Speed & Efficiency",
+        description: "Our platform is engineered for speed. From lightning-fast proposal generation to instant AI analysis, we help you and your team get more done in less time, reducing administrative overhead and maximizing billable hours."
+    },
+    {
+        icon: <TrendingUp className="w-12 h-12 text-primary"/>,
+        title: "Focus on Profitability",
+        description: "Our tools are laser-focused on one thing: growing your bottom line. Whether it's increasing average ticket size with GBB options or optimizing your close rate with analytics, we help you turn every job into a more profitable one."
+    }
 ];
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-image');
@@ -137,7 +163,7 @@ export default function LandingPage() {
                   Win More Bids, Effortlessly.
                 </h1>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                  HVAC AI Pro is the all-in-one platform that helps you build winning proposals, optimize pricing, and manage your business more efficiently. Stop leaving money on the table.
+                  HVAC AI Pro is the all-in-one platform that helps you build winning proposals in minutes, optimize your pricing with market data, and manage your business more efficiently. Stop leaving money on the table and start closing more profitable jobs.
                 </p>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button size="lg" asChild>
@@ -182,7 +208,7 @@ export default function LandingPage() {
                 Your New Workflow, Supercharged
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                From initial quote to final payment, HVAC AI Pro simplifies every step. Spend less time on paperwork and more time growing your business.
+                From initial quote to final payment, HVAC AI Pro simplifies every step. Spend less time on paperwork and more time on what you do best: quality installations and service.
               </p>
             </div>
           </AnimatedSection>
@@ -193,7 +219,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">1. Build Proposals Fast</h3>
                 <p className="text-muted-foreground">
-                    Use our mobile app to create professional proposals on-site. Let AI generate Good-Better-Best options to increase your ticket size effortlessly.
+                    Use our mobile app to gather job details on-site. Let our AI instantly generate Good-Better-Best options, pulling from your own price book to create a professional proposal in minutes, not hours.
                 </p>
             </AnimatedSection>
              <AnimatedSection className="grid gap-4 text-center">
@@ -202,7 +228,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">2. Win More Jobs</h3>
                 <p className="text-muted-foreground">
-                    Send proposals with clear, customer-friendly language and allow clients to accept and sign digitally. Track proposal views to follow up effectively.
+                    Send beautiful, easy-to-understand proposals that allow clients to view options, accept, and sign digitally. Real-time analytics show you when your proposal is viewed, so you can follow up at the perfect moment.
                 </p>
             </AnimatedSection>
              <AnimatedSection className="grid gap-4 text-center">
@@ -211,7 +237,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">3. Analyze & Grow</h3>
                 <p className="text-muted-foreground">
-                    Use the analytics dashboard to understand your sales performance, acceptance rates, and most profitable services to scale your business.
+                    The powerful analytics dashboard gives you a bird's-eye view of your business. Track close rates, revenue trends, and your most profitable services to make data-driven decisions and scale your business with confidence.
                 </p>
             </AnimatedSection>
           </div>
@@ -231,7 +257,7 @@ export default function LandingPage() {
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Our suite of AI-powered tools is designed to handle the heavy
-                lifting, so you can focus on quality work and customer satisfaction.
+                lifting, from quoting to customer communication, so you can focus on quality work and customer satisfaction.
               </p>
             </div>
           </AnimatedSection>
@@ -246,14 +272,12 @@ export default function LandingPage() {
                   </div>
                   <p className="text-muted-foreground md:text-lg">{feature.description}</p>
                   <ul className="grid gap-3 text-muted-foreground">
-                    <li className="flex items-center gap-2">
-                      <ChevronRight className="h-4 w-4 text-primary" />
-                      Boost your average job value
-                    </li>
-                     <li className="flex items-center gap-2">
-                      <ChevronRight className="h-4 w-4 text-primary" />
-                      Save time on quoting
-                    </li>
+                    {feature.points.map((point) => (
+                      <li key={point} className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-primary" />
+                        <span>{point}</span>
+                      </li>
+                    ))}
                   </ul>
                   <Button variant="link" className="p-0 w-fit" asChild>
                     <Link href="/pricing">Learn More <ChevronRight className="ml-1 h-4 w-4" /></Link>
@@ -276,8 +300,41 @@ export default function LandingPage() {
         </div>
       </section>
 
+        {/* Why Choose Us Section */}
+        <section className="w-full py-20 md:py-32 bg-secondary">
+            <div className="container px-4 md:px-6">
+                <AnimatedSection className="flex flex-col items-center justify-center space-y-4 text-center">
+                    <div className="space-y-2">
+                        <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
+                            Why Choose HVAC AI Pro?
+                        </div>
+                        <h2 className="font-headline text-3xl font-bold tracking-tighter sm:text-5xl">
+                            The Contractor's Unfair Advantage
+                        </h2>
+                        <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                            In a competitive market, you need tools that give you an edge. We combine cutting-edge AI with deep industry knowledge to create a platform that doesn't just help you work—it helps you win.
+                        </p>
+                    </div>
+                </AnimatedSection>
+                <div className="mx-auto grid max-w-5xl items-start gap-12 py-12 lg:grid-cols-3">
+                    {whyChooseUsPoints.map((point, index) => (
+                        <AnimatedSection key={index} className="grid gap-4 text-center">
+                            <div className="flex justify-center items-center">
+                                {point.icon}
+                            </div>
+                            <h3 className="text-xl font-bold font-headline">{point.title}</h3>
+                            <p className="text-muted-foreground">
+                                {point.description}
+                            </p>
+                        </AnimatedSection>
+                    ))}
+                </div>
+            </div>
+        </section>
+
+
       {/* Reviews Section */}
-      <section id="reviews" className="w-full py-20 md:py-32 bg-secondary">
+      <section id="reviews" className="w-full py-20 md:py-32">
         <div className="container px-4 md:px-6">
           <AnimatedSection className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
@@ -334,8 +391,7 @@ export default function LandingPage() {
                 Ready to Upgrade Your Business?
               </h2>
               <p className="mx-auto max-w-[600px] md:text-xl">
-                Join HVAC AI Pro today and start building a more profitable and
-                efficient contracting business. 14-day free trial, no credit card required.
+                Join hundreds of successful contractors who use HVAC AI Pro to build a more profitable and efficient business. Get started with a 14-day free trial, no credit card required.
               </p>
               <Button size="lg" variant="secondary" className="text-lg" asChild>
                 <Link href="/signup">
