@@ -83,3 +83,40 @@
     -moz-osx-font-smoothing: grayscale;
   }
 }
+
+@layer components {
+  .speech-bubble-left {
+    position: relative;
+  }
+  .speech-bubble-left::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 10px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid hsl(var(--muted));
+  }
+  .dark .speech-bubble-left::before {
+    border-right-color: hsl(var(--muted));
+  }
+  .speech-bubble-right {
+    position: relative;
+  }
+  .speech-bubble-right::before {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 10px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid hsl(var(--primary));
+  }
+  .dark .speech-bubble-right::before {
+    border-left-color: hsl(var(--primary));
+  }
+}

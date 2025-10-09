@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Send, Bot, User } from 'lucide-react';
 import { askAria } from '@/ai/flows/aria-support-flow';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
@@ -79,21 +79,30 @@ export default function SupportPage() {
       </header>
 
       <div className="flex-1 flex items-center justify-center p-4">
-        <Card className="w-full max-w-2xl h-[70vh] flex flex-col">
-          <CardHeader className="text-center">
-            <CardTitle className="font-headline text-3xl">Support Center</CardTitle>
-            <CardDescription>
-              Ask our AI Assistant, Aria, or email us at <a href="mailto:autobriefaiv1@gmail.com" className="text-primary underline">autobriefaiv1@gmail.com</a>
+        <Card className="w-full max-w-2xl h-[70vh] flex flex-col shadow-lg">
+          <CardHeader className="text-center border-b">
+            <div className="flex justify-center items-center gap-3">
+              <Avatar>
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Bot />
+                </div>
+              </Avatar>
+              <CardTitle className="font-headline text-3xl">Aria Support</CardTitle>
+            </div>
+            <CardDescription className="pt-2">
+              Have a question? Ask me anything about HVAC AI Pro. For complex issues, email <a href="mailto:autobriefaiv1@gmail.com" className="text-primary underline">autobriefaiv1@gmail.com</a>
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden">
+          <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden p-4">
             <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="flex items-start gap-3">
-                  <Avatar>
-                    <AvatarFallback>A</AvatarFallback>
+                  <Avatar className="border">
+                    <div className="flex h-full w-full items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Bot />
+                    </div>
                   </Avatar>
-                  <div className="bg-muted p-3 rounded-lg max-w-[80%]">
+                  <div className="bg-muted p-3 rounded-lg max-w-[80%] speech-bubble-left">
                     <p className="text-sm">Hello! I'm Aria, your AI assistant. How can I help you with HVAC AI Pro today?</p>
                   </div>
                 </div>
@@ -105,47 +114,54 @@ export default function SupportPage() {
                     }`}
                   >
                     {message.role === 'model' && (
-                      <Avatar>
-                        <AvatarFallback>A</AvatarFallback>
+                      <Avatar className="border">
+                        <div className="flex h-full w-full items-center justify-center rounded-full bg-primary/10 text-primary">
+                          <Bot />
+                        </div>
                       </Avatar>
                     )}
                     <div
                       className={`p-3 rounded-lg max-w-[80%] ${
                         message.role === 'user'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
+                          ? 'bg-primary text-primary-foreground speech-bubble-right'
+                          : 'bg-muted speech-bubble-left'
                       }`}
                     >
                       <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     </div>
                      {message.role === 'user' && (
-                      <Avatar>
-                        <AvatarFallback>U</AvatarFallback>
+                      <Avatar className="border">
+                        <AvatarFallback>
+                          <User />
+                        </AvatarFallback>
                       </Avatar>
                     )}
                   </div>
                 ))}
                 {isLoading && (
                    <div className="flex items-start gap-3">
-                      <Avatar>
-                        <AvatarFallback>A</AvatarFallback>
+                      <Avatar className="border">
+                         <div className="flex h-full w-full items-center justify-center rounded-full bg-primary/10 text-primary">
+                          <Bot />
+                        </div>
                       </Avatar>
-                      <div className="bg-muted p-3 rounded-lg">
+                      <div className="bg-muted p-3 rounded-lg speech-bubble-left">
                           <Loader2 className="h-5 w-5 animate-spin"/>
                       </div>
                   </div>
                 )}
               </div>
             </ScrollArea>
-            <div className="flex items-center gap-2 mt-4">
+            <div className="flex items-center gap-2 mt-4 border-t pt-4">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleSend()}
                 placeholder="Ask Aria a question..."
                 disabled={isLoading}
+                className="text-base"
               />
-              <Button onClick={handleSend} disabled={isLoading}>
+              <Button onClick={handleSend} disabled={isLoading} size="icon">
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
