@@ -3,6 +3,7 @@ import {
   Book,
   FileText,
   LayoutDashboard,
+  LifeBuoy,
   Settings,
   Users,
   Wrench,
@@ -65,5 +66,10 @@ export const menuItems = [
     label: 'Settings',
     href: '/dashboard/settings',
     icon: Settings,
+  },
+  {
+    label: 'Support',
+    href: '/support',
+    icon: LifeBuoy,
   },
 ];
