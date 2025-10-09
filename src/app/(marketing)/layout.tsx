@@ -19,6 +19,7 @@ export default function MarketingLayout({
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             <Link href="/#features" className="text-muted-foreground transition-colors hover:text-foreground">Features</Link>
             <Link href="/pricing" className="text-muted-foreground transition-colors hover:text-foreground">Pricing</Link>
+            <Link href="/support" className="text-muted-foreground transition-colors hover:text-foreground">Support</Link>
           </nav>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <Button variant="ghost" asChild>
@@ -39,9 +40,12 @@ export default function MarketingLayout({
               Built to streamline your HVAC business.
             </p>
           </div>
-          <p className="text-center text-sm text-muted-foreground md:text-left">
-            © {new Date().getFullYear()} HVAC AI Pro. All rights reserved.
-          </p>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <Link href="/support" className="transition-colors hover:text-foreground">Support</Link>
+            <p className="text-center md:text-left">
+              © {new Date().getFullYear()} HVAC AI Pro. All rights reserved.
+            </p>
+          </div>
         </div>
       </footer>
     </div>

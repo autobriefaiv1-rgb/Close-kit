@@ -165,16 +165,19 @@ export default function LandingPage() {
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
                   HVAC AI Pro is the all-in-one platform that empowers you to create winning proposals in minutes, optimize your pricing with market data, and manage your business more efficiently. Stop leaving money on the table. Start closing more profitable jobs and transforming your operations with the power of AI.
                 </p>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button size="lg" asChild>
-                    <Link href="/signup">
-                      Start Your Free Trial
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Link>
-                  </Button>
-                  <Button size="lg" variant="outline" asChild>
-                    <Link href="#features">Explore Features</Link>
-                  </Button>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                    <Button size="lg" asChild>
+                      <Link href="/signup">
+                        Start Your 7-Day Free Trial
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Link>
+                    </Button>
+                    <Button size="lg" variant="outline" asChild>
+                      <Link href="#features">Explore Features</Link>
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">No credit card required.</p>
                 </div>
               </div>
             </AnimatedSection>
@@ -391,11 +394,11 @@ export default function LandingPage() {
                 Ready to Upgrade Your Business?
               </h2>
               <p className="mx-auto max-w-[600px] md:text-xl">
-                Join hundreds of successful contractors who use HVAC AI Pro to build a more profitable and efficient business. Get started with a 14-day free trial, no credit card required.
+                Join hundreds of successful contractors who use HVAC AI Pro to build a more profitable and efficient business. Get started with a 7-day free trial, no credit card required.
               </p>
               <Button size="lg" variant="secondary" className="text-lg" asChild>
                 <Link href="/signup">
-                  Sign Up Now
+                  Start Free Trial
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>

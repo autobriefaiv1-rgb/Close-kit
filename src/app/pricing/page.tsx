@@ -22,6 +22,11 @@ export default function PricingPage() {
               <Logo />
             </Link>
           </div>
+           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+            <Link href="/#features" className="text-muted-foreground transition-colors hover:text-foreground">Features</Link>
+            <Link href="/pricing" className="text-muted-foreground transition-colors hover:text-foreground">Pricing</Link>
+            <Link href="/support" className="text-muted-foreground transition-colors hover:text-foreground">Support</Link>
+          </nav>
           <div className="flex flex-1 items-center justify-end space-x-4">
             <Button variant="ghost" asChild>
               <Link href="/login">Login</Link>
@@ -35,10 +40,13 @@ export default function PricingPage() {
       <main className="flex-1">
         <div className="container py-20 text-center">
           <h1 className="font-headline text-4xl font-bold tracking-tight lg:text-5xl">
-            Pricing
+            Simple, Transparent Pricing
           </h1>
           <p className="mt-3 text-lg text-muted-foreground">
-            Simple and transparent pricing. Choose the plan that's right for your business.
+            Choose the plan that's right for your business.
+          </p>
+          <p className="mt-1 text-muted-foreground">
+            All plans start with a 7-day free trial. No credit card required.
           </p>
         </div>
 
@@ -74,10 +82,10 @@ export default function PricingPage() {
             </CardContent>
             <CardFooter>
               <Button size="lg" className="w-full" asChild>
-                <Link href="/signup">Start Solo Plan</Link>
+                <Link href="/signup">Start 7-Day Free Trial</Link>
               </Button>
             </CardFooter>
-          </Card>>
+          </Card>
 
           <Card className="relative flex flex-col border-2 border-primary shadow-2xl">
             <Badge variant="default" className="absolute -top-4 left-1/2 -translate-x-1/2">
@@ -99,7 +107,7 @@ export default function PricingPage() {
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
-                  <span>Multiple team members</span>
+                  <span>Up to 5 team members</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
@@ -107,13 +115,17 @@ export default function PricingPage() {
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
-                  <span>Analytics dashboard</span>
+                  <span>Proposal analytics dashboard</span>
+                </li>
+                 <li className="flex items-center gap-3">
+                  <Check className="h-5 w-5 text-primary" />
+                  <span>Priority support</span>
                 </li>
               </ul>
             </CardContent>
             <CardFooter>
               <Button size="lg" className="w-full" asChild>
-                <Link href="/signup">Start Team Plan</Link>
+                <Link href="/signup">Start 7-Day Free Trial</Link>
               </Button>
             </CardFooter>
           </Card>
