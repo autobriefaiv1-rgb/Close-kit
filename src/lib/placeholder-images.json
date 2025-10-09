@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "A modern and clean HVAC unit installation.",
+      "imageUrl": "https://picsum.photos/seed/hvac1/1200/800",
+      "imageHint": "HVAC installation"
+    },
+    {
+      "id": "user-avatar",
+      "description": "Default user avatar.",
+      "imageUrl": "https://picsum.photos/seed/avatar1/100/100",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "feature-gbb",
+      "description": "An abstract image representing choices or options.",
+      "imageUrl": "https://picsum.photos/seed/gbb/600/400",
+      "imageHint": "abstract options"
+    },
+    {
+      "id": "feature-translator",
+      "description": "An abstract image representing language and communication.",
+      "imageUrl": "https://picsum.photos/seed/translate/600/400",
+      "imageHint": "abstract language"
+    },
+    {
+      "id": "feature-proposal",
+      "description": "A person working on a tablet, building a proposal.",
+      "imageUrl": "https://picsum.photos/seed/proposal/600/400",
+      "imageHint": "tablet work"
+    },
+    {
+      "id": "feature-analytics",
+      "description": "A dashboard with charts and graphs.",
+      "imageUrl": "https://picsum.photos/seed/analytics/600/400",
+      "imageHint": "dashboard chart"
+    }
+  ]
 }
