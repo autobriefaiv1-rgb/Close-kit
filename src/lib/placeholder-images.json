@@ -15,25 +15,25 @@
     {
       "id": "feature-gbb",
       "description": "An abstract image representing choices or options.",
-      "imageUrl": "https://picsum.photos/seed/gbb/600/400",
+      "imageUrl": "https://picsum.photos/seed/gbb/1200/800",
       "imageHint": "abstract options"
     },
     {
       "id": "feature-translator",
       "description": "An abstract image representing language and communication.",
-      "imageUrl": "https://picsum.photos/seed/translate/600/400",
+      "imageUrl": "https://picsum.photos/seed/translate/1200/800",
       "imageHint": "abstract language"
     },
     {
       "id": "feature-proposal",
       "description": "A person working on a tablet, building a proposal.",
-      "imageUrl": "https://picsum.photos/seed/proposal/600/400",
+      "imageUrl": "https://picsum.photos/seed/proposal/1200/800",
       "imageHint": "tablet work"
     },
     {
       "id": "feature-analytics",
       "description": "A dashboard with charts and graphs.",
-      "imageUrl": "https://picsum.photos/seed/analytics/600/400",
+      "imageUrl": "https://picsum.photos/seed/analytics/1200/800",
       "imageHint": "dashboard chart"
     }
   ]
