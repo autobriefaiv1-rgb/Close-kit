@@ -1,3 +1,6 @@
+
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -9,12 +12,18 @@ import {
   Rocket,
   Wrench,
   ChevronRight,
+  DollarSign,
+  Users,
+  CalendarCheck,
+  Star,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const features = [
   {
@@ -47,7 +56,69 @@ const features = [
   },
 ];
 
+const reviews = [
+  {
+    name: "Mike R.",
+    company: "Pro-Temp HVAC",
+    review: "HVAC AI Pro has been a game-changer. The GBB generator alone has boosted our average ticket by 25%. My techs can now build and send stunning proposals right from the job site.",
+    avatar: PlaceHolderImages.find(img => img.id === 'avatar-1')
+  },
+  {
+    name: "Sarah L.",
+    company: "CoolBreeze Services",
+    review: "I was skeptical about AI, but this is the real deal. The narrative translator saves me so much time and my customers actually understand what we're doing. Closing deals is easier than ever.",
+    avatar: PlaceHolderImages.find(img => img.id === 'avatar-2')
+  },
+  {
+    name: "David Chen",
+    company: "Chen's Heating & Air",
+    review: "The analytics are incredibly powerful. I finally have a clear picture of my sales pipeline and can see which proposals are getting viewed and accepted. It's like having a sales manager in my pocket.",
+    avatar: PlaceHolderImages.find(img => img.id === 'avatar-3')
+  }
+];
+
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-image');
+
+const AnimatedSection = ({ children, className }: { children: React.ReactNode, className?: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "transition-all duration-1000 ease-out",
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+};
+
 
 export default function LandingPage() {
   return (
@@ -56,30 +127,32 @@ export default function LandingPage() {
       <section className="w-full py-20 md:py-32 lg:py-40">
         <div className="container px-4 md:px-6">
           <div className="grid gap-6 lg:grid-cols-2 lg:gap-16">
-            <div className="flex flex-col justify-center space-y-6">
-              <Badge variant="outline" className="w-fit">
-                <Rocket className="mr-2 h-4 w-4" />
-                Now with AI-Powered Tools
-              </Badge>
-              <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
-                The Future of HVAC Contracting
-              </h1>
-              <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                Leverage AI to create winning proposals, optimize pricing, and
-                manage your business more efficiently than ever before.
-              </p>
-              <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                <Button size="lg" asChild>
-                  <Link href="/signup">
-                    Get Started Free
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="#features">Explore Features</Link>
-                </Button>
+            <AnimatedSection>
+              <div className="flex flex-col justify-center space-y-6">
+                <Badge variant="outline" className="w-fit">
+                  <Rocket className="mr-2 h-4 w-4" />
+                  The Ultimate AI Toolkit for Contractors
+                </Badge>
+                <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
+                  Win More Bids, Effortlessly.
+                </h1>
+                <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                  HVAC AI Pro is the all-in-one platform that helps you build winning proposals, optimize pricing, and manage your business more efficiently. Stop leaving money on the table.
+                </p>
+                <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                  <Button size="lg" asChild>
+                    <Link href="/signup">
+                      Start Your Free Trial
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" asChild>
+                    <Link href="#features">Explore Features</Link>
+                  </Button>
+                </div>
               </div>
-            </div>
+            </AnimatedSection>
+            <AnimatedSection>
             <div className="relative aspect-video overflow-hidden rounded-xl shadow-2xl transition-transform duration-500 hover:scale-105">
               {heroImage && (
                 <Image
@@ -92,6 +165,7 @@ export default function LandingPage() {
                 />
               )}
             </div>
+            </AnimatedSection>
           </div>
         </div>
       </section>
@@ -99,47 +173,47 @@ export default function LandingPage() {
       {/* How it works Section */}
       <section className="w-full py-20 md:py-32 bg-secondary">
         <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          <AnimatedSection className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
                 How It Works
               </div>
               <h2 className="font-headline text-3xl font-bold tracking-tighter sm:text-5xl">
-                Streamline Your Workflow in 3 Steps
+                Your New Workflow, Supercharged
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                From quote to cash, HVAC AI Pro simplifies every aspect of your job.
+                From initial quote to final payment, HVAC AI Pro simplifies every step. Spend less time on paperwork and more time growing your business.
               </p>
             </div>
-          </div>
-          <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3 lg:gap-12">
-            <div className="grid gap-4 text-center">
+          </AnimatedSection>
+          <div className="mx-auto grid max-w-5xl items-start gap-12 py-12 lg:grid-cols-3">
+             <AnimatedSection className="grid gap-4 text-center">
                 <div className="flex justify-center items-center">
-                    <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary text-primary-foreground font-bold text-3xl font-headline">1</div>
+                   <FileText className="w-12 h-12 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold font-headline">Build Proposals Fast</h3>
+                <h3 className="text-xl font-bold font-headline">1. Build Proposals Fast</h3>
                 <p className="text-muted-foreground">
                     Use our mobile app to create professional proposals on-site. Let AI generate Good-Better-Best options to increase your ticket size effortlessly.
                 </p>
-            </div>
-            <div className="grid gap-4 text-center">
+            </AnimatedSection>
+             <AnimatedSection className="grid gap-4 text-center">
                 <div className="flex justify-center items-center">
-                    <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary text-primary-foreground font-bold text-3xl font-headline">2</div>
+                   <DollarSign className="w-12 h-12 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold font-headline">Win More Jobs</h3>
+                <h3 className="text-xl font-bold font-headline">2. Win More Jobs</h3>
                 <p className="text-muted-foreground">
                     Send proposals with clear, customer-friendly language and allow clients to accept and sign digitally. Track proposal views to follow up effectively.
                 </p>
-            </div>
-            <div className="grid gap-4 text-center">
+            </AnimatedSection>
+             <AnimatedSection className="grid gap-4 text-center">
                  <div className="flex justify-center items-center">
-                    <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary text-primary-foreground font-bold text-3xl font-headline">3</div>
+                   <LineChart className="w-12 h-12 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold font-headline">Analyze & Grow</h3>
+                <h3 className="text-xl font-bold font-headline">3. Analyze & Grow</h3>
                 <p className="text-muted-foreground">
                     Use the analytics dashboard to understand your sales performance, acceptance rates, and most profitable services to scale your business.
                 </p>
-            </div>
+            </AnimatedSection>
           </div>
         </div>
       </section>
@@ -147,7 +221,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <section id="features" className="w-full py-20 md:py-32">
         <div className="container px-4 md:px-6 space-y-24">
-           <div className="flex flex-col items-center justify-center space-y-4 text-center">
+           <AnimatedSection className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
                 Powerful Features
@@ -160,158 +234,93 @@ export default function LandingPage() {
                 lifting, so you can focus on quality work and customer satisfaction.
               </p>
             </div>
-          </div>
+          </AnimatedSection>
 
           {features.map((feature, index) => (
-            <div key={feature.title} className="grid gap-8 lg:grid-cols-2 lg:gap-16 items-center">
-              <div className={`flex flex-col space-y-4 ${index % 2 === 1 ? 'lg:order-last' : ''}`}>
-                <div className="flex items-center gap-4">
-                  {feature.icon}
-                  <h3 className="text-3xl font-bold font-headline">{feature.title}</h3>
+            <AnimatedSection key={feature.title}>
+              <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 items-center">
+                <div className={`flex flex-col space-y-4 ${index % 2 === 1 ? 'lg:order-last' : ''}`}>
+                  <div className="flex items-center gap-4">
+                    {feature.icon}
+                    <h3 className="text-3xl font-bold font-headline">{feature.title}</h3>
+                  </div>
+                  <p className="text-muted-foreground md:text-lg">{feature.description}</p>
+                  <ul className="grid gap-3 text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <ChevronRight className="h-4 w-4 text-primary" />
+                      Boost your average job value
+                    </li>
+                     <li className="flex items-center gap-2">
+                      <ChevronRight className="h-4 w-4 text-primary" />
+                      Save time on quoting
+                    </li>
+                  </ul>
+                  <Button variant="link" className="p-0 w-fit" asChild>
+                    <Link href="/pricing">Learn More <ChevronRight className="ml-1 h-4 w-4" /></Link>
+                  </Button>
                 </div>
-                <p className="text-muted-foreground md:text-lg">{feature.description}</p>
-                <Button variant="link" className="p-0 w-fit" asChild>
-                  <Link href="/pricing">Learn More <ChevronRight className="ml-1 h-4 w-4" /></Link>
-                </Button>
+                <div className="relative aspect-video overflow-hidden rounded-xl shadow-lg transition-transform duration-500 hover:scale-105">
+                  {feature.image && (
+                     <Image
+                        src={feature.image.imageUrl}
+                        alt={feature.image.description}
+                        fill
+                        className="object-cover"
+                        data-ai-hint={feature.dataAiHint}
+                      />
+                  )}
+                </div>
               </div>
-              <div className="relative aspect-video overflow-hidden rounded-xl shadow-lg transition-transform duration-500 hover:scale-105">
-                {feature.image && (
-                   <Image
-                      src={feature.image.imageUrl}
-                      alt={feature.image.description}
-                      fill
-                      className="object-cover"
-                      data-ai-hint={feature.dataAiHint}
-                    />
-                )}
-              </div>
-            </div>
+            </AnimatedSection>
           ))}
-
-            <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 items-center">
-              <div className="lg:order-last flex flex-col space-y-4">
-                  <div className="flex items-center gap-4">
-                      <Wrench className="w-10 h-10 text-primary" />
-                      <h3 className="text-3xl font-bold font-headline">Price Book & Job Costing</h3>
-                  </div>
-                  <p className="text-muted-foreground md:text-lg">Manage material costs and calculate precise job costing including overhead to ensure profitability on every project.</p>
-                   <Button variant="link" className="p-0 w-fit" asChild>
-                    <Link href="/pricing">Learn More <ChevronRight className="ml-1 h-4 w-4" /></Link>
-                  </Button>
-              </div>
-               <div className="relative aspect-video overflow-hidden rounded-xl shadow-lg transition-transform duration-500 hover:scale-105">
-                 <Image
-                    src="https://picsum.photos/seed/pricebook/1200/800"
-                    alt="A person managing a price book on a tablet."
-                    fill
-                    className="object-cover"
-                    data-ai-hint="price book tablet"
-                  />
-              </div>
-            </div>
-
-             <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 items-center">
-              <div className="flex flex-col space-y-4">
-                  <div className="flex items-center gap-4">
-                      <Rocket className="w-10 h-10 text-primary" />
-                      <h3 className="text-3xl font-bold font-headline">Competitor Price Analysis</h3>
-                  </div>
-                  <p className="text-muted-foreground md:text-lg">Stay ahead of the competition. Analyze market pricing and get AI-driven suggestions for your own strategy to maximize profit while staying competitive.</p>
-                   <Button variant="link" className="p-0 w-fit" asChild>
-                    <Link href="/pricing">Learn More <ChevronRight className="ml-1 h-4 w-4" /></Link>
-                  </Button>
-              </div>
-               <div className="relative aspect-video overflow-hidden rounded-xl shadow-lg transition-transform duration-500 hover:scale-105">
-                 <Image
-                    src="https://picsum.photos/seed/competitor/1200/800"
-                    alt="An abstract chart showing competitor analysis."
-                    fill
-                    className="object-cover"
-                    data-ai-hint="analysis chart"
-                  />
-              </div>
-            </div>
-
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="w-full py-20 md:py-32 bg-secondary">
-        <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
-          <div className="space-y-3">
-            <h2 className="font-headline text-3xl font-bold tracking-tighter md:text-4xl/tight">
-              Simple, Transparent Pricing
-            </h2>
-            <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Choose the plan that's right for your business. No hidden fees.
-            </p>
-          </div>
-          <div className="mt-12 grid gap-8 sm:grid-cols-1 lg:grid-cols-2 lg:max-w-4xl mx-auto">
-            <Card className="transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-              <CardHeader>
-                <CardTitle className="font-headline">Solo Plan</CardTitle>
-                <CardDescription>For the individual go-getter.</CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-6">
-                <div className="text-5xl font-bold font-headline">
-                  $69<span className="text-xl font-normal text-muted-foreground">/mo</span>
-                </div>
-                <ul className="grid gap-3 text-left text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <CheckIcon className="h-4 w-4 text-primary" />
-                    Unlimited proposals
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckIcon className="h-4 w-4 text-primary" />
-                    AI-powered proposal generation
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckIcon className="h-4 w-4 text-primary" />
-                    Digital signatures
-                  </li>
-                   <li className="flex items-center gap-2">
-                    <CheckIcon className="h-4 w-4 text-primary" />
-                    Price book management
-                  </li>
-                </ul>
-                <Button className="w-full" asChild>
-                  <Link href="/signup">Start Solo Plan</Link>
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="relative border-primary transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-               <Badge variant="default" className="absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</Badge>
-              <CardHeader>
-                <CardTitle className="font-headline">Team Plan</CardTitle>
-                <CardDescription>For growing businesses and teams.</CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-6">
-                <div className="text-5xl font-bold font-headline">
-                  $129<span className="text-xl font-normal text-muted-foreground">/mo</span>
-                </div>
-                <ul className="grid gap-3 text-left text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <CheckIcon className="h-4 w-4 text-primary" />
-                    Everything in Solo
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckIcon className="h-4 w-4 text-primary" />
-                    Multiple team members
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckIcon className="h-4 w-4 text-primary" />
-                    Shared price books
-                  </li>
-                   <li className="flex items-center gap-2">
-                    <CheckIcon className="h-4 w-4 text-primary" />
-                    Analytics dashboard
-                  </li>
-                </ul>
-                <Button className="w-full" variant="default" asChild>
-                  <Link href="/signup">Start Team Plan</Link>
-                </Button>
-              </CardContent>
-            </Card>
+      {/* Reviews Section */}
+      <section id="reviews" className="w-full py-20 md:py-32 bg-secondary">
+        <div className="container px-4 md:px-6">
+          <AnimatedSection className="flex flex-col items-center justify-center space-y-4 text-center">
+            <div className="space-y-2">
+              <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
+                Trusted by Pros
+              </div>
+              <h2 className="font-headline text-3xl font-bold tracking-tighter sm:text-5xl">
+                What Our Customers Are Saying
+              </h2>
+              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                See how HVAC contractors are using HVAC AI Pro to grow their businesses and delight their customers.
+              </p>
+            </div>
+          </AnimatedSection>
+          <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 lg:grid-cols-3 lg:gap-12">
+            {reviews.map((review, index) => (
+              <AnimatedSection key={index}>
+                <Card className="h-full flex flex-col">
+                  <CardHeader className="flex-row items-center gap-4">
+                    {review.avatar && (
+                      <Image
+                        src={review.avatar.imageUrl}
+                        alt={`Avatar of ${review.name}`}
+                        width={56}
+                        height={56}
+                        className="rounded-full"
+                        data-ai-hint={review.avatar.imageHint}
+                      />
+                    )}
+                    <div>
+                      <CardTitle className="text-lg">{review.name}</CardTitle>
+                      <CardDescription>{review.company}</CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <div className="flex mb-2">
+                      {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 fill-primary text-primary" />)}
+                    </div>
+                    <p className="text-muted-foreground">&quot;{review.review}&quot;</p>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
+            ))}
           </div>
         </div>
       </section>
@@ -319,21 +328,23 @@ export default function LandingPage() {
       {/* CTA Section */}
       <section className="w-full py-20 md:py-32 lg:py-40 bg-primary text-primary-foreground">
         <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
-          <div className="space-y-4">
-            <h2 className="font-headline text-4xl font-bold tracking-tighter md:text-5xl/tight">
-              Ready to Upgrade Your Business?
-            </h2>
-            <p className="mx-auto max-w-[600px] md:text-xl">
-              Join HVAC AI Pro today and start building a more profitable and
-              efficient contracting business. 14-day free trial, no credit card required.
-            </p>
-            <Button size="lg" variant="secondary" className="text-lg" asChild>
-              <Link href="/signup">
-                Sign Up Now
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
+          <AnimatedSection>
+            <div className="space-y-4">
+              <h2 className="font-headline text-4xl font-bold tracking-tighter md:text-5xl/tight">
+                Ready to Upgrade Your Business?
+              </h2>
+              <p className="mx-auto max-w-[600px] md:text-xl">
+                Join HVAC AI Pro today and start building a more profitable and
+                efficient contracting business. 14-day free trial, no credit card required.
+              </p>
+              <Button size="lg" variant="secondary" className="text-lg" asChild>
+                <Link href="/signup">
+                  Sign Up Now
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+          </AnimatedSection>
         </div>
       </section>
     </div>
@@ -358,3 +369,5 @@ function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+    

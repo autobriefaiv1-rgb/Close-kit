@@ -35,6 +35,24 @@
       "description": "A dashboard with charts and graphs.",
       "imageUrl": "https://picsum.photos/seed/analytics/1200/800",
       "imageHint": "dashboard chart"
+    },
+    {
+      "id": "avatar-1",
+      "description": "Avatar of a male construction worker.",
+      "imageUrl": "https://picsum.photos/seed/avatar-m1/100/100",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "avatar-2",
+      "description": "Avatar of a female professional.",
+      "imageUrl": "https://picsum.photos/seed/avatar-f1/100/100",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "avatar-3",
+      "description": "Avatar of a male professional.",
+      "imageUrl": "https://picsum.photos/seed/avatar-m2/100/100",
+      "imageHint": "man professional"
     }
   ]
 }
