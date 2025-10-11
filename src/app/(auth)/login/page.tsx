@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { useAuth, useDoc, useMemoFirebase } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -22,6 +22,7 @@ import type { UserProfile } from '@/lib/types';
 
 export default function LoginPage() {
   const { auth, firestore } = useFirebase();
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
@@ -40,17 +41,10 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    if (auth?.currentUser) {
-      handleRedirect(auth.currentUser);
+    if (user) {
+      handleRedirect(user);
     }
-    const unsubscribe = auth?.onAuthStateChanged((user) => {
-      if (user) {
-        handleRedirect(user);
-      }
-    });
-
-    return () => unsubscribe && unsubscribe();
-  }, [auth]);
+  }, [user]);
 
   useEffect(() => {
     if (userForProfileCheck && !isProfileLoading) {
