@@ -21,6 +21,15 @@
           "type": "string",
           "enum": ["solo", "team"],
           "description": "The current subscription plan for the organization."
+        },
+        "subscriptionStatus": {
+            "type": "string",
+            "enum": ["trial", "active", "expired", "canceled"],
+            "description": "The status of the organization's subscription."
+        },
+        "trialEndDate": {
+            "type": "object",
+            "description": "The timestamp when the free trial ends."
         }
       },
       "required": ["id", "ownerId", "name"]

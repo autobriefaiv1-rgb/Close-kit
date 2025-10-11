@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function SettingsPage() {
   const { firestore, user } = useFirebase();
@@ -175,12 +176,19 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading ? <Skeleton className="h-5 w-48" /> : 
-            <p>You are currently on the <span className="font-semibold capitalize">{organization?.subscriptionPlan} Plan</span>.</p>
-            }
+            {isLoading ? <Skeleton className="h-5 w-48" /> : (
+                <div>
+                    <p>You are currently on the <span className="font-semibold capitalize">{organization?.subscriptionPlan} Plan</span>.</p>
+                    {organization?.subscriptionStatus === 'trial' && organization.trialEndDate && (
+                        <p className="text-sm text-muted-foreground">Your trial ends in {formatDistanceToNow(organization.trialEndDate.toDate())}.</p>
+                    )}
+                </div>
+            )}
           </CardContent>
           <CardFooter className="border-t px-6 py-4">
-            <Button>Manage Billing</Button>
+            <Button asChild>
+                <Link href="/pricing">Manage Subscription</Link>
+            </Button>
           </CardFooter>
         </Card>
       </div>

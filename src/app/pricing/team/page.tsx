@@ -127,7 +127,7 @@ export default function TeamPlanPage() {
                   <ul className="space-y-3 text-muted-foreground max-w-md mx-auto">
                       <li className="flex items-center gap-3">
                         <Check className="h-5 w-5 text-primary" />
-                        <span>Up to 5 team members</span>
+                        <span>Up to 10 team members</span>
                       </li>
                       <li className="flex items-center gap-3">
                         <Check className="h-5 w-5 text-primary" />

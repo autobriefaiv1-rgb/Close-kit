@@ -8,9 +8,13 @@ import { cn } from '@/lib/utils';
 import { menuItems } from '@/lib/menu-items';
 import { Logo } from '@/components/logo';
 import { DashboardHeader } from '@/components/dashboard-header';
-import { useUser } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AskAriaWidget } from '@/components/ask-aria-widget';
+import { useToast } from '@/hooks/use-toast';
+import { doc } from 'firebase/firestore';
+import type { Organization, UserProfile } from '@/lib/types';
+
 
 export default function DashboardLayout({
   children,
@@ -20,14 +24,45 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const { toast } = useToast();
+  const { firestore } = useFirebase();
 
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+  const organizationRef = useMemoFirebase(() => userProfile ? doc(firestore, 'organizations', userProfile.organizationId) : null, [firestore, userProfile]);
+  const { data: organization, isLoading: isOrgLoading } = useDoc<Organization>(organizationRef);
+  
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
     }
   }, [user, isUserLoading, router]);
 
-  if (isUserLoading || !user) {
+  useEffect(() => {
+    if (organization && organizationRef) {
+        if (organization.subscriptionStatus === 'trial' && organization.trialEndDate && organization.trialEndDate.toDate() < new Date()) {
+            setDocumentNonBlocking(organizationRef, { subscriptionStatus: 'expired' }, { merge: true });
+             toast({
+                variant: 'destructive',
+                title: 'Your free trial has expired.',
+                description: 'Please subscribe to a plan to continue using Close Kit.',
+            });
+            router.push('/pricing');
+        } else if (organization.subscriptionStatus === 'expired' || organization.subscriptionStatus === 'canceled') {
+            toast({
+                variant: 'destructive',
+                title: 'Subscription Required',
+                description: 'Please subscribe to a plan to access the dashboard.',
+            });
+            router.push('/pricing');
+        }
+    }
+  }, [organization, organizationRef, router, toast]);
+
+  const isLoading = isUserLoading || isProfileLoading || isOrgLoading || !user;
+
+  if (isLoading) {
     return (
        <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
         <div className="hidden border-r bg-muted/40 md:block">

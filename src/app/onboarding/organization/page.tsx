@@ -13,10 +13,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFirebase, setDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, Timestamp } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { add } from 'date-fns';
 
 export default function OnboardingOrganizationPage() {
   const { firestore, user } = useFirebase();
@@ -37,11 +38,14 @@ export default function OnboardingOrganizationPage() {
     }
     setIsSaving(true);
     try {
-      // Create the organization
+      // Create the organization with trial dates
+      const trialEndDate = add(new Date(), { days: 7 });
       const orgRef = await addDocumentNonBlocking(collection(firestore, 'organizations'), {
         name: organizationName,
         ownerId: user.uid,
         subscriptionPlan: 'solo', // Default plan
+        subscriptionStatus: 'trial',
+        trialEndDate: Timestamp.fromDate(trialEndDate),
       });
 
       // Update the user's profile with the new organization ID

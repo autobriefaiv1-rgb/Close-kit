@@ -5,6 +5,8 @@ export type Organization = {
   name: string;
   ownerId: string;
   subscriptionPlan?: 'solo' | 'team';
+  subscriptionStatus?: 'trial' | 'active' | 'expired' | 'canceled';
+  trialEndDate?: Timestamp;
 }
 
 export type UserProfile = {
