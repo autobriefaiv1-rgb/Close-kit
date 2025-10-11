@@ -33,7 +33,7 @@ export function DashboardHeader() {
               className="flex items-center gap-2 text-lg font-semibold mb-4"
             >
               <Logo />
-              <span className="sr-only">HVAC AI Pro</span>
+              <span className="sr-only">Close Kit</span>
             </Link>
             {menuItems.map((item) =>
               !item.isGroup ? (

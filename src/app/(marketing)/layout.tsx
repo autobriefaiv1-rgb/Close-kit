@@ -37,13 +37,15 @@ export default function MarketingLayout({
           <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
             <Logo />
             <p className="text-center text-sm leading-loose md:text-left">
-              Built to streamline your HVAC business.
+              Built to help you close more deals.
             </p>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <Link href="/support" className="transition-colors hover:text-foreground">Support</Link>
+            <Link href="/terms" className="transition-colors hover:text-foreground">Terms</Link>
+            <Link href="/privacy" className="transition-colors hover:text-foreground">Privacy</Link>
             <p className="text-center md:text-left">
-              © {new Date().getFullYear()} HVAC AI Pro. All rights reserved.
+              © {new Date().getFullYear()} Close Kit. All rights reserved.
             </p>
           </div>
         </div>

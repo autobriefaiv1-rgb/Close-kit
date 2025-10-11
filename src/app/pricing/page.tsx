@@ -82,7 +82,7 @@ export default function PricingPage() {
             </CardContent>
             <CardFooter>
               <Button size="lg" className="w-full" asChild>
-                <Link href="/signup">Start 7-Day Free Trial</Link>
+                <Link href="/signup">Start Solo Plan</Link>
               </Button>
             </CardFooter>
           </Card>
@@ -107,7 +107,7 @@ export default function PricingPage() {
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
-                  <span>Up to 5 team members</span>
+                  <span>Multiple team members</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
@@ -115,7 +115,7 @@ export default function PricingPage() {
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
-                  <span>Proposal analytics dashboard</span>
+                  <span>Analytics dashboard</span>
                 </li>
                  <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
@@ -125,7 +125,7 @@ export default function PricingPage() {
             </CardContent>
             <CardFooter>
               <Button size="lg" className="w-full" asChild>
-                <Link href="/signup">Start 7-Day Free Trial</Link>
+                <Link href="/signup">Start Team Plan</Link>
               </Button>
             </CardFooter>
           </Card>

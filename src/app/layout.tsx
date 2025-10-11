@@ -4,8 +4,8 @@ import { cn } from '@/lib/utils';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'HVAC AI Pro',
-  description: 'The ultimate tool for HVAC professionals.',
+  title: 'Close Kit',
+  description: 'The ultimate sales toolkit for contractors.',
 };
 
 export default function RootLayout({

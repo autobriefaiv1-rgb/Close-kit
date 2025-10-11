@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2, Send, Bot, User } from 'lucide-react';
 import { askAria } from '@/ai/flows/aria-support-flow';
 import Link from 'next/link';
@@ -90,7 +90,7 @@ export default function SupportPage() {
               <CardTitle className="font-headline text-3xl">Aria Support</CardTitle>
             </div>
             <CardDescription className="pt-2">
-              Have a question? Ask me anything about HVAC AI Pro. For complex issues, email <a href="mailto:autobriefaiv1@gmail.com" className="text-primary underline">autobriefaiv1@gmail.com</a>
+              Have a question? Ask me anything about Close Kit. For complex issues, email <a href="mailto:autobriefaiv1@gmail.com" className="text-primary underline">autobriefaiv1@gmail.com</a>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden p-4">
@@ -103,7 +103,7 @@ export default function SupportPage() {
                     </div>
                   </Avatar>
                   <div className="bg-muted p-3 rounded-lg max-w-[80%] speech-bubble-left">
-                    <p className="text-sm">Hello! I'm Aria, your AI assistant. How can I help you with HVAC AI Pro today?</p>
+                    <p className="text-sm">Hello! I'm Aria, your AI assistant. How can I help you with Close Kit today?</p>
                   </div>
                 </div>
                 {messages.map((message, index) => (

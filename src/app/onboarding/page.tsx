@@ -16,7 +16,7 @@ export default function OnboardingPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Welcome to HVAC AI Pro</CardTitle>
+          <CardTitle className="font-headline text-3xl">Welcome to Close Kit</CardTitle>
           <CardDescription>
             Let&apos;s get your company set up.
           </CardDescription>

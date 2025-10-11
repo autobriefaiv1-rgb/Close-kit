@@ -44,7 +44,7 @@ export default function SettingsPage() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="john.doe@hvacpro.com" />
+              <Input id="email" type="email" defaultValue="john.doe@closekit.com" />
             </div>
           </CardContent>
           <CardFooter className="border-t px-6 py-4">
@@ -62,7 +62,7 @@ export default function SettingsPage() {
           <CardContent className="grid gap-4">
             <div className="grid gap-2">
                 <Label htmlFor="company-name">Company Name</Label>
-                <Input id="company-name" defaultValue="HVAC Pro Inc." />
+                <Input id="company-name" defaultValue="Close Kit Inc." />
             </div>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="grid gap-2">
