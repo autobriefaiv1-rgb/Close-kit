@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useAuth } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import Link from 'next/link';
 
 export default function LoginPage() {
   const auth = useAuth();
@@ -27,13 +26,24 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
+  const handleRedirect = (user: User | null) => {
+    if (!user) return;
+    user.getIdTokenResult().then((idTokenResult) => {
+      if (idTokenResult.claims.isAdmin) {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
+    });
+  };
+
   useEffect(() => {
     if (auth?.currentUser) {
-      router.push('/dashboard');
+      handleRedirect(auth.currentUser);
     }
     const unsubscribe = auth?.onAuthStateChanged((user) => {
       if (user) {
-        router.push('/dashboard');
+        handleRedirect(user);
       }
     });
 
@@ -49,10 +59,9 @@ export default function LoginPage() {
       // Redirect is handled by onAuthStateChanged
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
-        // If user not found, try to create a new account
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            // You might want to send a verification email here
+            await createUserWithEmailAndPassword(auth, email, password);
+            // Redirect is handled by onAuthStateChanged
         } catch (createError: any) {
             toast({
                 variant: 'destructive',
