@@ -1,6 +1,6 @@
+'use client';
 import Link from 'next/link';
-import { CircleUser, Menu, Search } from 'lucide-react';
-
+import { CircleUser, Menu, Search, Shield } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,8 +15,23 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { menuItems } from '@/lib/menu-items';
 import { Logo } from './logo';
 import { ThemeToggle } from './theme-toggle';
+import { useUser } from '@/firebase';
+import { useEffect, useState } from 'react';
 
 export function DashboardHeader() {
+  const { user } = useUser();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      user.getIdTokenResult().then(idTokenResult => {
+        if (idTokenResult.claims.isAdmin) {
+          setIsAdmin(true);
+        }
+      });
+    }
+  }, [user]);
+
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
       <Sheet>
@@ -47,6 +62,15 @@ export function DashboardHeader() {
                 </Link>
               ) : null
             )}
+            {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                >
+                  <Shield className="h-5 w-5" />
+                  Admin
+                </Link>
+            )}
           </nav>
         </SheetContent>
       </Sheet>
@@ -76,6 +100,11 @@ export function DashboardHeader() {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
+           {isAdmin && (
+            <DropdownMenuItem asChild>
+              <Link href="/admin">Admin</Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem asChild>
             <Link href="/dashboard/settings">Settings</Link>
           </DropdownMenuItem>
