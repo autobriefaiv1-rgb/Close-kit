@@ -27,7 +27,7 @@ import { useFirebase, useCollection, useDoc, useMemoFirebase } from '@/firebase'
 import type { Proposal, UserProfile } from '@/lib/types';
 import { collection, doc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format, getMonth, getYear } from 'date-fns';
+import { format, getMonth, getYear, useMemo } from 'date-fns';
 
 const chartConfig: ChartConfig = {
   proposals: {
@@ -69,7 +69,7 @@ export default function AnalyticsPage() {
     avgDealSize,
     proposalsInPlay,
     monthlyChartData,
-  } = useMemoFirebase(() => {
+  } = useMemo(() => {
     if (!proposals) {
       return {
         totalRevenue: 0,
