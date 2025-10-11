@@ -78,16 +78,16 @@ export default function ProposalDetailsPage() {
 
   const customerRef = useMemoFirebase(
     () =>
-      proposal
+      userProfile && proposal
         ? doc(
             firestore,
             'organizations',
-            proposal.organizationId,
+            userProfile.organizationId,
             'customers',
             proposal.customerId
           )
         : null,
-    [firestore, proposal]
+    [firestore, userProfile, proposal]
   );
   const { data: customer, isLoading: isCustomerLoading } = useDoc<Customer>(
     customerRef
@@ -262,7 +262,7 @@ export default function ProposalDetailsPage() {
                         <Skeleton className="h-4 w-full" />
                          <Skeleton className="h-4 w-full" />
                     </div>
-                ): (
+                ) : (
                 <>
                 <div className="font-semibold">{customer?.name}</div>
                 <address className="not-italic text-muted-foreground">
