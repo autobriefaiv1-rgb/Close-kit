@@ -27,14 +27,9 @@ export default function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleRedirect = (user: User | null) => {
-    if (!user) return;
-    user.getIdTokenResult().then((idTokenResult) => {
-      if (idTokenResult.claims.isAdmin) {
-        router.push('/admin');
-      } else {
+    if (user) {
         router.push('/dashboard');
-      }
-    });
+    }
   };
 
   useEffect(() => {

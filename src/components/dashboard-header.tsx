@@ -62,15 +62,6 @@ export function DashboardHeader() {
                 </Link>
               ) : null
             )}
-            {isAdmin && (
-                <Link
-                  href="/admin"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
-                >
-                  <Shield className="h-5 w-5" />
-                  Admin
-                </Link>
-            )}
           </nav>
         </SheetContent>
       </Sheet>
@@ -100,11 +91,6 @@ export function DashboardHeader() {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-           {isAdmin && (
-            <DropdownMenuItem asChild>
-              <Link href="/admin">Admin</Link>
-            </DropdownMenuItem>
-          )}
           <DropdownMenuItem asChild>
             <Link href="/dashboard/settings">Settings</Link>
           </DropdownMenuItem>
