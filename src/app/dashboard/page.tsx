@@ -60,7 +60,7 @@ function WelcomeTour({ onDismiss }: { onDismiss: () => void }) {
           <li><strong>Customers:</strong> Manage all your client contact information and job history in one organized place.</li>
           <li><strong>Team:</strong> Invite and manage your team members (available on the Team plan).</li>
           <li><strong>Price Book:</strong> Keep a centralized list of your materials, labor costs, and equipment to build proposals quickly and accurately.</li>
-          <li><strong>AI Tools:</strong> Leverage AI to generate compelling sales options (Good-Better-Best), translate technical jargon into simple terms, and analyze competitor pricing.</li>
+          <li><strong>AI Toolkit:</strong> Leverage AI to generate compelling sales options (Good-Better-Best), translate technical jargon, and analyze competitor pricing.</li>
           <li><strong>Analytics:</strong> Dive deeper into your proposal performance and revenue trends over time.</li>
            <li><strong>Settings:</strong> Update your personal and company information.</li>
         </ul>

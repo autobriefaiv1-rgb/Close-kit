@@ -91,7 +91,7 @@ export default function ProposalsPage() {
         </TableCell>
         <TableCell className="text-right">
           <Button variant="outline" size="sm" asChild>
-            <Link href="#">View</Link>
+            <Link href={`/dashboard/proposals/${proposal.id}`}>View</Link>
           </Button>
         </TableCell>
       </TableRow>
