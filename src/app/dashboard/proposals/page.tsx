@@ -20,26 +20,29 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import type { Proposal, ProposalStatus } from '@/lib/types';
-import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import type { Proposal, ProposalStatus, UserProfile } from '@/lib/types';
+import { useFirebase, useCollection, useMemoFirebase, useDoc } from '@/firebase';
+import { collection, query, where, doc } from 'firebase/firestore';
 import { useSearchParams } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ProposalsPage() {
   const { firestore, user } = useFirebase();
   const searchParams = useSearchParams();
-  const statusFilter = searchParams.get('status');
+  const statusFilter = searchParams.get('status') as ProposalStatus | null;
   const defaultTab = statusFilter || 'all';
 
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
   const proposalsQuery = useMemoFirebase(() => {
-    if (!user) return null;
-    const baseCollection = collection(firestore, 'userAccounts', user.uid, 'proposals');
+    if (!userProfile) return null;
+    const baseCollection = collection(firestore, 'organizations', userProfile.organizationId, 'proposals');
     if (statusFilter && statusFilter !== 'all') {
       return query(baseCollection, where('status', '==', statusFilter));
     }
     return baseCollection;
-  }, [firestore, user, statusFilter]);
+  }, [firestore, userProfile, statusFilter]);
 
   const { data: proposals, isLoading } = useCollection<Proposal>(proposalsQuery);
 

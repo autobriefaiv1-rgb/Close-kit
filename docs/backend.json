@@ -1,14 +1,42 @@
 {
   "entities": {
+    "Organization": {
+      "title": "Organization",
+      "type": "object",
+      "description": "Stores details about a user's company or team.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the organization."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "The UID of the user who owns the organization."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the organization."
+        },
+        "subscriptionPlan": {
+          "type": "string",
+          "enum": ["solo", "team"],
+          "description": "The current subscription plan for the organization."
+        }
+      },
+      "required": ["id", "ownerId", "name"]
+    },
     "UserProfile": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "UserProfile",
       "type": "object",
-      "description": "Stores user profile and company settings.",
+      "description": "Stores public-facing user profile information.",
       "properties": {
         "id": {
           "type": "string",
           "description": "Unique identifier for the user account, matches Auth UID."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "The organization this user belongs to."
         },
         "email": {
           "type": "string",
@@ -23,31 +51,19 @@
           "type": "string",
           "description": "Last name of the user."
         },
-        "companyName": {
+        "avatarUrl": {
           "type": "string",
-          "description": "Name of the user's company."
+          "description": "URL for the user's profile picture."
         },
-        "defaultTaxRate": {
-            "type": "number",
-            "description": "Default tax rate for proposals."
-        },
-        "fixedOverhead": {
-            "type": "number",
-            "description": "Fixed overhead percentage."
-        },
-        "desiredProfitMargin": {
-            "type": "number",
-            "description": "Desired profit margin percentage."
+        "role": {
+          "type": "string",
+          "enum": ["admin", "member"],
+          "description": "The user's role within their organization."
         }
       },
-      "required": [
-        "id",
-        "email",
-        "companyName"
-      ]
+      "required": ["id", "organizationId", "email", "firstName", "lastName"]
     },
     "Customer": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Customer",
       "type": "object",
       "description": "Stores customer contact information.",
@@ -56,9 +72,9 @@
           "type": "string",
           "description": "Unique identifier for the customer."
         },
-        "userId": {
+        "organizationId": {
           "type": "string",
-          "description": "Reference to the UserProfile who owns this customer."
+          "description": "Reference to the Organization that owns this customer."
         },
         "name": {
           "type": "string",
@@ -78,15 +94,9 @@
           "description": "Customer's address."
         }
       },
-      "required": [
-        "id",
-        "userId",
-        "name",
-        "email"
-      ]
+      "required": ["id", "organizationId", "name", "email"]
     },
     "Proposal": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Proposal",
       "type": "object",
       "description": "Stores proposal data.",
@@ -95,15 +105,15 @@
           "type": "string",
           "description": "Unique identifier for the proposal."
         },
-        "userId": {
+        "organizationId": {
           "type": "string",
-          "description": "Reference to UserProfile."
+          "description": "Reference to Organization."
         },
         "customerId": {
           "type": "string",
           "description": "Reference to Customer."
         },
-         "customerName": {
+        "customerName": {
           "type": "string",
           "description": "Denormalized customer name for easy display."
         },
@@ -117,13 +127,13 @@
           "enum": ["Draft", "Sent", "Accepted", "Rejected"]
         },
         "amount": {
-            "type": "number",
-            "description": "Total amount of the proposal."
+          "type": "number",
+          "description": "Total amount of the proposal."
         }
       },
       "required": [
         "id",
-        "userId",
+        "organizationId",
         "customerId",
         "customerName",
         "createdAt",
@@ -132,27 +142,26 @@
       ]
     },
     "PriceBookItem": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "PriceBookItem",
       "type": "object",
-      "description": "Stores individual entries for materials and equipment costs managed by the contractor.",
+      "description": "Stores individual entries for materials and equipment costs.",
       "properties": {
         "id": {
           "type": "string",
           "description": "Unique identifier for the price book entry."
         },
-        "userId": {
+        "organizationId": {
           "type": "string",
-          "description": "Reference to UserProfile."
+          "description": "Reference to Organization."
         },
         "name": {
           "type": "string",
           "description": "Name of the material or equipment."
         },
         "category": {
-            "type": "string",
-            "description": "Category of the item.",
-            "enum": ["Material", "Equipment", "Labor"]
+          "type": "string",
+          "description": "Category of the item.",
+          "enum": ["Material", "Equipment", "Labor"]
         },
         "cost": {
           "type": "number",
@@ -163,69 +172,49 @@
           "description": "Unit of measurement (e.g., each, feet, hours)."
         }
       },
-      "required": [
-        "id",
-        "userId",
-        "name",
-        "category",
-        "cost"
-      ]
+      "required": ["id", "organizationId", "name", "category", "cost"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous",
-      "google.com"
-    ],
+    "providers": ["password", "google.com"],
     "customClaims": {
       "isAdmin": {
         "type": "boolean"
+      },
+      "organizationId": {
+        "type": "string"
+      },
+      "role": {
+        "enum": ["admin", "member"]
       }
     }
   },
   "firestore": {
-    "rules": "rules_version = '2';\n\nservice cloud.firestore {\n  match /databases/{database}/documents {\n\n    // Deny all reads and writes by default.\n    match /{document=**} {\n      allow read, write: if false;\n    }\n\n    // User profiles can be read by anyone, but only written by the owner.\n    match /userAccounts/{userId} {\n      allow read: if request.auth.token.isAdmin == true; // Admins can read all profiles\n      allow write: if request.auth.uid == userId; // Users can only write to their own profile\n    }\n\n    // Admins can read any user's subcollections\n    match /userAccounts/{userId}/{collection}/{docId} {\n      allow read: if request.auth.uid == userId || request.auth.token.isAdmin == true;\n      allow write: if request.auth.uid == userId;\n    }\n  }\n}",
-    "structure": [
+    "collections": [
       {
-        "path": "/userAccounts/{userAccountId}",
-        "definition": {
-          "entityName": "UserProfile",
-          "schema": {
-            "$ref": "#/backend/entities/UserProfile"
-          },
-          "description": "Stores user account information. Path-based ownership for private user data."
-        }
+        "path": "/organizations/{organizationId}",
+        "schema": { "$ref": "#/entities/Organization" },
+        "description": "Stores organization-specific details."
       },
       {
-        "path": "/userAccounts/{userAccountId}/customers/{customerId}",
-        "definition": {
-          "entityName": "Customer",
-          "schema": {
-            "$ref": "#/backend/entities/Customer"
-          },
-          "description": "Stores customer data related to a user account. Path-based ownership enforces that only the user can access their customers."
-        }
+        "path": "/organizations/{organizationId}/customers/{customerId}",
+        "schema": { "$ref": "#/entities/Customer" },
+        "description": "Customer data, owned by an organization."
       },
       {
-        "path": "/userAccounts/{userAccountId}/proposals/{proposalId}",
-        "definition": {
-          "entityName": "Proposal",
-          "schema": {
-            "$ref": "#/backend/entities/Proposal"
-          },
-          "description": "Stores proposal data related to a user. Path-based ownership enforces that only the user can access their proposals."
-        }
+        "path": "/organizations/{organizationId}/proposals/{proposalId}",
+        "schema": { "$ref": "#/entities/Proposal" },
+        "description": "Proposal data, owned by an organization."
       },
       {
-        "path": "/userAccounts/{userAccountId}/priceBookEntries/{priceBookEntryId}",
-        "definition": {
-          "entityName": "PriceBookItem",
-          "schema": {
-            "$ref": "#/backend/entities/PriceBookItem"
-          },
-          "description": "Stores price book entries related to a user account. Path-based ownership ensures that only the user can access their price book entries."
-        }
+        "path": "/organizations/{organizationId}/priceBookItems/{priceBookItemId}",
+        "schema": { "$ref": "#/entities/PriceBookItem" },
+        "description": "Price book items, owned by an organization."
+      },
+      {
+        "path": "/users/{userId}",
+        "schema": { "$ref": "#/entities/UserProfile" },
+        "description": "Stores user profile data, linking them to an organization."
       }
     ]
   }

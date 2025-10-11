@@ -33,18 +33,21 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChartConfig, ChartContainer } from '@/components/ui/chart';
-import { useFirebase, useCollection, useMemoFirebase } from '@/firebase';
-import type { Proposal } from '@/lib/types';
-import { collection } from 'firebase/firestore';
+import { useFirebase, useCollection, useMemoFirebase, useDoc } from '@/firebase';
+import type { Proposal, UserProfile } from '@/lib/types';
+import { collection, doc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Dashboard() {
   const { firestore, user } = useFirebase();
 
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
   const proposalsQuery = useMemoFirebase(
     () =>
-      user ? collection(firestore, 'userAccounts', user.uid, 'proposals') : null,
-    [firestore, user]
+      userProfile ? collection(firestore, 'organizations', userProfile.organizationId, 'proposals') : null,
+    [firestore, userProfile]
   );
   const { data: proposals, isLoading } = useCollection<Proposal>(proposalsQuery);
 

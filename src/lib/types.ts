@@ -1,19 +1,25 @@
 import { Timestamp } from "firebase/firestore";
 
-export type UserProfile = {
+export type Organization = {
   id: string;
-  companyName: string;
+  name: string;
+  ownerId: string;
+  subscriptionPlan?: 'solo' | 'team';
+}
+
+export type UserProfile = {
+  id: string; // matches auth uid
+  organizationId: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
-  defaultTaxRate?: number;
-  fixedOverhead?: number;
-  desiredProfitMargin?: number;
+  avatarUrl: string;
+  role?: 'admin' | 'member';
 };
 
 export type Customer = {
   id: string;
-  userId: string;
+  organizationId: string;
   name: string;
   email: string;
   phone: string;
@@ -23,10 +29,10 @@ export type Customer = {
 export type ProposalStatus = 'Draft' | 'Sent' | 'Accepted' | 'Rejected';
 
 export type Proposal = {
-  id: string;
-  userId: string;
+  id:string;
+  organizationId: string;
   customerId: string;
-  customerName: string;
+  customerName: string; // Denormalized
   status: ProposalStatus;
   amount: number;
   createdAt: Timestamp;
@@ -34,7 +40,7 @@ export type Proposal = {
 
 export type PriceBookItem = {
   id: string;
-  userId: string;
+  organizationId: string;
   name: string;
   category: 'Material' | 'Equipment' | 'Labor';
   cost: number;

@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFirebase, useDoc, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
-import type { UserProfile } from '@/lib/types';
+import type { UserProfile, Organization } from '@/lib/types';
 import { doc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -23,19 +23,21 @@ export default function SettingsPage() {
   const { firestore, user } = useFirebase();
   const { toast } = useToast();
 
-  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'userAccounts', user.uid) : null, [firestore, user]);
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+  const organizationRef = useMemoFirebase(() => userProfile ? doc(firestore, 'organizations', userProfile.organizationId) : null, [firestore, userProfile]);
+  const { data: organization, isLoading: isOrgLoading } = useDoc<Organization>(organizationRef);
 
   const [isSaving, setIsSaving] = useState(false);
   const [profile, setProfile] = useState<Partial<UserProfile>>({
     firstName: '',
     lastName: '',
     email: '',
-    companyName: '',
-    defaultTaxRate: 8.5,
-    fixedOverhead: 15,
-    desiredProfitMargin: 20,
   });
+  const [org, setOrg] = useState<Partial<Organization>>({
+    name: '',
+  })
 
   useEffect(() => {
     if (userProfile) {
@@ -45,26 +47,39 @@ export default function SettingsPage() {
     }
   }, [userProfile, user]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (organization) {
+      setOrg(organization);
+    }
+  }, [organization]);
+
+
+  const handleProfileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setProfile(prev => ({ ...prev, [id]: value }));
   };
+  
+  const handleOrgInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setOrg(prev => ({ ...prev, [id]: value }));
+  };
 
   const handleSave = async () => {
-    if (!user || !userProfileRef) return;
+    if (!user || !userProfileRef || !organizationRef) return;
     setIsSaving(true);
     
-    const profileDataToSave = {
-      ...profile,
-      id: user.uid,
-      email: user.email,
-      defaultTaxRate: Number(profile.defaultTaxRate) || 0,
-      fixedOverhead: Number(profile.fixedOverhead) || 0,
-      desiredProfitMargin: Number(profile.desiredProfitMargin) || 0,
-    };
-
     try {
-      setDocumentNonBlocking(userProfileRef, profileDataToSave, { merge: true });
+      if (userProfileRef) {
+        setDocumentNonBlocking(userProfileRef, {
+            firstName: profile.firstName,
+            lastName: profile.lastName
+        }, { merge: true });
+      }
+      if (organizationRef) {
+         setDocumentNonBlocking(organizationRef, {
+            name: org.name
+        }, { merge: true });
+      }
       toast({ title: 'Settings Saved', description: 'Your profile has been updated.' });
     } catch (error: any) {
       toast({ variant: 'destructive', title: 'Error', description: error.message });
@@ -73,7 +88,7 @@ export default function SettingsPage() {
     }
   };
   
-  const isLoading = isProfileLoading || !user;
+  const isLoading = isProfileLoading || isOrgLoading || !user;
 
   return (
     <div className="mx-auto grid w-full max-w-4xl gap-6">
@@ -101,21 +116,21 @@ export default function SettingsPage() {
                  <div className="grid md:grid-cols-2 gap-4">
                     <div className="grid gap-2">
                         <Label htmlFor="firstName">First Name</Label>
-                        <Input id="firstName" value={profile.firstName || ''} onChange={handleInputChange} />
+                        <Input id="firstName" value={profile.firstName || ''} onChange={handleProfileInputChange} />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="lastName">Last Name</Label>
-                        <Input id="lastName" value={profile.lastName || ''} onChange={handleInputChange} />
+                        <Input id="lastName" value={profile.lastName || ''} onChange={handleProfileInputChange} />
                     </div>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={profile.email || ''} onChange={handleInputChange} disabled />
+                  <Input id="email" type="email" value={profile.email || ''} onChange={handleProfileInputChange} disabled />
                 </div>
                </>
             )}
           </CardContent>
-          <CardFooter className="border-t px-6 py-4">
+           <CardFooter className="border-t px-6 py-4">
             <Button onClick={handleSave} disabled={isSaving || isLoading}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save
@@ -125,40 +140,21 @@ export default function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Company</CardTitle>
+            <CardTitle>Organization</CardTitle>
             <CardDescription>
-              Manage your company settings and branding.
+              Manage your organization settings.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
             {isLoading ? (
                  <div className="space-y-4">
                     <Skeleton className="h-10 w-full" />
-                    <div className="grid md:grid-cols-3 gap-4">
-                        <Skeleton className="h-10 w-full" />
-                        <Skeleton className="h-10 w-full" />
-                        <Skeleton className="h-10 w-full" />
-                    </div>
                 </div>
             ) : (
                 <>
                 <div className="grid gap-2">
-                    <Label htmlFor="companyName">Company Name</Label>
-                    <Input id="companyName" value={profile.companyName || ''} onChange={handleInputChange} />
-                </div>
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="grid gap-2">
-                    <Label htmlFor="defaultTaxRate">Default Tax Rate (%)</Label>
-                    <Input id="defaultTaxRate" type="number" value={profile.defaultTaxRate || ''} onChange={handleInputChange} />
-                    </div>
-                    <div className="grid gap-2">
-                    <Label htmlFor="fixedOverhead">Fixed Overhead (%)</Label>
-                    <Input id="fixedOverhead" type="number" value={profile.fixedOverhead || ''} onChange={handleInputChange} />
-                    </div>
-                    <div className="grid gap-2">
-                    <Label htmlFor="desiredProfitMargin">Desired Profit Margin (%)</Label>
-                    <Input id="desiredProfitMargin" type="number" value={profile.desiredProfitMargin || ''} onChange={handleInputChange} />
-                    </div>
+                    <Label htmlFor="name">Organization Name</Label>
+                    <Input id="name" value={org.name || ''} onChange={handleOrgInputChange} />
                 </div>
                 </>
             )}
@@ -179,8 +175,9 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p>You are currently on the <span className="font-semibold">Solo Plan</span>.</p>
-            <p className="text-sm text-muted-foreground">Your trial ends in 7 days.</p>
+            {isLoading ? <Skeleton className="h-5 w-48" /> : 
+            <p>You are currently on the <span className="font-semibold capitalize">{organization?.subscriptionPlan} Plan</span>.</p>
+            }
           </CardContent>
           <CardFooter className="border-t px-6 py-4">
             <Button>Manage Billing</Button>

@@ -35,10 +35,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useFirebase, useCollection, addDocumentNonBlocking, useMemoFirebase } from '@/firebase';
-import type { PriceBookItem } from '@/lib/types';
+import { useFirebase, useCollection, addDocumentNonBlocking, useMemoFirebase, useDoc } from '@/firebase';
+import type { PriceBookItem, UserProfile } from '@/lib/types';
 import { useState } from 'react';
-import { collection } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -47,9 +47,12 @@ export default function PriceBookPage() {
   const { firestore, user } = useFirebase();
   const { toast } = useToast();
   
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
   const priceBookQuery = useMemoFirebase(
-    () => user ? collection(firestore, 'userAccounts', user.uid, 'priceBookEntries') : null,
-    [firestore, user]
+    () => userProfile ? collection(firestore, 'organizations', userProfile.organizationId, 'priceBookItems') : null,
+    [firestore, userProfile]
   );
   const { data: priceBook, isLoading } = useCollection<PriceBookItem>(priceBookQuery);
 
@@ -63,7 +66,7 @@ export default function PriceBookPage() {
   });
 
   const handleSaveItem = async () => {
-    if (!user || !firestore) return;
+    if (!user || !firestore || !userProfile) return;
     if (!newItem.name || !newItem.category || !newItem.cost) {
         toast({ variant: 'destructive', title: 'Missing Information', description: 'Name, category, and cost are required.' });
         return;
@@ -74,9 +77,9 @@ export default function PriceBookPage() {
         const itemData = { 
             ...newItem, 
             cost: parseFloat(newItem.cost),
-            userId: user.uid 
+            organizationId: userProfile.organizationId
         };
-        await addDocumentNonBlocking(collection(firestore, 'userAccounts', user.uid, 'priceBookEntries'), itemData);
+        await addDocumentNonBlocking(collection(firestore, 'organizations', userProfile.organizationId, 'priceBookItems'), itemData);
         
         toast({ title: 'Item Added', description: `${newItem.name} has been added to your price book.` });
         setIsDialogOpen(false);

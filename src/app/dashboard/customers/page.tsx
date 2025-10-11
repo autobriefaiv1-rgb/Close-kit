@@ -28,10 +28,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useFirebase, useCollection, addDocumentNonBlocking, useMemoFirebase } from '@/firebase';
-import type { Customer } from '@/lib/types';
+import { useFirebase, useCollection, addDocumentNonBlocking, useMemoFirebase, useDoc } from '@/firebase';
+import type { Customer, UserProfile } from '@/lib/types';
 import { useState } from 'react';
-import { collection } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -39,10 +39,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function CustomersPage() {
   const { firestore, user } = useFirebase();
   const { toast } = useToast();
+
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
   
   const customersQuery = useMemoFirebase(
-    () => user ? collection(firestore, 'userAccounts', user.uid, 'customers') : null,
-    [firestore, user]
+    () => userProfile ? collection(firestore, 'organizations', userProfile.organizationId, 'customers') : null,
+    [firestore, userProfile]
   );
   const { data: customers, isLoading } = useCollection<Customer>(customersQuery);
 
@@ -56,7 +59,7 @@ export default function CustomersPage() {
   });
 
   const handleSaveCustomer = async () => {
-    if (!user || !firestore) return;
+    if (!user || !firestore || !userProfile) return;
     if (!newCustomer.name || !newCustomer.email) {
         toast({ variant: 'destructive', title: 'Missing Information', description: 'Name and email are required.' });
         return;
@@ -64,8 +67,8 @@ export default function CustomersPage() {
     
     setIsSaving(true);
     try {
-        const customerData = { ...newCustomer, userId: user.uid };
-        await addDocumentNonBlocking(collection(firestore, 'userAccounts', user.uid, 'customers'), customerData);
+        const customerData = { ...newCustomer, organizationId: userProfile.organizationId };
+        await addDocumentNonBlocking(collection(firestore, 'organizations', userProfile.organizationId, 'customers'), customerData);
         
         toast({ title: 'Customer Added', description: `${newCustomer.name} has been added.` });
         setIsDialogOpen(false);

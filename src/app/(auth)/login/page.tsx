@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { useAuth } from '@/firebase';
+import { useAuth, useDoc, useMemoFirebase } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -16,19 +16,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { doc } from 'firebase/firestore';
+import { useFirebase } from '@/firebase';
+import type { UserProfile } from '@/lib/types';
 
 export default function LoginPage() {
-  const auth = useAuth();
+  const { auth, firestore } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [userForProfileCheck, setUserForProfileCheck] = useState<User | null>(null);
+
+  const userProfileRef = useMemoFirebase(() => userForProfileCheck ? doc(firestore, 'users', userForProfileCheck.uid) : null, [firestore, userForProfileCheck]);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
   const handleRedirect = (user: User | null) => {
     if (user) {
-        router.push('/dashboard');
+        setUserForProfileCheck(user);
     }
   };
 
@@ -43,7 +50,19 @@ export default function LoginPage() {
     });
 
     return () => unsubscribe && unsubscribe();
-  }, [auth, router]);
+  }, [auth]);
+
+  useEffect(() => {
+    if (userForProfileCheck && !isProfileLoading) {
+      if (userProfile && userProfile.organizationId) {
+        // User has a profile and org, redirect to dashboard
+        router.push('/dashboard');
+      } else {
+        // New user or incomplete profile, redirect to onboarding
+        router.push('/onboarding');
+      }
+    }
+  }, [userForProfileCheck, userProfile, isProfileLoading, router]);
   
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,12 +70,12 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Redirect is handled by onAuthStateChanged
+      // Redirect is handled by effects
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-            // Redirect is handled by onAuthStateChanged
+            // Redirect is handled by effects
         } catch (createError: any) {
             toast({
                 variant: 'destructive',
@@ -82,7 +101,7 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      // Redirect is handled by onAuthStateChanged
+      // Redirect is handled by effects
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -94,7 +113,7 @@ export default function LoginPage() {
     }
   };
 
-  if (!auth) {
+  if (isUserLoading || userForProfileCheck) {
     return (
         <div className="flex min-h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />

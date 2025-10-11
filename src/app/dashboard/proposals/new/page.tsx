@@ -28,9 +28,9 @@ import {
 } from '@/components/ui/table';
 import { PlusCircle, Trash, Upload, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useFirebase, useCollection, addDocumentNonBlocking, useMemoFirebase } from '@/firebase';
-import { collection, serverTimestamp } from 'firebase/firestore';
-import type { Customer } from '@/lib/types';
+import { useFirebase, useCollection, addDocumentNonBlocking, useMemoFirebase, useDoc } from '@/firebase';
+import { collection, doc, serverTimestamp } from 'firebase/firestore';
+import type { Customer, UserProfile } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -39,9 +39,12 @@ export default function NewProposalPage() {
     const { toast } = useToast();
     const router = useRouter();
 
+    const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+    const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
     const customersQuery = useMemoFirebase(
-      () => user ? collection(firestore, 'userAccounts', user.uid, 'customers') : null,
-      [firestore, user]
+      () => userProfile ? collection(firestore, 'organizations', userProfile.organizationId, 'customers') : null,
+      [firestore, userProfile]
     );
     const { data: customers } = useCollection<Customer>(customersQuery);
 
@@ -50,7 +53,7 @@ export default function NewProposalPage() {
 
 
     const handleSendProposal = async () => {
-        if (!user || !firestore) return;
+        if (!user || !firestore || !userProfile) return;
 
         if (!selectedCustomerId) {
             toast({ variant: 'destructive', title: 'Error', description: 'Please select a customer.' });
@@ -61,7 +64,7 @@ export default function NewProposalPage() {
         try {
             const selectedCustomer = customers?.find(c => c.id === selectedCustomerId);
             const proposalData = {
-                userId: user.uid,
+                organizationId: userProfile.organizationId,
                 customerId: selectedCustomerId,
                 customerName: selectedCustomer?.name || 'Unknown',
                 status: 'Sent', // Or 'Draft' if you save as draft
@@ -69,7 +72,7 @@ export default function NewProposalPage() {
                 createdAt: serverTimestamp(),
             };
 
-            await addDocumentNonBlocking(collection(firestore, 'userAccounts', user.uid, 'proposals'), proposalData);
+            await addDocumentNonBlocking(collection(firestore, 'organizations', userProfile.organizationId, 'proposals'), proposalData);
             
             toast({ title: 'Proposal Sent!', description: 'Your proposal has been successfully sent.' });
             router.push('/dashboard/proposals');

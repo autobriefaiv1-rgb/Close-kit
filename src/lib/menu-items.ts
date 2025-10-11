@@ -7,6 +7,7 @@ import {
   Settings,
   Users,
   Wrench,
+  Users2,
 } from 'lucide-react';
 
 export const menuItems = [
@@ -24,6 +25,11 @@ export const menuItems = [
     label: 'Customers',
     href: '/dashboard/customers',
     icon: Users,
+  },
+    {
+    label: 'Team',
+    href: '/dashboard/team',
+    icon: Users2,
   },
   {
     label: 'Price Book',
