@@ -27,7 +27,8 @@ import { useFirebase, useCollection, useDoc, useMemoFirebase } from '@/firebase'
 import type { Proposal, UserProfile } from '@/lib/types';
 import { collection, doc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format, getMonth, getYear, useMemo } from 'date-fns';
+import { format } from 'date-fns';
+import { useMemo } from 'react';
 
 const chartConfig: ChartConfig = {
   proposals: {
