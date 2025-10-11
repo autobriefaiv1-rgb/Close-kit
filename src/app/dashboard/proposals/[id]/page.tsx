@@ -9,20 +9,13 @@ import type { Proposal, Customer, UserProfile } from '@/lib/types';
 import { doc } from 'firebase/firestore';
 import {
   ArrowLeft,
-  ChevronRight,
   Copy,
-  CreditCard,
-  File,
-  MoreVertical,
-  Truck,
-  User as UserIcon,
 } from 'lucide-react';
 import { notFound, useParams } from 'next/navigation';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -35,17 +28,72 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
+
+function ProposalDetailsSkeleton() {
+    return (
+        <div className="mx-auto grid max-w-6xl flex-1 auto-rows-max gap-4">
+             <div className="flex items-center gap-4">
+                <Skeleton className="h-7 w-7 rounded-md" />
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-6 w-20 rounded-full ml-auto" />
+                <div className="hidden items-center gap-2 md:ml-auto md:flex">
+                    <Skeleton className="h-10 w-20" />
+                    <Skeleton className="h-10 w-32" />
+                </div>
+            </div>
+             <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
+                <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
+                <Card>
+                    <CardHeader className="flex flex-row items-start bg-muted/50">
+                        <div className="grid gap-0.5">
+                           <Skeleton className="h-6 w-40" />
+                           <Skeleton className="h-4 w-32 mt-1" />
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-6 text-sm">
+                        <div className="grid gap-3">
+                            <div className="font-semibold">Line Items</div>
+                                <Skeleton className="h-24 w-full" />
+                        </div>
+                         <Separator className="my-4" />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="grid gap-3">
+                                 <div className="font-semibold">Job Information</div>
+                                 <Skeleton className="h-4 w-full" />
+                                 <Skeleton className="h-4 w-full" />
+                            </div>
+                            <div className="grid auto-rows-max gap-3">
+                                 <div className="font-semibold">Totals</div>
+                                <Skeleton className="h-16 w-full" />
+                            </div>
+                        </div>
+                    </CardContent>
+                    </Card>
+                </div>
+                <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
+                    <Card>
+                         <CardHeader className="flex flex-row items-start bg-muted/50">
+                            <div className="grid gap-0.5">
+                                <CardTitle className="group flex items-center gap-2 text-lg">Customer</CardTitle>
+                                <Skeleton className="h-4 w-40" />
+                            </div>
+                         </CardHeader>
+                         <CardContent className="p-6 text-sm space-y-3">
+                            <Skeleton className="h-5 w-2/3" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-4/5" />
+                         </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 
 export default function ProposalDetailsPage() {
   const { id } = useParams();
@@ -57,7 +105,7 @@ export default function ProposalDetailsPage() {
     () => (user ? doc(firestore, 'users', user.uid) : null),
     [firestore, user]
   );
-  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
   const proposalRef = useMemoFirebase(
     () =>
@@ -76,9 +124,11 @@ export default function ProposalDetailsPage() {
     proposalRef
   );
 
+  // This is the corrected data-fetching logic.
+  // The customerRef now depends on `proposal` being loaded first.
   const customerRef = useMemoFirebase(
     () =>
-      userProfile && proposal
+      userProfile && proposal?.customerId
         ? doc(
             firestore,
             'organizations',
@@ -87,17 +137,21 @@ export default function ProposalDetailsPage() {
             proposal.customerId
           )
         : null,
-    [firestore, userProfile, proposal]
+    [userProfile, proposal]
   );
   const { data: customer, isLoading: isCustomerLoading } = useDoc<Customer>(
     customerRef
   );
-
+  
   if (!isProposalLoading && !proposal) {
     notFound();
   }
 
-  const isLoading = isProposalLoading || isCustomerLoading;
+  const isLoading = isProfileLoading || isProposalLoading || isCustomerLoading;
+  
+  if (isLoading) {
+    return <ProposalDetailsSkeleton />;
+  }
 
   const statusVariant = (
     status?: string
@@ -120,13 +174,9 @@ export default function ProposalDetailsPage() {
         <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
           Proposal Details
         </h1>
-        {isLoading ? (
-          <Skeleton className="h-6 w-20 rounded-full" />
-        ) : (
-          <Badge variant={statusVariant(proposal?.status)} className="ml-auto sm:ml-0">
-            {proposal?.status}
-          </Badge>
-        )}
+        <Badge variant={statusVariant(proposal?.status)} className="ml-auto sm:ml-0">
+          {proposal?.status}
+        </Badge>
         <div className="hidden items-center gap-2 md:ml-auto md:flex">
           <Button variant="outline">Print</Button>
           <Button>Mark as Accepted</Button>
@@ -152,22 +202,6 @@ export default function ProposalDetailsPage() {
                   Date: {proposal?.createdAt.toDate().toLocaleDateString()}
                 </CardDescription>
               </div>
-              <div className="ml-auto flex items-center gap-1">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="outline" className="h-8 w-8">
-                      <MoreVertical className="h-3.5 w-3.5" />
-                      <span className="sr-only">More</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Export</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>Trash</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
             </CardHeader>
             <CardContent className="p-6 text-sm">
               <div className="grid gap-3">
@@ -182,13 +216,6 @@ export default function ProposalDetailsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                     {isLoading ? (
-                        <TableRow>
-                          <TableCell colSpan={4} className="text-center h-24">
-                             <Skeleton className="w-full h-8" />
-                          </TableCell>
-                        </TableRow>
-                      ) : (
                         <>
                           <TableRow>
                             <TableCell className="font-medium">
@@ -207,7 +234,6 @@ export default function ProposalDetailsPage() {
                             <TableCell className="text-right">$960.00</TableCell>
                           </TableRow>
                         </>
-                      )}
                   </TableBody>
                 </Table>
               </div>
@@ -251,18 +277,11 @@ export default function ProposalDetailsPage() {
                   Customer
                 </CardTitle>
                 <CardDescription>
-                  {isLoading ? <Skeleton className="h-4 w-32" /> : customer?.email}
+                  {customer?.email}
                 </CardDescription>
               </div>
             </CardHeader>
             <CardContent className="p-6 text-sm">
-                {isLoading ? (
-                    <div className="space-y-3">
-                        <Skeleton className="h-5 w-2/3" />
-                        <Skeleton className="h-4 w-full" />
-                         <Skeleton className="h-4 w-full" />
-                    </div>
-                ) : (
                 <>
                 <div className="font-semibold">{customer?.name}</div>
                 <address className="not-italic text-muted-foreground">
@@ -270,7 +289,6 @@ export default function ProposalDetailsPage() {
                 </address>
                 <div className="text-muted-foreground mt-2">{customer?.phone}</div>
                 </>
-                )}
             </CardContent>
           </Card>
         </div>

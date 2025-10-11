@@ -1,147 +1,32 @@
-/**
- * @fileoverview Firestore Security Rules for Autobrief AI v1.
- *
- * Core Philosophy:
- * This ruleset enforces a strict user and organization-ownership model. Users can only
- * read and write their own user profiles and data associated with their organization.
- *
- * Data Structure:
- * - /organizations/{organizationId}: Stores organization details, accessible only by the owner.
- * - /organizations/{organizationId}/customers/{customerId}: Stores customer data, accessible only by members of the organization.
- * - /organizations/{organizationId}/proposals/{proposalId}: Stores proposal data, accessible only by members of the organization.
- * - /organizations/{organizationId}/priceBookItems/{priceBookItemId}: Stores price book items, accessible only by members of the organization.
- * - /users/{userId}: Stores user profiles, accessible only by the user themselves.
- *
- * Key Security Decisions:
- * - Users can only read their own profile data.
- * - Data associated with an organization (customers, proposals, price book items) is only accessible to members of that organization.
- *
- * Denormalization for Authorization:
- *  - Organization ID is included in each Customer, Proposal, and PriceBookItem document to simplify authorization checks.
- */
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    /**
-     * @description Allows access to organization documents.
-     * @path /organizations/{organizationId}
-     * @allow (get, list) User with matching auth.uid == organization.ownerId can read the organization.
-     * @deny (get, list) User with non-matching auth.uid != organization.ownerId cannot read the organization.
-     * @allow (create) User with matching auth.uid == organization.ownerId can create the organization.
-     * @deny (create) User with non-matching auth.uid != organization.ownerId cannot create the organization.
-     * @allow (update) User with matching auth.uid == organization.ownerId can update the organization.
-     * @deny (update) User with non-matching auth.uid != organization.ownerId cannot update the organization.
-     * @allow (delete) User with matching auth.uid == organization.ownerId can delete the organization.
-     * @deny (delete) User with non-matching auth.uid != organization.ownerId cannot delete the organization.
-     * @principle Enforces organization ownership.
-     */
-    match /organizations/{organizationId} {
-      function isOwner(organizationId) {
-        return request.auth.uid == get(/databases/$(database)/documents/organizations/$(organizationId)).data.ownerId;
-      }
-
-      allow get, list: if isOwner(organizationId);
-      allow create: if request.auth.uid == request.resource.data.ownerId;
-      allow update: if isOwner(organizationId) && resource != null;
-      allow delete: if isOwner(organizationId) && resource != null;
+    
+    // Helper function to get the user's organization ID from their profile
+    function getUserOrgId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId;
     }
-
-    /**
-     * @description Manages access to customer documents within an organization.
-     * @path /organizations/{organizationId}/customers/{customerId}
-     * @allow (get, list) Users belonging to the organization can read customer data.
-     * @deny (get, list) Users not belonging to the organization cannot read customer data.
-     * @allow (create) Users belonging to the organization can create customer data.
-     * @deny (create) Users not belonging to the organization cannot create customer data.
-     * @allow (update) Users belonging to the organization can update customer data.
-     * @deny (update) Users not belonging to the organization cannot update customer data.
-     * @allow (delete) Users belonging to the organization can delete customer data.
-     * @deny (delete) Users not belonging to the organization cannot delete customer data.
-     * @principle Enforces organization-based access control.
-     */
-    match /organizations/{organizationId}/customers/{customerId} {
-      function isInOrganization(organizationId) {
-        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
-      }
-
-      allow get, list: if isInOrganization(organizationId);
-      allow create: if isInOrganization(organizationId) && request.resource.data.organizationId == organizationId;
-      allow update: if isInOrganization(organizationId) && request.resource.data.organizationId == organizationId && resource != null;
-      allow delete: if isInOrganization(organizationId) && request.resource.data.organizationId == organizationId && resource != null;
+    
+    // Helper function to check if the user belongs to the organization that owns the resource
+    function isUserInOrg(orgId) {
+      return getUserOrgId() == orgId;
     }
-
-    /**
-     * @description Manages access to proposal documents within an organization.
-     * @path /organizations/{organizationId}/proposals/{proposalId}
-     * @allow (get, list) Users belonging to the organization can read proposal data.
-     * @deny (get, list) Users not belonging to the organization cannot read proposal data.
-     * @allow (create) Users belonging to the organization can create proposal data.
-     * @deny (create) Users not belonging to the organization cannot create proposal data.
-     * @allow (update) Users belonging to the organization can update proposal data.
-     * @deny (update) Users not belonging to the organization cannot update proposal data.
-     * @allow (delete) Users belonging to the organization can delete proposal data.
-     * @deny (delete) Users not belonging to the organization cannot delete proposal data.
-     * @principle Enforces organization-based access control.
-     */
-    match /organizations/{organizationId}/proposals/{proposalId} {
-      function isInOrganization(organizationId) {
-        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
-      }
-
-      allow get, list: if isInOrganization(organizationId);
-      allow create: if isInOrganization(organizationId) && request.resource.data.organizationId == organizationId;
-      allow update: if isInOrganization(organizationId) && request.resource.data.organizationId == organizationId && resource != null;
-      allow delete: if isInOrganization(organizationId) && request.resource.data.organizationId == organizationId && resource != null;
-    }
-
-    /**
-     * @description Manages access to price book item documents within an organization.
-     * @path /organizations/{organizationId}/priceBookItems/{priceBookItemId}
-     * @allow (get, list) Users belonging to the organization can read price book item data.
-     * @deny (get, list) Users not belonging to the organization cannot read price book item data.
-     * @allow (create) Users belonging to the organization can create price book item data.
-     * @deny (create) Users not belonging to the organization cannot create price book item data.
-     * @allow (update) Users belonging to the organization can update price book item data.
-     * @deny (update) Users not belonging to the organization cannot update price book item data.
-     * @allow (delete) Users belonging to the organization can delete price book item data.
-     * @deny (delete) Users not belonging to the organization cannot delete price book item data.
-     * @principle Enforces organization-based access control.
-     */
-    match /organizations/{organizationId}/priceBookItems/{priceBookItemId} {
-      function isInOrganization(organizationId) {
-        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
-      }
-
-      allow get, list: if isInOrganization(organizationId);
-      allow create: if isInOrganization(organizationId) && request.resource.data.organizationId == organizationId;
-      allow update: if isInOrganization(organizationId) && request.resource.data.organizationId == organizationId && resource != null;
-      allow delete: if isInOrganization(organizationId) && request.resource.data.organizationId == organizationId && resource != null;
-    }
-
-    /**
-     * @description Allows access to user profile documents.
-     * @path /users/{userId}
-     * @allow (get, list) Only the user themselves can read their profile.
-     * @deny (get, list) Other users cannot read this user's profile.
-     * @allow (create) A user can create their own profile (self-registration).
-     * @deny (create) A user cannot create another user's profile.
-     * @allow (update) Only the user themselves can update their profile.
-     * @deny (update) Other users cannot update this user's profile.
-     * @allow (delete) Only the user themselves can delete their profile.
-     * @deny (delete) Other users cannot delete this user's profile.
-     * @principle Enforces user ownership.
-     */
+    
+    // Users can read their own profile
     match /users/{userId} {
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && resource != null;
-      allow delete: if isOwner(userId) && resource != null;
+      allow read, update: if request.auth.uid == userId;
     }
+    
+    // Organizations can be read by their own members
+    match /organizations/{orgId} {
+      allow read, update: if isUserInOrg(orgId);
+    }
+    
+    // Organization-specific data can only be accessed by members of that organization
+    match /organizations/{orgId}/{collection}/{docId} {
+      allow read, write, delete: if isUserInOrg(orgId);
+    }
+    
   }
 }

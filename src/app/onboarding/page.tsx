@@ -18,21 +18,26 @@ export default function OnboardingPage() {
 
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    if (isUserLoading || isProfileLoading) {
+      // Wait until both user and profile are loaded
+      return;
+    }
+
+    if (!user) {
       router.replace('/login');
       return;
     }
 
-    if (user && !isProfileLoading) {
-      if (!userProfile?.firstName || !userProfile?.lastName) {
-         router.replace('/onboarding/profile');
-      } else if (!userProfile.organizationId) {
-        router.replace('/onboarding/organization');
-      } else if (!userProfile.trade) {
-        router.replace('/onboarding/details');
-      } else {
-        router.replace('/dashboard');
-      }
+    // Now we know we have a user and their profile (or lack thereof)
+    if (!userProfile || !userProfile.firstName || !userProfile.lastName) {
+      router.replace('/onboarding/profile');
+    } else if (!userProfile.organizationId) {
+      router.replace('/onboarding/organization');
+    } else if (!userProfile.trade || !userProfile.companySize) {
+      router.replace('/onboarding/details');
+    } else {
+      // If all checks pass, they are fully onboarded
+      router.replace('/dashboard');
     }
   }, [user, isUserLoading, userProfile, isProfileLoading, router]);
 

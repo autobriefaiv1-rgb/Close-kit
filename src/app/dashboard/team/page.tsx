@@ -170,7 +170,7 @@ export default function TeamPage() {
                       <Skeleton className="h-5 w-16" />
                     </TableCell>
                     <TableCell>
-                      <Skeleton className="h-8 w-8" />
+                      <Skeleton className="h-8 w-8 ml-auto" />
                     </TableCell>
                   </TableRow>
                 ))
@@ -179,10 +179,10 @@ export default function TeamPage() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar>
-                          <AvatarImage src={member.avatarUrl} />
+                          <AvatarImage src={member.avatarUrl} alt={`${member.firstName} ${member.lastName}`} />
                           <AvatarFallback>
-                            {member.firstName?.[0]}
-                            {member.lastName?.[0]}
+                            {member.firstName?.[0]?.toUpperCase()}
+                            {member.lastName?.[0]?.toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <span className="font-medium">
@@ -192,7 +192,7 @@ export default function TeamPage() {
                     </TableCell>
                     <TableCell>{member.email}</TableCell>
                     <TableCell className="capitalize">{member.role}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
