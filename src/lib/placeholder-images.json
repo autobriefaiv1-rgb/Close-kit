@@ -59,6 +59,12 @@
       "description": "An abstract image representing business growth.",
       "imageUrl": "https://picsum.photos/seed/pricing1/1200/800",
       "imageHint": "abstract growth"
+    },
+    {
+      "id": "pricing-team",
+      "description": "An abstract image representing teamwork and collaboration.",
+      "imageUrl": "https://picsum.photos/seed/pricing2/1200/800",
+      "imageHint": "abstract collaboration"
     }
   ]
 }

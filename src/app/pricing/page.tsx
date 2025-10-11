@@ -127,7 +127,7 @@ export default function PricingPage() {
             </CardContent>
             <CardFooter>
               <Button size="lg" className="w-full" asChild>
-                <Link href="/signup">Start Team Plan</Link>
+                <Link href="/pricing/team">Choose Team Plan</Link>
               </Button>
             </CardFooter>
           </Card>
