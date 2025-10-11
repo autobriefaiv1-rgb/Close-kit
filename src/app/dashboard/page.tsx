@@ -46,28 +46,32 @@ import { Rocket } from 'lucide-react';
 function WelcomeTour({ onDismiss }: { onDismiss: () => void }) {
   return (
     <Alert className="mb-6 border-primary relative">
-       <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={onDismiss}>
+      <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={onDismiss}>
         <X className="h-4 w-4" />
         <span className="sr-only">Dismiss</span>
       </Button>
       <Rocket className="h-4 w-4" />
       <AlertTitle className="font-headline text-lg">Welcome to Close Kit!</AlertTitle>
       <AlertDescription>
-        <p className="mb-3">You're all set up. Here’s a quick tour of your new dashboard:</p>
-        <ul className="list-disc pl-5 space-y-2 text-sm">
-            <li><strong>Dashboard:</strong> This is your command center, giving you a bird's-eye view of your business health.</li>
-            <li><strong>Proposals:</strong> Create new proposals, track their status, and see which ones get accepted.</li>
-            <li><strong>Customers:</strong> Manage all your client information in one place.</li>
-            <li><strong>AI Tools:</strong> Leverage AI to generate compelling sales options, translate technical jargon, and analyze competitor pricing.</li>
+        <p className="mb-4">You're all set up. Here’s a quick tour of your new toolkit:</p>
+        <ul className="list-disc pl-5 space-y-3 text-sm">
+          <li><strong>Dashboard:</strong> This is your command center, giving you a bird's-eye view of revenue, acceptance rates, and recent activity.</li>
+          <li><strong>Proposals:</strong> Create, send, and track professional proposals. This is where you'll spend most of your time closing deals.</li>
+          <li><strong>Customers:</strong> Manage all your client contact information and job history in one organized place.</li>
+          <li><strong>Team:</strong> Invite and manage your team members (available on the Team plan).</li>
+          <li><strong>Price Book:</strong> Keep a centralized list of your materials, labor costs, and equipment to build proposals quickly and accurately.</li>
+          <li><strong>AI Tools:</strong> Leverage AI to generate compelling sales options (Good-Better-Best), translate technical jargon into simple terms, and analyze competitor pricing.</li>
+          <li><strong>Analytics:</strong> Dive deeper into your proposal performance and revenue trends over time.</li>
+           <li><strong>Settings:</strong> Update your personal and company information.</li>
         </ul>
-        <div className="mt-4 flex items-start gap-2 rounded-lg bg-secondary p-3">
+        <div className="mt-4 flex items-start gap-3 rounded-lg bg-secondary p-4">
           <Lightbulb className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
           <div className='text-secondary-foreground'>
-            <h4 className="font-semibold">Pro Tip</h4>
-            <p className='text-sm'>Need help? Click the "Ask Aria" button in the bottom right corner of any page to get instant answers from our AI assistant!</p>
+            <h4 className="font-semibold">Pro Tip: Ask Aria for Help!</h4>
+            <p className='text-sm'>Stuck on something? Click the floating chat icon in the bottom right corner of any page to get instant answers from our AI assistant, Aria!</p>
           </div>
         </div>
-        <p className="mt-4">Ready to get started? Try creating your first <Link href="/dashboard/proposals/new" className="font-semibold underline">New Proposal</Link>.</p>
+        <p className="mt-4 font-medium">Ready to get started? Let's <Link href="/dashboard/proposals/new" className="font-semibold underline text-primary">create your first proposal</Link>!</p>
       </AlertDescription>
     </Alert>
   );
@@ -80,6 +84,7 @@ export default function Dashboard() {
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
+    // This check runs only on the client-side
     const hasSeenWelcome = localStorage.getItem('hasSeenWelcomeTour');
     if (!hasSeenWelcome) {
       setShowWelcome(true);
