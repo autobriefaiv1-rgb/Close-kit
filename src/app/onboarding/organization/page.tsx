@@ -48,7 +48,7 @@ export default function OnboardingOrganizationPage() {
       const userRef = doc(firestore, 'users', user.uid);
       setDocumentNonBlocking(userRef, { organizationId: orgRef.id, role: 'admin' }, { merge: true });
 
-      router.push('/onboarding/team');
+      router.push('/onboarding/details');
     } catch (error: any) {
       toast({ variant: 'destructive', title: 'Error', description: error.message });
       setIsSaving(false);

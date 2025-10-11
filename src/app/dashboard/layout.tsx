@@ -10,6 +10,7 @@ import { Logo } from '@/components/logo';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { useUser } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AskAriaWidget } from '@/components/ask-aria-widget';
 
 export default function DashboardLayout({
   children,
@@ -99,6 +100,7 @@ export default function DashboardLayout({
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-secondary/50">
           {children}
         </main>
+        <AskAriaWidget />
       </div>
     </div>
   );

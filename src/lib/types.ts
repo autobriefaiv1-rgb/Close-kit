@@ -15,6 +15,8 @@ export type UserProfile = {
   email: string;
   avatarUrl: string;
   role?: 'admin' | 'member';
+  trade?: 'hvac' | 'plumbing' | 'electrical' | 'other';
+  companySize?: '1-5' | '6-15' | '16-50' | '50+';
 };
 
 export type Customer = {

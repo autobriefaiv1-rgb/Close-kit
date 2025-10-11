@@ -59,6 +59,16 @@
           "type": "string",
           "enum": ["admin", "member"],
           "description": "The user's role within their organization."
+        },
+        "trade": {
+            "type": "string",
+            "enum": ["hvac", "plumbing", "electrical", "other"],
+            "description": "The user's primary trade."
+        },
+        "companySize": {
+            "type": "string",
+            "enum": ["1-5", "6-15", "16-50", "50+"],
+            "description": "The size of the user's company."
         }
       },
       "required": ["id", "organizationId", "email", "firstName", "lastName"]

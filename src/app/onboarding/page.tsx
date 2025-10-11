@@ -28,6 +28,8 @@ export default function OnboardingPage() {
          router.replace('/onboarding/profile');
       } else if (!userProfile.organizationId) {
         router.replace('/onboarding/organization');
+      } else if (!userProfile.trade) {
+        router.replace('/onboarding/details');
       } else {
         router.replace('/dashboard');
       }

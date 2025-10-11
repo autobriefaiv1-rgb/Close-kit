@@ -7,6 +7,7 @@ import {
   Users,
   Inbox,
   X,
+  Lightbulb,
 } from 'lucide-react';
 import {
   PieChart,
@@ -59,6 +60,13 @@ function WelcomeTour({ onDismiss }: { onDismiss: () => void }) {
             <li><strong>Customers:</strong> Manage all your client information in one place.</li>
             <li><strong>AI Tools:</strong> Leverage AI to generate compelling sales options, translate technical jargon, and analyze competitor pricing.</li>
         </ul>
+        <div className="mt-4 flex items-start gap-2 rounded-lg bg-secondary p-3">
+          <Lightbulb className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
+          <div className='text-secondary-foreground'>
+            <h4 className="font-semibold">Pro Tip</h4>
+            <p className='text-sm'>Need help? Click the "Ask Aria" button in the bottom right corner of any page to get instant answers from our AI assistant!</p>
+          </div>
+        </div>
         <p className="mt-4">Ready to get started? Try creating your first <Link href="/dashboard/proposals/new" className="font-semibold underline">New Proposal</Link>.</p>
       </AlertDescription>
     </Alert>
