@@ -6,7 +6,8 @@ import {
   LifeBuoy,
   Settings,
   Users,
-  Wrench,
+  Wand2,
+  Users2,
 } from 'lucide-react';
 
 export const menuItems = [
@@ -25,29 +26,20 @@ export const menuItems = [
     href: '/dashboard/customers',
     icon: Users,
   },
+    {
+    label: 'Team',
+    href: '/dashboard/team',
+    icon: Users2,
+  },
   {
     label: 'Price Book',
     href: '/dashboard/price-book',
     icon: Book,
   },
   {
-    label: 'AI Tools',
-    isGroup: true,
-  },
-  {
-    label: 'GBB Generator',
-    href: '/dashboard/tools/gbb-generator',
-    icon: Wrench,
-  },
-  {
-    label: 'Narrative Translator',
-    href: '/dashboard/tools/translator',
-    icon: Wrench,
-  },
-  {
-    label: 'Competitor Analysis',
-    href: '/dashboard/tools/competitor-analysis',
-    icon: Wrench,
+    label: 'AI Toolkit',
+    href: '/dashboard/tools',
+    icon: Wand2,
   },
    {
     label: 'Reports',
