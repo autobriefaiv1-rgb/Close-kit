@@ -210,7 +210,6 @@ export default function ProposalDetailsPage() {
                       )}
                   </TableBody>
                 </Table>
-              </Table>
               </div>
               <Separator className="my-4" />
               <div className="grid grid-cols-2 gap-4">
