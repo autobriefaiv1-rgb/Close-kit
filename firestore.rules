@@ -1,206 +1,151 @@
 /**
- * @fileoverview Firestore Security Rules for the application.
- *
- * Core Philosophy:
- * This ruleset enforces a strict user-ownership model. Each user has complete control over their own data tree, and no access to others' data.
+ * @file Firestore Security Rules
+ * @description This ruleset enforces a strict user-ownership model for all data.
  *
  * Data Structure:
- * The data is organized hierarchically under `/userAccounts/{userId}`. This structure ensures clear ownership and simplifies security rules.
- * Subcollections such as `customers`, `proposals`, `jobCostingData`, and `priceBookEntries` inherit the ownership of their parent `userAccount`.
+ * - /userAccounts/{userId}: Stores UserProfile data. Only the user can read/write their own profile.
+ * - /userAccounts/{userId}/customers/{customerId}: Stores Customer data. Only the owning user can manage their customers.
+ * - /userAccounts/{userId}/proposals/{proposalId}: Stores Proposal data. Only the owning user can manage their proposals.
+ * - /userAccounts/{userId}/priceBookEntries/{priceBookEntryId}: Stores PriceBookItem data. Only the owning user can manage their price book entries.
  *
  * Key Security Decisions:
- * - Users can only access their own data, which is determined by the `userId` in the path.
- * - `list` operations are allowed for owners on their own subcollections.
+ * - User listing is disallowed.
+ * - Data shape is not strictly enforced during this prototyping phase, except for ownership fields.
+ * - All write operations validate ownership based on the authenticated user's UID.
+ * - `id` field consistency is enforced on `create` operations to establish relational integrity.
+ * - `id` immutability is enforced on `update` operations to prevent unauthorized ownership changes.
  *
  * Denormalization for Authorization:
- * - The `userAccountId` field within documents in subcollections is used to enforce ownership, avoiding the need for complex `get()` calls.
+ *  - The `userId` field in the Customer, Proposal, and PriceBookItem entities is used to enforce ownership, avoiding the need for complex queries.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user account information.
-     * @path /userAccounts/{userAccountId}
-     * @allow (create) User with ID 'user123' can create their account.
-     *   - Auth: {uid: 'user123'}
-     *   - Request Data: {id: 'user123', ...}
-     * @deny (create) User with ID 'user456' attempts to create an account with ID 'user123'.
-     *   - Auth: {uid: 'user456'}
-     *   - Request Data: {id: 'user123', ...}
-     * @allow (get) User with ID 'user123' can read their own account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (get) User with ID 'user456' attempts to read account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (update) User with ID 'user123' can update their own account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (update) User with ID 'user456' attempts to update account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (delete) User with ID 'user123' can delete their own account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (delete) User with ID 'user456' attempts to delete account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @principle Enforces document ownership for all operations.
+     * @description Prevents access to any documents not explicitly matched by other rules.
+     * @path /
+     * @allow None
+     * @deny All
+     * @principle Default deny-all policy.
      */
-    match /userAccounts/{userAccountId} {
-      allow get: if isSignedIn() && isOwner(userAccountId);
+    match /{document=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    /**
+     * @description Manages user profile information. Only the authenticated user can read or write their own profile.
+     * @path /userAccounts/{userId}
+     * @allow (get, create, update, delete) - User 'user_abc' can read/write /userAccounts/user_abc
+     * @deny (create, update, delete) - User 'user_xyz' cannot write /userAccounts/user_abc
+     * @principle Enforces user-ownership for profile data.
+     */
+    match /userAccounts/{userId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isSignedIn() && isOwner(userId);
       allow list: if false;
-      allow create: if isSignedIn() && isOwner(userAccountId) && request.resource.data.id == userAccountId;
-      allow update: if isSignedIn() && isExistingOwner(userAccountId) && request.resource.data.id == resource.data.id;
-      allow delete: if isSignedIn() && isExistingOwner(userAccountId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isExistingOwner(userId);
+      allow delete: if isSignedIn() && isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to customer data associated with a user account.
-     * @path /userAccounts/{userAccountId}/customers/{customerId}
-     * @allow (create) User with ID 'user123' can create a customer for their account.
-     *   - Auth: {uid: 'user123'}
-     *   - Request Data: {userAccountId: 'user123', ...}
-     * @deny (create) User with ID 'user456' attempts to create a customer under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     *   - Request Data: {userAccountId: 'user123', ...}
-     * @allow (get) User with ID 'user123' can read a customer associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (get) User with ID 'user456' attempts to read a customer under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (list) User with ID 'user123' can list customers associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (list) User with ID 'user456' attempts to list customers under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (update) User with ID 'user123' can update a customer associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (update) User with ID 'user456' attempts to update a customer under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (delete) User with ID 'user123' can delete a customer associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (delete) User with ID 'user456' attempts to delete a customer under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @principle Enforces document ownership for writes and restricts listing to owners.
+     * @description Manages customer data for a specific user. Only the owning user can create, read, update, or delete customer documents under their account.
+     * @path /userAccounts/{userId}/customers/{customerId}
+     * @allow (create) User 'user_abc' can create a customer document under /userAccounts/user_abc/customers/customer_123 if customer.userId == 'user_abc'
+     * @allow (get, list, update, delete) User 'user_abc' can read/write /userAccounts/user_abc/customers/customer_123
+     * @deny (create, update, delete) User 'user_xyz' cannot write /userAccounts/user_abc/customers/customer_123
+     * @deny (create) User 'user_abc' cannot create a customer document under /userAccounts/user_abc/customers/customer_123 if customer.userId != 'user_abc'
+     * @principle Enforces user-ownership for customer data within the user's data tree.
      */
-    match /userAccounts/{userAccountId}/customers/{customerId} {
-      allow get: if isSignedIn() && isOwner(userAccountId);
-      allow list: if isSignedIn() && isOwner(userAccountId);
-      allow create: if isSignedIn() && isOwner(userAccountId) && request.resource.data.userAccountId == userAccountId;
-      allow update: if isSignedIn() && isExistingOwner(userAccountId) && resource.data.userAccountId == userAccountId;
-      allow delete: if isSignedIn() && isExistingOwner(userAccountId);
+    match /userAccounts/{userId}/customers/{customerId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId && request.resource.data.id == customerId;
+      allow update: if isSignedIn() && isExistingOwner(userId) && request.resource.data.userId == resource.data.userId && request.resource.data.id == resource.data.id;
+      allow delete: if isSignedIn() && isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to proposal data associated with a user account.
-     * @path /userAccounts/{userAccountId}/proposals/{proposalId}
-     * @allow (create) User with ID 'user123' can create a proposal for their account.
-     *   - Auth: {uid: 'user123'}
-     *   - Request Data: {userAccountId: 'user123', ...}
-     * @deny (create) User with ID 'user456' attempts to create a proposal under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     *   - Request Data: {userAccountId: 'user123', ...}
-     * @allow (get) User with ID 'user123' can read a proposal associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (get) User with ID 'user456' attempts to read a proposal under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (list) User with ID 'user123' can list proposals associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (list) User with ID 'user456' attempts to list proposals under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (update) User with ID 'user123' can update a proposal associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (update) User with ID 'user456' attempts to update a proposal under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (delete) User with ID 'user123' can delete a proposal associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (delete) User with ID 'user456' attempts to delete a proposal under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @principle Enforces document ownership for writes and restricts listing to owners.
+     * @description Manages proposal data for a specific user. Only the owning user can create, read, update, or delete proposal documents under their account.
+     * @path /userAccounts/{userId}/proposals/{proposalId}
+     * @allow (create) User 'user_abc' can create a proposal document under /userAccounts/user_abc/proposals/proposal_456 if proposal.userId == 'user_abc'
+     * @allow (get, list, update, delete) User 'user_abc' can read/write /userAccounts/user_abc/proposals/proposal_456
+     * @deny (create, update, delete) User 'user_xyz' cannot write /userAccounts/user_abc/proposals/proposal_456
+     * @deny (create) User 'user_abc' cannot create a proposal document under /userAccounts/user_abc/proposals/proposal_456 if proposal.userId != 'user_abc'
+     * @principle Enforces user-ownership for proposal data within the user's data tree.
      */
-    match /userAccounts/{userAccountId}/proposals/{proposalId} {
-      allow get: if isSignedIn() && isOwner(userAccountId);
-      allow list: if isSignedIn() && isOwner(userAccountId);
-      allow create: if isSignedIn() && isOwner(userAccountId) && request.resource.data.userAccountId == userAccountId;
-      allow update: if isSignedIn() && isExistingOwner(userAccountId) && resource.data.userAccountId == userAccountId;
-      allow delete: if isSignedIn() && isExistingOwner(userAccountId);
+    match /userAccounts/{userId}/proposals/{proposalId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId && request.resource.data.id == proposalId;
+      allow update: if isSignedIn() && isExistingOwner(userId) && request.resource.data.userId == resource.data.userId && request.resource.data.id == resource.data.id;
+      allow delete: if isSignedIn() && isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to job costing data associated with a proposal.
-     * @path /userAccounts/{userAccountId}/proposals/{proposalId}/jobCostingData/{jobCostingDataId}
-     * @allow (create) User with ID 'user123' can create job costing data for a proposal in their account.
-     *   - Auth: {uid: 'user123'}
-     *   - Request Data: {proposalId: 'proposal456', ...}
-     * @deny (create) User with ID 'user456' attempts to create job costing data under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     *   - Request Data: {proposalId: 'proposal456', ...}
-     * @allow (get) User with ID 'user123' can read job costing data associated with a proposal in their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (get) User with ID 'user456' attempts to read job costing data under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (list) User with ID 'user123' can list job costing data associated with a proposal in their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (list) User with ID 'user456' attempts to list job costing data under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (update) User with ID 'user123' can update job costing data associated with a proposal in their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (update) User with ID 'user456' attempts to update job costing data under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (delete) User with ID 'user123' can delete job costing data associated with a proposal in their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (delete) User with ID 'user456' attempts to delete job costing data under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @principle Enforces document ownership for writes and restricts listing to owners.
+     * @description Manages price book entries for a specific user. Only the owning user can create, read, update, or delete price book entry documents under their account.
+     * @path /userAccounts/{userId}/priceBookEntries/{priceBookEntryId}
+     * @allow (create) User 'user_abc' can create a price book entry document under /userAccounts/user_abc/priceBookEntries/entry_789 if entry.userId == 'user_abc'
+     * @allow (get, list, update, delete) User 'user_abc' can read/write /userAccounts/user_abc/priceBookEntries/entry_789
+     * @deny (create, update, delete) User 'user_xyz' cannot write /userAccounts/user_abc/priceBookEntries/entry_789
+     * @deny (create) User 'user_abc' cannot create a price book entry document under /userAccounts/user_abc/priceBookEntries/entry_789 if entry.userId != 'user_abc'
+     * @principle Enforces user-ownership for price book entry data within the user's data tree.
      */
-    match /userAccounts/{userAccountId}/proposals/{proposalId}/jobCostingData/{jobCostingDataId} {
-      allow get: if isSignedIn() && isOwner(userAccountId);
-      allow list: if isSignedIn() && isOwner(userAccountId);
-      allow create: if isSignedIn() && isOwner(userAccountId); // Additional validation would require a get() to ensure the proposalId belongs to the user, skipping in prototyping phase.
-      allow update: if isSignedIn() && isExistingOwner(userAccountId); // Additional validation would require a get() to ensure the proposalId belongs to the user, skipping in prototyping phase.
-      allow delete: if isSignedIn() && isExistingOwner(userAccountId); // Additional validation would require a get() to ensure the proposalId belongs to the user, skipping in prototyping phase.
+    match /userAccounts/{userId}/priceBookEntries/{priceBookEntryId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId && request.resource.data.id == priceBookEntryId;
+      allow update: if isSignedIn() && isExistingOwner(userId) && request.resource.data.userId == resource.data.userId && request.resource.data.id == resource.data.id;
+      allow delete: if isSignedIn() && isExistingOwner(userId);
     }
-
-    /**
-     * @description Controls access to price book entries associated with a user account.
-     * @path /userAccounts/{userAccountId}/priceBookEntries/{priceBookEntryId}
-     * @allow (create) User with ID 'user123' can create a price book entry for their account.
-     *   - Auth: {uid: 'user123'}
-     *   - Request Data: {userAccountId: 'user123', ...}
-     * @deny (create) User with ID 'user456' attempts to create a price book entry under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     *   - Request Data: {userAccountId: 'user123', ...}
-     * @allow (get) User with ID 'user123' can read a price book entry associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (get) User with ID 'user456' attempts to read a price book entry under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (list) User with ID 'user123' can list price book entries associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (list) User with ID 'user456' attempts to list price book entries under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (update) User with ID 'user123' can update a price book entry associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (update) User with ID 'user456' attempts to update a price book entry under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @allow (delete) User with ID 'user123' can delete a price book entry associated with their account.
-     *   - Auth: {uid: 'user123'}
-     * @deny (delete) User with ID 'user456' attempts to delete a price book entry under account 'user123'.
-     *   - Auth: {uid: 'user456'}
-     * @principle Enforces document ownership for writes and restricts listing to owners.
-     */
-    match /userAccounts/{userAccountId}/priceBookEntries/{priceBookEntryId} {
-      allow get: if isSignedIn() && isOwner(userAccountId);
-      allow list: if isSignedIn() && isOwner(userAccountId);
-      allow create: if isSignedIn() && isOwner(userAccountId) && request.resource.data.userAccountId == userAccountId;
-      allow update: if isSignedIn() && isExistingOwner(userAccountId) && resource.data.userAccountId == userAccountId;
-      allow delete: if isSignedIn() && isExistingOwner(userAccountId);
-    }
-  }
-
-  // Helper functions
-  function isSignedIn() {
-    return request.auth != null;
-  }
-
-  function isOwner(userId) {
-    return request.auth.uid == userId;
-  }
-
-  function isExistingOwner(userId) {
-    return isOwner(userId) && resource != null;
   }
 }
