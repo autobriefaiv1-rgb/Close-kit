@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { MarketingHeaderAuth } from "@/components/marketing-header-auth";
+import { MarketingNav } from "@/components/marketing-nav";
 
 export default function MarketingLayout({
   children,
@@ -17,11 +18,7 @@ export default function MarketingLayout({
               <Logo />
             </Link>
           </div>
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link href="/#features" className="text-muted-foreground transition-colors hover:text-foreground">Features</Link>
-            <Link href="/pricing" className="text-muted-foreground transition-colors hover:text-foreground">Pricing</Link>
-            <Link href="/support" className="text-muted-foreground transition-colors hover:text-foreground">Support</Link>
-          </nav>
+          <MarketingNav />
           <div className="flex flex-1 items-center justify-end space-x-4">
             <MarketingHeaderAuth />
           </div>
