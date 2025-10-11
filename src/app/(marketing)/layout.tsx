@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
+import { MarketingHeaderAuth } from "@/components/marketing-header-auth";
 
 export default function MarketingLayout({
   children,
@@ -22,12 +23,7 @@ export default function MarketingLayout({
             <Link href="/support" className="text-muted-foreground transition-colors hover:text-foreground">Support</Link>
           </nav>
           <div className="flex flex-1 items-center justify-end space-x-4">
-            <Button variant="ghost" asChild>
-              <Link href="/login">Login</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/signup">Sign Up</Link>
-            </Button>
+            <MarketingHeaderAuth />
           </div>
         </div>
       </header>
