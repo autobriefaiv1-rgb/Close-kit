@@ -6,6 +6,7 @@ import {
   FileText,
   Users,
   Inbox,
+  X,
 } from 'lucide-react';
 import {
   PieChart,
@@ -37,9 +38,50 @@ import { useFirebase, useCollection, useMemoFirebase, useDoc } from '@/firebase'
 import type { Proposal, UserProfile } from '@/lib/types';
 import { collection, doc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useEffect } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Rocket } from 'lucide-react';
+
+function WelcomeTour({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <Alert className="mb-6 border-primary relative">
+       <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={onDismiss}>
+        <X className="h-4 w-4" />
+        <span className="sr-only">Dismiss</span>
+      </Button>
+      <Rocket className="h-4 w-4" />
+      <AlertTitle className="font-headline text-lg">Welcome to Close Kit!</AlertTitle>
+      <AlertDescription>
+        <p className="mb-3">You're all set up. Here’s a quick tour of your new dashboard:</p>
+        <ul className="list-disc pl-5 space-y-2 text-sm">
+            <li><strong>Dashboard:</strong> This is your command center, giving you a bird's-eye view of your business health.</li>
+            <li><strong>Proposals:</strong> Create new proposals, track their status, and see which ones get accepted.</li>
+            <li><strong>Customers:</strong> Manage all your client information in one place.</li>
+            <li><strong>AI Tools:</strong> Leverage AI to generate compelling sales options, translate technical jargon, and analyze competitor pricing.</li>
+        </ul>
+        <p className="mt-4">Ready to get started? Try creating your first <Link href="/dashboard/proposals/new" className="font-semibold underline">New Proposal</Link>.</p>
+      </AlertDescription>
+    </Alert>
+  );
+}
+
 
 export default function Dashboard() {
   const { firestore, user } = useFirebase();
+
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem('hasSeenWelcomeTour');
+    if (!hasSeenWelcome) {
+      setShowWelcome(true);
+    }
+  }, []);
+
+  const handleDismissWelcome = () => {
+    localStorage.setItem('hasSeenWelcomeTour', 'true');
+    setShowWelcome(false);
+  };
 
   const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
@@ -111,6 +153,7 @@ export default function Dashboard() {
 
   return (
     <div className="grid gap-6">
+      {showWelcome && <WelcomeTour onDismiss={handleDismissWelcome} />}
        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
          <Card className="hover:bg-muted/50 transition-colors">
           <Link href="/dashboard/analytics">
