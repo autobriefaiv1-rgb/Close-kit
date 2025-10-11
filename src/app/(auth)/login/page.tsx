@@ -1,47 +1,71 @@
-import Link from "next/link";
+'use client';
+
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/card';
+import { useAuth } from '@/firebase';
+import { GoogleAuthProvider, EmailAuthProvider } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
+
+const uiConfig = {
+  signInFlow: 'popup',
+  signInSuccessUrl: '/dashboard',
+  signInOptions: [
+    GoogleAuthProvider.PROVIDER_ID,
+    {
+      provider: EmailAuthProvider.PROVIDER_ID,
+      requireDisplayName: false,
+    },
+  ],
+};
 
 export default function LoginPage() {
+  const auth = useAuth();
+  const router = useRouter();
+  const [signInStarted, setSignInStarted] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth?.onAuthStateChanged((user) => {
+      if (user && signInStarted) {
+        router.push('/dashboard');
+      }
+    });
+
+    return () => unsubscribe && unsubscribe();
+  }, [auth, router, signInStarted]);
+
+  const handleSignInSuccess = () => {
+    setSignInStarted(true);
+    // Returning false prevents the default redirect behavior of FirebaseUI,
+    // allowing our useEffect to handle it.
+    return false;
+  };
+  
+  // We need to wait for auth to be initialized
+  if (!auth) {
+    return null;
+  }
+
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Login</CardTitle>
+        <CardTitle className="font-headline text-2xl">Login or Sign Up</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account.
+          Get started with Close Kit today.
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
-        <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" required />
-        </div>
+      <CardContent>
+        <StyledFirebaseAuth
+          uiConfig={{ ...uiConfig, callbacks: { signInSuccessWithAuthResult: handleSignInSuccess } }}
+          firebaseAuth={auth}
+        />
       </CardContent>
-      <CardFooter className="flex flex-col">
-        <Button className="w-full" asChild>
-          {/* In a real app, this would be a form submission */}
-          <Link href="/dashboard">Sign in</Link>
-        </Button>
-        <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="underline">
-            Sign up
-          </Link>
-        </div>
-      </CardFooter>
     </Card>
   );
 }
