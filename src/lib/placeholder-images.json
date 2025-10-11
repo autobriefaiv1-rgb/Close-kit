@@ -53,6 +53,12 @@
       "description": "Avatar of a male professional.",
       "imageUrl": "https://picsum.photos/seed/avatar-m2/100/100",
       "imageHint": "man professional"
+    },
+    {
+      "id": "pricing-solo",
+      "description": "An abstract image representing business growth.",
+      "imageUrl": "https://picsum.photos/seed/pricing1/1200/800",
+      "imageHint": "abstract growth"
     }
   ]
 }
