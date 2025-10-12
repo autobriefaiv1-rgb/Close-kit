@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -71,7 +70,7 @@ export default function AnalyticsPage() {
     proposalsInPlay,
     monthlyChartData,
   } = useMemo(() => {
-    if (!proposals) {
+    if (!proposals || proposals.length === 0) {
       return {
         totalRevenue: 0,
         acceptanceRate: 0,
@@ -105,7 +104,7 @@ export default function AnalyticsPage() {
       .reduce((sum, p) => sum + p.amount, 0);
 
     const monthlyData: { [key: string]: { proposals: number; accepted: number } } = {};
-    const proposalsByMonth = proposals.filter(p => p.status !== 'Draft');
+    const proposalsByMonth = proposals.filter(p => p.status !== 'Draft' && p.createdAt);
 
     proposalsByMonth.forEach(proposal => {
         const date = proposal.createdAt.toDate();

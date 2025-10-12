@@ -8,9 +8,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, User } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,6 +19,7 @@ import { Loader2 } from 'lucide-react';
 import { doc } from 'firebase/firestore';
 import { useFirebase } from '@/firebase';
 import type { UserProfile } from '@/lib/types';
+import type { User } from 'firebase/auth';
 
 export default function LoginPage() {
   const { auth, firestore } = useFirebase();
@@ -29,91 +30,82 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [userForProfileCheck, setUserForProfileCheck] = useState<User | null>(null);
-
-  const userProfileRef = useMemoFirebase(() => userForProfileCheck ? doc(firestore, 'users', userForProfileCheck.uid) : null, [firestore, userForProfileCheck]);
-  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
-
-  const handleRedirect = (user: User | null) => {
-    if (user) {
-        setUserForProfileCheck(user);
-    }
-  };
-
-  useEffect(() => {
-    if (user) {
-      handleRedirect(user);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (userForProfileCheck && !isProfileLoading) {
-      if (userProfile && userProfile.organizationId) {
-        // User has a profile and org, redirect to dashboard
-        router.push('/dashboard');
-      } else {
-        // New user or incomplete profile, redirect to onboarding
-        router.push('/onboarding');
-      }
-    }
-  }, [userForProfileCheck, userProfile, isProfileLoading, router]);
   
-  const handleEmailSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!auth) return;
-    setIsLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // Redirect is handled by effects
-    } catch (error: any) {
-      if (error.code === 'auth/user-not-found') {
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            // Redirect is handled by effects
-        } catch (createError: any) {
-            toast({
-                variant: 'destructive',
-                title: 'Authentication Failed',
-                description: createError.message,
-            });
-        }
-      } else {
-        toast({
-            variant: 'destructive',
-            title: 'Authentication Failed',
-            description: error.message,
-        });
-      }
-    } finally {
-        setIsLoading(false);
+  // This effect handles redirection after a user logs in.
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+  
+  useEffect(() => {
+    // Wait until we have a definitive answer about the user and their profile.
+    if (isUserLoading || isProfileLoading || !user) {
+      return;
     }
-  };
 
-  const handleGoogleSignIn = async () => {
-    if (!auth) return;
-    setIsGoogleLoading(true);
-    const provider = new GoogleAuthProvider();
+    if (userProfile && userProfile.organizationId) {
+      // User has a profile and org, they are fully onboarded.
+      router.push('/dashboard');
+    } else {
+      // New user or incomplete profile, send to onboarding.
+      router.push('/onboarding');
+    }
+  }, [user, userProfile, isUserLoading, isProfileLoading, router]);
+
+  const handleAuthAction = async (authPromise: Promise<any>) => {
     try {
-      await signInWithPopup(auth, provider);
-      // Redirect is handled by effects
+      await authPromise;
+      // On success, the useEffect above will handle redirection.
     } catch (error: any) {
       toast({
         variant: 'destructive',
-        title: 'Google Sign-In Failed',
-        description: error.message,
+        title: 'Authentication Failed',
+        description: error.message || 'An unknown error occurred.',
       });
-    } finally {
-      setIsGoogleLoading(false);
     }
   };
 
-  if (isUserLoading || userForProfileCheck) {
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    await handleAuthAction(
+      signInWithEmailAndPassword(auth, email, password)
+        .catch(error => {
+          // If user not found, try to create an account.
+          if (error.code === 'auth/user-not-found') {
+            return createUserWithEmailAndPassword(auth, email, password);
+          }
+          // For other errors, re-throw to be caught by handleAuthAction.
+          throw error;
+        })
+    );
+    setIsLoading(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    const provider = new GoogleAuthProvider();
+    await handleAuthAction(signInWithPopup(auth, provider));
+    setIsGoogleLoading(false);
+  };
+
+  // Show a global loading state if we're waiting for initial user state or redirecting.
+  if (isUserLoading || (user && isProfileLoading)) {
     return (
         <div className="flex min-h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
         </div>
     );
   }
+
+  // If user is logged in, but profile is still loading, show loading screen.
+  // This prevents a flash of the login form before redirect.
+  if (user) {
+     return (
+        <div className="flex min-h-screen items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+    );
+  }
+
 
   return (
     <Card className="w-full max-w-sm">
