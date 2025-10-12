@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { menuItems } from '@/lib/menu-items';
 import { Logo } from '@/components/logo';
 import { DashboardHeader } from '@/components/dashboard-header';
-import { useUser, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase, setDocumentNonBlocking, useFirebase } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AskAriaWidget } from '@/components/ask-aria-widget';
 import { useToast } from '@/hooks/use-toast';
