@@ -20,7 +20,7 @@ export function Logo({ className, isCollapsed = false }: LogoProps) {
       </div>
       {!isCollapsed && (
         <span className="font-headline text-lg font-bold">
-          HVAC AI Pro
+          Close Kit
         </span>
       )}
     </div>

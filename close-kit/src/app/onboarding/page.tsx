@@ -1,63 +1,49 @@
-import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { Loader2 } from 'lucide-react';
+import { doc } from 'firebase/firestore';
+import { useFirebase } from '@/firebase';
+import type { UserProfile } from '@/lib/types';
+
 
 export default function OnboardingPage() {
+  const router = useRouter();
+  const { user, isUserLoading } = useUser();
+  const { firestore } = useFirebase();
+
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+
+  useEffect(() => {
+    if (isUserLoading || isProfileLoading) {
+      // Wait until both user and profile are loaded
+      return;
+    }
+
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+
+    // Now we know we have a user and their profile (or lack thereof)
+    if (!userProfile || !userProfile.firstName || !userProfile.lastName) {
+      router.replace('/onboarding/profile');
+    } else if (!userProfile.organizationId) {
+      router.replace('/onboarding/organization');
+    } else if (!userProfile.trade || !userProfile.companySize) {
+      router.replace('/onboarding/details');
+    } else {
+      // If all checks pass, they are fully onboarded
+      router.replace('/dashboard');
+    }
+  }, [user, isUserLoading, userProfile, isProfileLoading, router]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <CardTitle className="font-headline text-3xl">Welcome to HVAC AI Pro</CardTitle>
-          <CardDescription>
-            Let&apos;s get your company set up.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="company-name">Company Name</Label>
-              <Input id="company-name" placeholder="Your Company LLC" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="phone">Company Phone</Label>
-              <Input id="phone" placeholder="(555) 123-4567" />
-            </div>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="address">Company Address</Label>
-            <Input id="address" placeholder="1234 Market St, Suite 100" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="tax-rate">Default Tax Rate (%)</Label>
-              <Input id="tax-rate" type="number" placeholder="8.5" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="overhead">Fixed Overhead (%)</Label>
-              <Input id="overhead" type="number" placeholder="15" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="profit-margin">Desired Profit Margin (%)</Label>
-              <Input id="profit-margin" type="number" placeholder="20" />
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button className="w-full md:w-auto" asChild>
-             {/* In a real app, this would save data and then redirect */}
-            <Link href="/dashboard">Complete Setup</Link>
-          </Button>
-        </CardFooter>
-      </Card>
+    <div className="flex min-h-screen items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin" />
     </div>
   );
 }

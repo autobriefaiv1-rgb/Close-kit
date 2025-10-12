@@ -10,16 +10,13 @@ import {
   Languages,
   LineChart,
   Rocket,
-  Wrench,
-  ChevronRight,
-  DollarSign,
-  Users,
-  CalendarCheck,
-  Star,
   Check,
   ShieldCheck,
   Zap,
   TrendingUp,
+  DollarSign,
+  ChevronRight,
+  Star,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -32,7 +29,7 @@ import { cn } from "@/lib/utils";
 const features = [
   {
     icon: <BrainCircuit className="w-10 h-10 text-primary" />,
-    title: "AI-Powered GBB Generator",
+    title: "AI-Powered Options Generator",
     description: "Instantly create Good-Better-Best options from job details. Our AI leverages your proprietary data to craft perfectly tiered options that upsell customers without pressure. This simple feature alone can dramatically increase your average ticket size by presenting clear, value-driven choices.",
     image: PlaceHolderImages.find((img) => img.id === 'feature-gbb'),
     dataAiHint: "abstract options",
@@ -67,19 +64,19 @@ const features = [
 const reviews = [
   {
     name: "Mike R.",
-    company: "Pro-Temp HVAC",
-    review: "HVAC AI Pro has been a game-changer. The GBB generator alone has boosted our average ticket by 25%. My techs can now build and send stunning proposals right from the job site.",
+    company: "Pro-Temp Services",
+    review: "Close Kit has been a game-changer. The options generator alone has boosted our average ticket by 25%. My team can now build and send stunning proposals right from the job site.",
     avatar: PlaceHolderImages.find(img => img.id === 'avatar-1')
   },
   {
     name: "Sarah L.",
-    company: "CoolBreeze Services",
+    company: "CoolBreeze Inc.",
     review: "I was skeptical about AI, but this is the real deal. The narrative translator saves me so much time and my customers actually understand what we're doing. Closing deals is easier than ever.",
     avatar: PlaceHolderImages.find(img => img.id === 'avatar-2')
   },
   {
     name: "David Chen",
-    company: "Chen's Heating & Air",
+    company: "Chen's Contracting",
     review: "The analytics are incredibly powerful. I finally have a clear picture of my sales pipeline and can see which proposals are getting viewed and accepted. It's like having a sales manager in my pocket.",
     avatar: PlaceHolderImages.find(img => img.id === 'avatar-3')
   }
@@ -89,7 +86,7 @@ const whyChooseUsPoints = [
     {
         icon: <ShieldCheck className="w-12 h-12 text-primary"/>,
         title: "Built for Your Trade",
-        description: "We're not a generic, one-size-fits-all solution. HVAC AI Pro is purpose-built for the specific needs of HVAC and other field service contractors. Every feature is designed to solve the real-world problems you face daily."
+        description: "We're not a generic, one-size-fits-all solution. Close Kit is purpose-built for the specific needs of field service contractors. Every feature is designed to solve the real-world problems you face daily."
     },
     {
         icon: <Zap className="w-12 h-12 text-primary"/>,
@@ -157,13 +154,13 @@ export default function LandingPage() {
               <div className="flex flex-col justify-center space-y-6">
                 <Badge variant="outline" className="w-fit">
                   <Rocket className="mr-2 h-4 w-4" />
-                  The Ultimate AI Toolkit for Contractors
+                  The Ultimate AI Toolkit for Sales Teams
                 </Badge>
                 <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
                   Win More Bids, Effortlessly.
                 </h1>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                  HVAC AI Pro is the all-in-one platform that empowers you to create winning proposals in minutes, optimize your pricing with market data, and manage your business more efficiently. Stop leaving money on the table. Start closing more profitable jobs and transforming your operations with the power of AI.
+                  Close Kit is the all-in-one platform that empowers you to create winning proposals in minutes, optimize your pricing with market data, and manage your business more efficiently. Stop leaving money on the table. Start closing more profitable jobs and transforming your operations with the power of AI.
                 </p>
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -211,7 +208,7 @@ export default function LandingPage() {
                 Your New Workflow, Supercharged
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                From the initial quote to the final invoice, HVAC AI Pro simplifies every step of your process. Spend less time buried in paperwork and more time doing what you do best: providing quality installations and five-star service to your customers.
+                From the initial quote to the final invoice, Close Kit simplifies every step of your process. Spend less time buried in paperwork and more time doing what you do best: providing quality service to your customers.
               </p>
             </div>
           </AnimatedSection>
@@ -240,7 +237,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">3. Analyze & Grow</h3>
                 <p className="text-muted-foreground">
-                    The powerful analytics dashboard gives you a bird's-eye view of your business's health. Track close rates, revenue trends, and your most profitable services to stop guessing and start making data-driven decisions. HVAC AI Pro gives you the insights you need to scale your business with confidence.
+                    The powerful analytics dashboard gives you a bird's-eye view of your business's health. Track close rates, revenue trends, and your most profitable services to stop guessing and start making data-driven decisions. Close Kit gives you the insights you need to scale your business with confidence.
                 </p>
             </AnimatedSection>
           </div>
@@ -309,7 +306,7 @@ export default function LandingPage() {
                 <AnimatedSection className="flex flex-col items-center justify-center space-y-4 text-center">
                     <div className="space-y-2">
                         <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
-                            Why Choose HVAC AI Pro?
+                            Why Choose Close Kit?
                         </div>
                         <h2 className="font-headline text-3xl font-bold tracking-tighter sm:text-5xl">
                             The Contractor's Unfair Advantage
@@ -348,7 +345,7 @@ export default function LandingPage() {
                 What Our Customers Are Saying
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                See how HVAC contractors are using HVAC AI Pro to grow their businesses and delight their customers.
+                See how contractors are using Close Kit to grow their businesses and delight their customers.
               </p>
             </div>
           </AnimatedSection>
@@ -394,7 +391,7 @@ export default function LandingPage() {
                 Ready to Upgrade Your Business?
               </h2>
               <p className="mx-auto max-w-[600px] md:text-xl">
-                Join hundreds of successful contractors who use HVAC AI Pro to build a more profitable and efficient business. Get started with a 7-day free trial, no credit card required.
+                Join hundreds of successful contractors who use Close Kit to build a more profitable and efficient business. Get started with a 7-day free trial, no credit card required.
               </p>
               <Button size="lg" variant="secondary" className="text-lg" asChild>
                 <Link href="/signup">

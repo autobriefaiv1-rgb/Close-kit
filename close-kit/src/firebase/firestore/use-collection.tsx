@@ -125,7 +125,7 @@ export function useCollection<T = any>(
 
   if (memoizedTargetRefOrQuery && !memoizedTargetRefOrQuery.__memo) {
     throw new Error(
-      memoizedTargetRefOrQuery + ' was not properly memoized using useMemoFirebase'
+      'A Firestore query/reference passed to useCollection was not memoized with useMemoFirebase. This will cause infinite loops.'
     );
   }
   return { data, isLoading, error };
