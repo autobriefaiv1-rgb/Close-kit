@@ -106,17 +106,19 @@ export default function AnalyticsPage() {
     const monthlyData: { [key: string]: { proposals: number; accepted: number } } = {};
     const proposalsByMonth = proposals.filter(p => p.status !== 'Draft' && p.createdAt);
 
-    proposalsByMonth.forEach(proposal => {
-        const date = proposal.createdAt.toDate();
-        const monthKey = format(date, 'yyyy-MM');
-        if (!monthlyData[monthKey]) {
-            monthlyData[monthKey] = { proposals: 0, accepted: 0 };
-        }
-        monthlyData[monthKey].proposals++;
-        if (proposal.status === 'Accepted') {
-            monthlyData[monthKey].accepted++;
-        }
-    });
+    if (proposalsByMonth.length > 0) {
+        proposalsByMonth.forEach(proposal => {
+            const date = proposal.createdAt.toDate();
+            const monthKey = format(date, 'yyyy-MM');
+            if (!monthlyData[monthKey]) {
+                monthlyData[monthKey] = { proposals: 0, accepted: 0 };
+            }
+            monthlyData[monthKey].proposals++;
+            if (proposal.status === 'Accepted') {
+                monthlyData[monthKey].accepted++;
+            }
+        });
+    }
 
     const monthlyChartData = Object.keys(monthlyData).map(key => ({
         month: format(new Date(key + '-02'), 'MMM yyyy'), // Use day 2 to avoid timezone issues
