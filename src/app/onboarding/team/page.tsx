@@ -45,11 +45,14 @@ export default function OnboardingTeamPage() {
     setIsSaving(true);
     // In a real app, you would send these invites via a backend function.
     // For now, we'll just simulate it.
-    console.log('Inviting team members:', invites.filter(email => email.trim() !== ''));
-    toast({
-        title: 'Team Invites Sent (Simulated)',
-        description: "Your team members will receive an email shortly."
-    });
+    const validInvites = invites.filter(email => email.trim() !== '');
+    if (validInvites.length > 0) {
+      console.log('Inviting team members:', validInvites);
+      toast({
+          title: 'Team Invites Sent (Simulated)',
+          description: "Your team members will receive an email shortly."
+      });
+    }
     
     // Simulate a network request
     await new Promise(resolve => setTimeout(resolve, 1000));
