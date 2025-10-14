@@ -34,6 +34,7 @@ export default function MarketingLayout({
             </p>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <Link href="/help" className="transition-colors hover:text-foreground">Help</Link>
             <Link href="/support" className="transition-colors hover:text-foreground">Support</Link>
             <Link href="/terms" className="transition-colors hover:text-foreground">Terms</Link>
             <Link href="/privacy" className="transition-colors hover:text-foreground">Privacy</Link>

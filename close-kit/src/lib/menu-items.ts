@@ -9,6 +9,7 @@ import {
   Wand2,
   Users2,
   ShieldQuestion,
+  BookOpen,
 } from 'lucide-react';
 
 export const menuItems = [
@@ -68,6 +69,11 @@ export const menuItems = [
     label: 'Settings',
     href: '/dashboard/settings',
     icon: Settings,
+  },
+  {
+    label: 'Help',
+    href: '/help',
+    icon: BookOpen,
   },
   {
     label: 'Support',
