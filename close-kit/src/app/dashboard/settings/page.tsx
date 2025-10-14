@@ -16,7 +16,7 @@ import type { UserProfile, Organization } from '@/lib/types';
 import { doc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, KeyRound, Copy } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import Link from "next/link";
@@ -28,7 +28,7 @@ export default function SettingsPage() {
   const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
-  const organizationRef = useMemoFirebase(() => userProfile ? doc(firestore, 'organizations', userProfile.organizationId) : null, [firestore, userProfile]);
+  const organizationRef = useMemoFirebase(() => userProfile?.organizationId ? doc(firestore, 'organizations', userProfile.organizationId) : null, [firestore, userProfile]);
   const { data: organization, isLoading: isOrgLoading } = useDoc<Organization>(organizationRef);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -67,28 +67,37 @@ export default function SettingsPage() {
   };
 
   const handleSave = async () => {
-    if (!user || !userProfileRef || !organizationRef) return;
+    if (!user || !userProfileRef) return;
     setIsSaving(true);
     
     try {
-      if (userProfileRef) {
-        setDocumentNonBlocking(userProfileRef, {
-            firstName: profile.firstName,
-            lastName: profile.lastName
-        }, { merge: true });
-      }
+      setDocumentNonBlocking(userProfileRef, {
+          firstName: profile.firstName,
+          lastName: profile.lastName
+      }, { merge: true });
+      
       if (organizationRef) {
          setDocumentNonBlocking(organizationRef, {
             name: org.name
         }, { merge: true });
       }
-      toast({ title: 'Settings Saved', description: 'Your profile has been updated.' });
+      toast({ title: 'Settings Saved', description: 'Your information has been updated.' });
     } catch (error: any) {
       toast({ variant: 'destructive', title: 'Error', description: error.message });
     } finally {
       setIsSaving(false);
     }
   };
+
+  const copyUserKey = () => {
+    if (userProfile?.userKey) {
+        navigator.clipboard.writeText(userProfile.userKey);
+        toast({
+            title: "Copied to Clipboard",
+            description: "Your personal user key can be used by others to invite you to their team."
+        });
+    }
+  }
   
   const isLoading = isProfileLoading || isOrgLoading || !user;
 
@@ -101,7 +110,7 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle>Profile</CardTitle>
             <CardDescription>
-              Update your personal information.
+              Update your personal information and find your user key.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
@@ -111,6 +120,7 @@ export default function SettingsPage() {
                         <Skeleton className="h-10 w-full" />
                         <Skeleton className="h-10 w-full" />
                     </div>
+                    <Skeleton className="h-10 w-full" />
                     <Skeleton className="h-10 w-full" />
                 </div>
             ) : (
@@ -129,69 +139,83 @@ export default function SettingsPage() {
                   <Label htmlFor="email">Email</Label>
                   <Input id="email" type="email" value={profile.email || ''} onChange={handleProfileInputChange} disabled />
                 </div>
+                 <div className="grid gap-2">
+                  <Label htmlFor="userKey">Your User Key</Label>
+                  <div className="flex items-center gap-2">
+                    <Input id="userKey" value={profile.userKey || ''} readOnly className="font-mono" />
+                    <Button variant="outline" size="icon" onClick={copyUserKey}>
+                        <Copy className="h-4 w-4"/>
+                    </Button>
+                  </div>
+                   <p className="text-xs text-muted-foreground">Share this key to be invited to an organization.</p>
+                </div>
                </>
             )}
           </CardContent>
            <CardFooter className="border-t px-6 py-4">
             <Button onClick={handleSave} disabled={isSaving || isLoading}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save
+                Save Profile
             </Button>
           </CardFooter>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Organization</CardTitle>
-            <CardDescription>
-              Manage your organization settings.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            {isLoading ? (
-                 <div className="space-y-4">
-                    <Skeleton className="h-10 w-full" />
-                </div>
-            ) : (
-                <>
-                <div className="grid gap-2">
-                    <Label htmlFor="name">Organization Name</Label>
-                    <Input id="name" value={org.name || ''} onChange={handleOrgInputChange} />
-                </div>
-                </>
-            )}
-          </CardContent>
-          <CardFooter className="border-t px-6 py-4">
-            <Button onClick={handleSave} disabled={isSaving || isLoading}>
-                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save
-            </Button>
-          </CardFooter>
-        </Card>
+        {userProfile?.organizationId && (
+            <Card>
+            <CardHeader>
+                <CardTitle>Organization</CardTitle>
+                <CardDescription>
+                Manage your organization settings.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+                {isLoading ? (
+                    <div className="space-y-4">
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                ) : (
+                    <>
+                    <div className="grid gap-2">
+                        <Label htmlFor="name">Organization Name</Label>
+                        <Input id="name" value={org.name || ''} onChange={handleOrgInputChange} />
+                    </div>
+                    </>
+                )}
+            </CardContent>
+            <CardFooter className="border-t px-6 py-4">
+                <Button onClick={handleSave} disabled={isSaving || isLoading}>
+                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save Organization
+                </Button>
+            </CardFooter>
+            </Card>
+        )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Subscription</CardTitle>
-            <CardDescription>
-              Manage your subscription and billing details.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? <Skeleton className="h-5 w-48" /> : (
-                <div>
-                    <p>You are currently on the <span className="font-semibold capitalize">{organization?.subscriptionPlan} Plan</span>.</p>
-                    {organization?.subscriptionStatus === 'trial' && organization.trialEndDate && (
-                        <p className="text-sm text-muted-foreground">Your trial ends in {formatDistanceToNow(organization.trialEndDate.toDate())}.</p>
-                    )}
-                </div>
-            )}
-          </CardContent>
-          <CardFooter className="border-t px-6 py-4">
-            <Button asChild>
-                <Link href="/pricing">Manage Subscription</Link>
-            </Button>
-          </CardFooter>
-        </Card>
+        {userProfile?.organizationId && (
+            <Card>
+            <CardHeader>
+                <CardTitle>Subscription</CardTitle>
+                <CardDescription>
+                Manage your subscription and billing details.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                {isLoading ? <Skeleton className="h-5 w-48" /> : (
+                    <div>
+                        <p>You are currently on the <span className="font-semibold capitalize">{organization?.subscriptionPlan} Plan</span>.</p>
+                        {organization?.subscriptionStatus === 'trial' && organization.trialEndDate && (
+                            <p className="text-sm text-muted-foreground">Your trial ends in {formatDistanceToNow(organization.trialEndDate.toDate())}.</p>
+                        )}
+                    </div>
+                )}
+            </CardContent>
+            <CardFooter className="border-t px-6 py-4">
+                <Button asChild>
+                    <Link href="/pricing">Manage Subscription</Link>
+                </Button>
+            </CardFooter>
+            </Card>
+        )}
       </div>
     </div>
   );

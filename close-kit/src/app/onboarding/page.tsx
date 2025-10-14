@@ -18,31 +18,31 @@ export default function OnboardingPage() {
 
 
   useEffect(() => {
-    if (isUserLoading) {
+    if (isUserLoading || isProfileLoading) {
+      // Wait until both user and profile are loaded
       return;
     }
-    
+
     if (!user) {
       router.replace('/login');
       return;
     }
 
-    if (!user.emailVerified) {
+     if (user.providerData[0]?.providerId === 'password' && !user.emailVerified) {
       router.replace('/verify-email');
       return;
     }
 
-    if (isProfileLoading) {
-      return;
-    }
-
+    // Now we know we have a user and their profile (or lack thereof)
     if (!userProfile || !userProfile.firstName || !userProfile.lastName) {
       router.replace('/onboarding/profile');
     } else if (!userProfile.organizationId) {
+      // This is the new crucial step. If user has no org, send them to the choice page.
       router.replace('/onboarding/organization');
     } else if (!userProfile.trade || !userProfile.companySize) {
       router.replace('/onboarding/details');
     } else {
+      // If all checks pass, they are fully onboarded
       router.replace('/dashboard');
     }
   }, [user, isUserLoading, userProfile, isProfileLoading, router]);

@@ -8,6 +8,7 @@ import {
   Users,
   Wand2,
   Users2,
+  ShieldQuestion,
 } from 'lucide-react';
 
 export const menuItems = [
@@ -26,10 +27,23 @@ export const menuItems = [
     href: '/dashboard/customers',
     icon: Users,
   },
-    {
+  {
     label: 'Team',
+    isGroup: true,
+  },
+    {
+    label: 'Members',
     href: '/dashboard/team',
     icon: Users2,
+  },
+    {
+    label: 'Roles',
+    href: '/dashboard/team/roles',
+    icon: ShieldQuestion,
+  },
+  {
+    label: 'Operations',
+    isGroup: true,
   },
   {
     label: 'Price Book',
@@ -40,10 +54,6 @@ export const menuItems = [
     label: 'AI Toolkit',
     href: '/dashboard/tools',
     icon: Wand2,
-  },
-   {
-    label: 'Reports',
-    isGroup: true,
   },
   {
     label: 'Analytics',

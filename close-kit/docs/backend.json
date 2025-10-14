@@ -1,0 +1,244 @@
+{
+  "entities": {
+    "Organization": {
+      "title": "Organization",
+      "type": "object",
+      "description": "Stores details about a user's company or team.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the organization."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "The UID of the user who owns the organization."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the organization."
+        },
+        "subscriptionPlan": {
+          "type": "string",
+          "enum": ["solo", "team"],
+          "description": "The current subscription plan for the organization."
+        },
+        "subscriptionStatus": {
+            "type": "string",
+            "enum": ["trial", "active", "expired", "canceled"],
+            "description": "The status of the organization's subscription."
+        },
+        "trialEndDate": {
+            "type": "object",
+            "description": "The timestamp when the free trial ends."
+        }
+      },
+      "required": ["id", "ownerId", "name"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Stores public-facing user profile information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user account, matches Auth UID."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "The organization this user belongs to. Can be optional for unassigned users."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user."
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "URL for the user's profile picture."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "member"],
+          "description": "The user's role within their organization."
+        },
+        "trade": {
+            "type": "string",
+            "enum": ["hvac", "plumbing", "electrical", "other"],
+            "description": "The user's primary trade."
+        },
+        "companySize": {
+            "type": "string",
+            "enum": ["1-5", "6-15", "16-50", "50+"],
+            "description": "The size of the user's company."
+        },
+        "userKey": {
+            "type": "string",
+            "description": "A unique, short, shareable key for inviting users to an organization."
+        }
+      },
+      "required": ["id", "email", "firstName", "lastName", "userKey"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "type": "object",
+      "description": "Stores customer contact information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the customer."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Reference to the Organization that owns this customer."
+        },
+        "name": {
+          "type": "string",
+          "description": "Customer's full name."
+        },
+        "email": {
+          "type": "string",
+          "description": "Customer's email address.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Customer's phone number."
+        },
+        "address": {
+          "type": "string",
+          "description": "Customer's address."
+        }
+      },
+      "required": ["id", "organizationId", "name", "email"]
+    },
+    "Proposal": {
+      "title": "Proposal",
+      "type": "object",
+      "description": "Stores proposal data.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the proposal."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Reference to Organization."
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Reference to Customer."
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Denormalized customer name for easy display."
+        },
+        "createdAt": {
+          "type": "object",
+          "description": "Timestamp of when the proposal was created."
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the proposal (e.g., Draft, Sent, Accepted, Rejected).",
+          "enum": ["Draft", "Sent", "Accepted", "Rejected"]
+        },
+        "amount": {
+          "type": "number",
+          "description": "Total amount of the proposal."
+        }
+      },
+      "required": [
+        "id",
+        "organizationId",
+        "customerId",
+        "customerName",
+        "createdAt",
+        "status",
+        "amount"
+      ]
+    },
+    "PriceBookItem": {
+      "title": "PriceBookItem",
+      "type": "object",
+      "description": "Stores individual entries for materials and equipment costs.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the price book entry."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Reference to Organization."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the material or equipment."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the item.",
+          "enum": ["Material", "Equipment", "Labor"]
+        },
+        "cost": {
+          "type": "number",
+          "description": "Cost of the item."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measurement (e.g., each, feet, hours)."
+        }
+      },
+      "required": ["id", "organizationId", "name", "category", "cost"]
+    }
+  },
+  "auth": {
+    "providers": ["password", "google.com"],
+    "customClaims": {
+      "isAdmin": {
+        "type": "boolean"
+      },
+      "organizationId": {
+        "type": "string"
+      },
+      "role": {
+        "enum": ["admin", "member"]
+      }
+    }
+  },
+  "firestore": {
+    "collections": [
+      {
+        "path": "/organizations/{organizationId}",
+        "schema": { "$ref": "#/entities/Organization" },
+        "description": "Stores organization-specific details."
+      },
+      {
+        "path": "/organizations/{organizationId}/customers/{customerId}",
+        "schema": { "$ref": "#/entities/Customer" },
+        "description": "Customer data, owned by an organization."
+      },
+      {
+        "path": "/organizations/{organizationId}/proposals/{proposalId}",
+        "schema": { "$ref": "#/entities/Proposal" },
+        "description": "Proposal data, owned by an organization."
+      },
+      {
+        "path": "/organizations/{organizationId}/priceBookItems/{priceBookItemId}",
+        "schema": { "$ref": "#/entities/PriceBookItem" },
+        "description": "Price book items, owned by an organization."
+      },
+      {
+        "path": "/users/{userId}",
+        "schema": { "$ref": "#/entities/UserProfile" },
+        "description": "Stores user profile data, linking them to an organization."
+      }
+    ]
+  }
+}

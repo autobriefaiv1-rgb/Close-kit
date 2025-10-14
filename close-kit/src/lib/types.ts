@@ -11,7 +11,7 @@ export type Organization = {
 
 export type UserProfile = {
   id: string; // matches auth uid
-  organizationId: string;
+  organizationId?: string; // Optional now
   firstName: string;
   lastName: string;
   email: string;
@@ -19,6 +19,7 @@ export type UserProfile = {
   role?: 'admin' | 'member';
   trade?: 'hvac' | 'plumbing' | 'electrical' | 'other';
   companySize?: '1-5' | '6-15' | '16-50' | '50+';
+  userKey: string; // New field for invitations
 };
 
 export type Customer = {
@@ -50,3 +51,11 @@ export type PriceBookItem = {
   cost: number;
   unit: string;
 };
+
+export type LineItem = {
+    id: string;
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+}
