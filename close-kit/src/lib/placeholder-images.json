@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -53,6 +54,24 @@
       "description": "Avatar of a male professional.",
       "imageUrl": "https://picsum.photos/seed/avatar-m2/100/100",
       "imageHint": "man professional"
+    },
+    {
+      "id": "demo-dashboard",
+      "description": "Screenshot of the main dashboard.",
+      "imageUrl": "https://picsum.photos/seed/demo1/1200/675",
+      "imageHint": "app dashboard"
+    },
+    {
+      "id": "demo-proposals",
+      "description": "Screenshot of the proposals list page.",
+      "imageUrl": "https://picsum.photos/seed/demo2/1200/675",
+      "imageHint": "app proposals"
+    },
+    {
+      "id": "demo-ai-toolkit",
+      "description": "Screenshot of the AI toolkit page.",
+      "imageUrl": "https://picsum.photos/seed/demo3/1200/675",
+      "imageHint": "app AI"
     }
   ]
 }

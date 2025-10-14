@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +26,7 @@ export default function PricingPage() {
           </div>
            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             <Link href="/#features" className="text-muted-foreground transition-colors hover:text-foreground">Features</Link>
-            <Link href="/pricing" className="text-muted-foreground transition-colors hover:text-foreground">Pricing</Link>
+            <Link href="/pricing" className="text-foreground font-semibold">Pricing</Link>
             <Link href="/support" className="text-muted-foreground transition-colors hover:text-foreground">Support</Link>
           </nav>
           <div className="flex flex-1 items-center justify-end space-x-4">
@@ -32,7 +34,7 @@ export default function PricingPage() {
               <Link href="/login">Login</Link>
             </Button>
             <Button asChild>
-              <Link href="/signup">Sign Up</Link>
+              <Link href="/login">Sign Up</Link>
             </Button>
           </div>
         </div>
@@ -68,7 +70,7 @@ export default function PricingPage() {
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
-                  <span>AI-powered proposal generation</span>
+                  <span>AI Narrative Translator</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
@@ -78,11 +80,15 @@ export default function PricingPage() {
                   <Check className="h-5 w-5 text-primary" />
                   <span>Price book management</span>
                 </li>
+                 <li className="flex items-center gap-3">
+                  <Check className="h-5 w-5 text-primary" />
+                  <span>Standard email support</span>
+                </li>
               </ul>
             </CardContent>
             <CardFooter>
               <Button size="lg" className="w-full" asChild>
-                <Link href="/signup">Start 7-Day Free Trial</Link>
+                <Link href="/login">Start 7-Day Free Trial</Link>
               </Button>
             </CardFooter>
           </Card>
@@ -109,23 +115,23 @@ export default function PricingPage() {
                   <Check className="h-5 w-5 text-primary" />
                   <span>Up to 5 team members</span>
                 </li>
-                <li className="flex items-center gap-3">
+                 <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
-                  <span>Shared price books</span>
+                  <span>Advanced AI Tools (GBB & Pricing)</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
-                  <span>Proposal analytics dashboard</span>
+                  <span>Proposal Analytics Dashboard</span>
                 </li>
                  <li className="flex items-center gap-3">
                   <Check className="h-5 w-5 text-primary" />
-                  <span>Priority support</span>
+                  <span>Priority Support</span>
                 </li>
               </ul>
             </CardContent>
             <CardFooter>
               <Button size="lg" className="w-full" asChild>
-                <Link href="/signup">Start 7-Day Free Trial</Link>
+                <Link href="/login">Start 7-Day Free Trial</Link>
               </Button>
             </CardFooter>
           </Card>

@@ -25,6 +25,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { DashboardDemo } from "@/components/demos/dashboard-demo";
+import { ProposalsDemo } from "@/components/demos/proposals-demo";
+import { AiToolkitDemo } from "@/components/demos/ai-toolkit-demo";
 
 const features = [
   {
@@ -165,13 +169,13 @@ export default function LandingPage() {
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2 min-[400px]:flex-row">
                     <Button size="lg" asChild>
-                      <Link href="/signup">
+                      <Link href="/login">
                         Start Your 7-Day Free Trial
                         <ArrowRight className="ml-2 h-5 w-5" />
                       </Link>
                     </Button>
                     <Button size="lg" variant="outline" asChild>
-                      <Link href="#features">Explore Features</Link>
+                      <Link href="#product-tour">Take a Tour</Link>
                     </Button>
                   </div>
                   <p className="text-sm text-muted-foreground">No credit card required.</p>
@@ -196,8 +200,51 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Product Tour Section */}
+       <section id="product-tour" className="w-full py-20 md:py-32 bg-secondary">
+        <div className="container px-4 md:px-6">
+          <AnimatedSection className="flex flex-col items-center justify-center space-y-4 text-center">
+            <div className="space-y-2">
+              <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
+                Product Tour
+              </div>
+              <h2 className="font-headline text-3xl font-bold tracking-tighter sm:text-5xl">
+                See Close Kit in Action
+              </h2>
+              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                Take a quick tour through the core features of the platform. See how our intuitive design and powerful AI can transform your workflow from day one.
+              </p>
+            </div>
+          </AnimatedSection>
+          <AnimatedSection className="mt-12">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full max-w-5xl mx-auto"
+            >
+              <CarouselContent>
+                <CarouselItem>
+                  <DashboardDemo />
+                </CarouselItem>
+                <CarouselItem>
+                  <ProposalsDemo />
+                </CarouselItem>
+                <CarouselItem>
+                  <AiToolkitDemo />
+                </CarouselItem>
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </AnimatedSection>
+        </div>
+      </section>
+
+
       {/* How it works Section */}
-      <section className="w-full py-20 md:py-32 bg-secondary">
+      <section className="w-full py-20 md:py-32">
         <div className="container px-4 md:px-6">
           <AnimatedSection className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
@@ -245,7 +292,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="w-full py-20 md:py-32">
+      <section id="features" className="w-full py-20 md:py-32 bg-secondary">
         <div className="container px-4 md:px-6 space-y-24">
            <AnimatedSection className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
@@ -301,7 +348,7 @@ export default function LandingPage() {
       </section>
 
         {/* Why Choose Us Section */}
-        <section className="w-full py-20 md:py-32 bg-secondary">
+        <section className="w-full py-20 md:py-32">
             <div className="container px-4 md:px-6">
                 <AnimatedSection className="flex flex-col items-center justify-center space-y-4 text-center">
                     <div className="space-y-2">
@@ -334,7 +381,7 @@ export default function LandingPage() {
 
 
       {/* Reviews Section */}
-      <section id="reviews" className="w-full py-20 md:py-32">
+      <section id="reviews" className="w-full py-20 md:py-32 bg-secondary">
         <div className="container px-4 md:px-6">
           <AnimatedSection className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
@@ -394,7 +441,7 @@ export default function LandingPage() {
                 Join hundreds of successful contractors who use Close Kit to build a more profitable and efficient business. Get started with a 7-day free trial, no credit card required.
               </p>
               <Button size="lg" variant="secondary" className="text-lg" asChild>
-                <Link href="/signup">
+                <Link href="/login">
                   Start Free Trial
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
