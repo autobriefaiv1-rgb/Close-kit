@@ -8,7 +8,7 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card';
-import { useUser } from '@/firebase';
+import { useFirebase } from '@/firebase';
 import { sendEmailVerification, signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, MailCheck } from 'lucide-react';
 
 export default function VerifyEmailPage() {
-  const { user, isUserLoading, auth } = useUser();
+  const { user, isUserLoading, auth } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
   const [isSending, setIsSending] = useState(false);
@@ -35,11 +35,16 @@ export default function VerifyEmailPage() {
     }
 
     const interval = setInterval(async () => {
-      await user.reload();
-      if (user.emailVerified) {
-        clearInterval(interval);
-        router.push('/onboarding');
-      }
+        try {
+            await user.reload();
+            if (user.emailVerified) {
+                clearInterval(interval);
+                router.push('/onboarding');
+            }
+        } catch (error) {
+            console.error("Error reloading user:", error);
+            clearInterval(interval);
+        }
     }, 3000); // Check every 3 seconds
 
     return () => clearInterval(interval);
