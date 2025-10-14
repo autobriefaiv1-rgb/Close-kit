@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Loader2, MoreHorizontal } from 'lucide-react';
+import { PlusCircle, Loader2, MoreHorizontal, Lock, Users2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,11 +36,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useFirebase, useCollection, useDoc, useMemoFirebase } from '@/firebase';
-import type { UserProfile } from '@/lib/types';
+import type { Organization, UserProfile } from '@/lib/types';
 import { collection, doc, query, where } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 export default function TeamPage() {
   const { firestore, user } = useFirebase();
@@ -53,19 +54,22 @@ export default function TeamPage() {
     () => (user ? doc(firestore, 'users', user.uid) : null),
     [firestore, user]
   );
-  const { data: currentUserProfile } = useDoc<UserProfile>(userProfileRef);
+  const { data: currentUserProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+  const organizationRef = useMemoFirebase(() => currentUserProfile?.organizationId ? doc(firestore, 'organizations', currentUserProfile.organizationId) : null, [firestore, currentUserProfile]);
+  const { data: organization, isLoading: isOrgLoading } = useDoc<Organization>(organizationRef);
 
   const teamQuery = useMemoFirebase(
     () =>
-      currentUserProfile
+      currentUserProfile && organization?.subscriptionPlan === 'team'
         ? query(
             collection(firestore, 'users'),
             where('organizationId', '==', currentUserProfile.organizationId)
           )
         : null,
-    [firestore, currentUserProfile]
+    [firestore, currentUserProfile, organization]
   );
-  const { data: teamMembers, isLoading } = useCollection<UserProfile>(teamQuery);
+  const { data: teamMembers, isLoading: isTeamLoading } = useCollection<UserProfile>(teamQuery);
 
   const handleInvite = async () => {
     if (!inviteEmail) {
@@ -93,6 +97,70 @@ export default function TeamPage() {
     setIsDialogOpen(false);
     setInviteEmail('');
   };
+  
+  const isLoading = isProfileLoading || isOrgLoading || isTeamLoading;
+
+  if (isLoading) {
+     return (
+       <Card>
+        <CardHeader>
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-64" />
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Member</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
+                 <TableHead><span className="sr-only">Actions</span></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {[...Array(2)].map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                          <Skeleton className="h-5 w-24" />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-5 w-40" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-5 w-16" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-8 w-8 ml-auto" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+     )
+  }
+
+  if (organization?.subscriptionPlan !== 'team') {
+    return (
+      <Card className="flex flex-col items-center justify-center text-center p-12">
+        <div className="bg-primary/10 rounded-full p-4 mb-6">
+          <Users2 className="w-10 h-10 text-primary" />
+        </div>
+        <CardTitle className="font-headline text-2xl mb-2">Upgrade to Manage Your Team</CardTitle>
+        <CardDescription className="max-w-md mb-6">
+          Team Management is a premium feature. Upgrade to the Team plan to invite members, share price books, and collaborate on proposals.
+        </CardDescription>
+        <Button asChild>
+          <Link href="/pricing">View Upgrade Options</Link>
+        </Button>
+      </Card>
+    );
+  }
+
 
   return (
     <Card>
@@ -154,35 +222,15 @@ export default function TeamPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading
-              ? [...Array(2)].map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Skeleton className="h-10 w-10 rounded-full" />
-                        <Skeleton className="h-5 w-24" />
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-5 w-40" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-5 w-16" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-8 w-8 ml-auto" />
-                    </TableCell>
-                  </TableRow>
-                ))
-              : teamMembers?.map((member) => (
+            {teamMembers?.map((member) => (
                   <TableRow key={member.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar>
                           <AvatarImage src={member.avatarUrl} alt={`${member.firstName} ${member.lastName}`} />
                           <AvatarFallback>
-                            {member.firstName?.[0]?.toUpperCase()}
-                            {member.lastName?.[0]?.toUpperCase()}
+                            {member.firstName?.[0]}
+                            {member.lastName?.[0]}
                           </AvatarFallback>
                         </Avatar>
                         <span className="font-medium">

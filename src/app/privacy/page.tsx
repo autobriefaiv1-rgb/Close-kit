@@ -15,107 +15,61 @@ export default function PrivacyPage() {
       </header>
       <main className="flex-1">
         <div className="container py-20">
-          <h1 className="font-headline text-4xl font-bold tracking-tight lg:text-5xl">
-            Privacy Policy
-          </h1>
-          <div className="prose prose-lg mt-6 max-w-none text-muted-foreground">
-            <p>Last updated: {new Date().toLocaleDateString()}</p>
-            <p>
-              This Privacy Policy describes Our policies and procedures on the
-              collection, use and disclosure of Your information when You use
-              the Service and tells You about Your privacy rights and how the
-              law protects You.
-            </p>
-            <p>
-              We use Your Personal data to provide and improve the Service. By
-              using the Service, You agree to the collection and use of
-              information in accordance with this Privacy Policy.
-            </p>
+          <article className="prose prose-lg max-w-none text-muted-foreground prose-h1:font-headline prose-h1:text-foreground prose-h2:font-headline prose-h2:text-foreground prose-h2:mt-12 prose-h2:mb-4 prose-h3:font-headline prose-h3:text-foreground prose-headings:font-headline prose-strong:text-foreground">
+            <h1>Privacy Policy</h1>
+            <p>Effective Date: {new Date().toLocaleDateString()}</p>
+            <p>Last Updated: {new Date().toLocaleDateString()}</p>
 
-            <h2>Collecting and Using Your Personal Data</h2>
-            <h3>Types of Data Collected</h3>
-            <h4>Personal Data</h4>
-            <p>
-              While using Our Service, We may ask You to provide Us with certain
-              personally identifiable information that can be used to contact or
-              identify You. Personally identifiable information may include, but
-              is not limited to:
-            </p>
+            <p>This Privacy Policy describes how Close Kit ("We," "Our," or "Close Kit"), acting as a Data Controller, collects, uses, and shares personal data related to individuals who interact with our business (e.g., Authorized Users, billing contacts, website visitors).</p>
+
+            <h2>1. Our Role as Data Controller and Processor</h2>
+            <p><strong>1.1. Controller Role:</strong> Close Kit acts as the Data Controller with respect to the personal information of our corporate clients (Customers) and their Authorized Users (e.g., login credentials, job titles, billing information, usage metrics within the platform). This Policy addresses the processing activities in our capacity as Controller.</p>
+            <p><strong>1.2. Processor Role:</strong> When processing the personal data of the Customer’s end-clients (e.g., homeowner names, addresses, job site history, proposal details), Close Kit acts solely as a Data Processor. This processing is governed strictly by the instructions of the Customer (the Data Controller) and is detailed in a separate Data Processing Addendum (DPA).</p>
+
+            <h2>2. Personal Data We Collect (As Controller)</h2>
+            <p>We collect the following types of data about our Customer’s personnel (Authorized Users, billing contacts):</p>
             <ul>
-              <li>Email address</li>
-              <li>First name and last name</li>
-              <li>Usage Data</li>
+              <li><strong>2.1. Business Contact Information:</strong> Names, job titles, company affiliation, work email addresses, and work phone numbers.</li>
+              <li><strong>2.2. Financial Data:</strong> Payment method details, billing address, and transaction history related to subscription payments processed through our third-party payment processor, PayPal/Braintree.</li>
+              <li><strong>2.3. Mobile and Geolocation Data (High-Risk Category):</strong>
+                <ul className='my-4'>
+                    <li>GPS Tracking: Precise geolocation data (GPS coordinates) is collected from the mobile devices of Authorized Users (e.g., field technicians) only when the mobile application is actively running and with explicit, opt-in consent.</li>
+                    <li>Purpose: This data is collected to provide essential field service management functionality, including enabling features like technician dispatching, automated time tracking, job site arrival/departure verification, and optimal routing.</li>
+                </ul>
+              </li>
+              <li><strong>2.4. Usage and Log Data:</strong> Information about how Authorized Users access and use the Service, including login times, features accessed, API interaction data, and device identifiers (IP addresses, operating system).</li>
             </ul>
 
-            <h4>Usage Data</h4>
-            <p>
-              Usage Data is collected automatically when using the Service.
-            </p>
-            <p>
-              Usage Data may include information such as Your Device's Internet
-              Protocol address (e.g. IP address), browser type, browser
-              version, the pages of our Service that You visit, the time and
-              date of Your visit, the time spent on those pages, unique device
-              identifiers and other diagnostic data.
-            </p>
-
-            <h2>Use of Your Personal Data</h2>
-            <p>
-              The Company may use Personal Data for the following purposes:
-            </p>
+            <h2>3. How We Use the Data</h2>
+            <p>We use the collected data for the following lawful bases:</p>
             <ul>
-              <li>
-                <strong>To provide and maintain our Service</strong>,
-                including to monitor the usage of our Service.
-              </li>
-              <li>
-                <strong>To manage Your Account:</strong> to manage Your
-                registration as a user of the Service. The Personal Data You
-                provide can give You access to different functionalities of the
-                Service that are available to You as a registered user.
-              </li>
-              <li>
-                <strong>To contact You:</strong> To contact You by email,
-                telephone calls, SMS, or other equivalent forms of electronic
-                communication.
-              </li>
+                <li><strong>3.1. Contract Fulfillment:</strong> To provide, maintain, and support the Service, process billing, manage subscriptions, and communicate service updates.</li>
+                <li><strong>3.2. Legitimate Interest:</strong> To improve the application, troubleshoot errors, and enhance the security of the platform. This includes analyzing aggregated and anonymized Usage Data to identify trends in platform adoption.</li>
+                <li><strong>3.3. Compliance:</strong> To comply with legal obligations (e.g., tax reporting, regulatory compliance).</li>
             </ul>
 
-            <h2>Retention of Your Personal Data</h2>
-            <p>
-              The Company will retain Your Personal Data only for as long as is
-              necessary for the purposes set out in this Privacy Policy.
-            </p>
+            <h2>4. Data Sharing and Disclosure</h2>
+            <p>We share personal data only as necessary for service delivery and compliance:</p>
+            <ul>
+                <li><strong>4.1. Third-Party Service Providers (Sub-processors):</strong> We engage critical third-party vendors for hosting (cloud providers), data storage (for RAG knowledge bases), security, and other operational needs. We commit to ensuring all sub-processors maintain high security standards (e.g., SOC 2, ISO 27001).</li>
+                <li><strong>4.2. Payment Processors:</strong> We share necessary financial and contact information with PayPal/Braintree to process recurring subscription payments. The processing of this data is subject to the Payment Processor’s own terms and privacy policies.</li>
+                <li><strong>4.3. AI Functionality:</strong> Data, excluding proprietary Customer Content, may be used for technical operations, such as feeding the RAG architecture to generate accurate proposals. As stated in the ToS, we do not use Customer Content to train generalized AI models without consent.</li>
+                <li><strong>4.4. Legal Compliance:</strong> Data may be disclosed if required by law, court order, or governmental authority.</li>
+            </ul>
 
-            <h2>Disclosure of Your Personal Data</h2>
-            <p>
-              The Company may be required to disclose Your Personal Data in
-              certain situations, such as to comply with a legal obligation or
-              to protect and defend the rights or property of the Company.
-            </p>
-
-            <h2>Security of Your Personal Data</h2>
-            <p>
-              The security of Your Personal Data is important to Us, but
-              remember that no method of transmission over the Internet, or
-              method of electronic storage is 100% secure.
-            </p>
-
-            <h2>Changes to this Privacy Policy</h2>
-            <p>
-              We may update Our Privacy Policy from time to time. We will notify
-              You of any changes by posting the new Privacy Policy on this page.
-            </p>
-
+            <h2>5. Data Security and International Transfers</h2>
+            <p><strong>5.1. Security Commitment:</strong> We maintain robust technical and organizational measures to protect data from unauthorized access, loss, or misuse, including but not limited to the use of encryption (AES-256 at rest, TLS 1.3 in transit) and mandatory multi-factor authentication (MFA) for staff and Authorized Users.</p>
+            <p><strong>5.2. International Transfers:</strong> Data may be stored and processed in countries outside the Customer’s jurisdiction. Where required by GDPR or CCPA, international transfers are protected by standard contractual clauses (SCCs) and adherence to a Data Processing Addendum.</p>
+            
+            <h2>6. Your Privacy Rights</h2>
+            <p>Depending on jurisdiction (e.g., GDPR, CCPA), Authorized Users and data subjects may have the right to access, delete, correct, or restrict the processing of their personal data. Requests regarding end-client data (where the Customer is the Controller) must be directed to the Customer, and Close Kit will assist the Customer as required by the DPA.</p>
+            
             <h2>Contact Us</h2>
             <p>
               If you have any questions about this Privacy Policy, You can
-              contact us:
+              contact us by email: <a href="mailto:autobriefaiv1@gmail.com">autobriefaiv1@gmail.com</a>
             </p>
-            <ul>
-              <li>By email: autobriefaiv1@gmail.com</li>
-            </ul>
-          </div>
+          </article>
         </div>
       </main>
     </div>

@@ -23,11 +23,14 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { useFirebase, useCollection, useDoc, useMemoFirebase } from '@/firebase';
-import type { Proposal, UserProfile } from '@/lib/types';
+import type { Organization, Proposal, UserProfile } from '@/lib/types';
 import { collection, doc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Lock } from 'lucide-react';
 
 const chartConfig: ChartConfig = {
   proposals: {
@@ -47,11 +50,14 @@ export default function AnalyticsPage() {
     () => (user ? doc(firestore, 'users', user.uid) : null),
     [firestore, user]
   );
-  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+  const organizationRef = useMemoFirebase(() => userProfile?.organizationId ? doc(firestore, 'organizations', userProfile.organizationId) : null, [firestore, userProfile]);
+  const { data: organization, isLoading: isOrgLoading } = useDoc<Organization>(organizationRef);
 
   const proposalsQuery = useMemoFirebase(
     () =>
-      userProfile
+      userProfile && organization?.subscriptionPlan === 'team'
         ? collection(
             firestore,
             'organizations',
@@ -59,9 +65,11 @@ export default function AnalyticsPage() {
             'proposals'
           )
         : null,
-    [firestore, userProfile]
+    [firestore, userProfile, organization]
   );
-  const { data: proposals, isLoading } = useCollection<Proposal>(proposalsQuery);
+  const { data: proposals, isLoading: isProposalsLoading } = useCollection<Proposal>(proposalsQuery);
+
+  const isLoading = isProfileLoading || isOrgLoading || isProposalsLoading;
 
   const {
     totalRevenue,
@@ -134,6 +142,35 @@ export default function AnalyticsPage() {
       monthlyChartData,
     };
   }, [proposals]);
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-36" />)}
+        </div>
+        <Skeleton className="h-96" />
+      </div>
+    );
+  }
+
+  if (organization?.subscriptionPlan !== 'team') {
+     return (
+      <Card className="flex flex-col items-center justify-center text-center p-12">
+        <div className="bg-primary/10 rounded-full p-4 mb-6">
+          <Lock className="w-10 h-10 text-primary" />
+        </div>
+        <CardTitle className="font-headline text-2xl mb-2">Upgrade to Unlock Analytics</CardTitle>
+        <CardDescription className="max-w-md mb-6">
+          The Analytics Dashboard is a premium feature. Upgrade to the Team plan to gain powerful insights into your proposal performance, revenue trends, and team productivity.
+        </CardDescription>
+        <Button asChild>
+          <Link href="/pricing">View Upgrade Options</Link>
+        </Button>
+      </Card>
+    );
+  }
+
 
   const renderStatCard = (title: string, value: string, description: string) => (
     <Card>
