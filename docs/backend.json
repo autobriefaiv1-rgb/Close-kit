@@ -20,26 +20,174 @@
           "type": "string",
           "description": "Name of the company the user belongs to."
         },
-        "subscriptionId": {
+        "createdAt": {
           "type": "string",
-          "description": "Reference to Subscription. (Relationship: User 1:1 Subscription)"
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was last updated.",
+          "format": "date-time"
         }
       },
       "required": [
         "id",
         "email",
-        "companyName"
+        "companyName",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CompanyFinancialSetting": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CompanyFinancialSetting",
+      "type": "object",
+      "description": "Represents the financial settings for a company.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the financial settings.",
+          "format": "uuid"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:1 CompanyFinancialSetting)"
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency used by the company."
+        },
+        "taxRate": {
+          "type": "number",
+          "description": "The tax rate applied to the company's transactions."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the financial settings were created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the financial settings were last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "currency",
+        "taxRate",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Material": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Material",
+      "type": "object",
+      "description": "Represents a material used in HVAC projects.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the material.",
+          "format": "uuid"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Material)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the material."
+        },
+        "cost": {
+          "type": "number",
+          "description": "Cost of the material."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measurement for the material (e.g., feet, inches)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the material was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the material was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "cost",
+        "unit",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Equipment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Equipment",
+      "type": "object",
+      "description": "Represents a piece of equipment used in HVAC projects.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the equipment.",
+          "format": "uuid"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Equipment)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the equipment."
+        },
+        "cost": {
+          "type": "number",
+          "description": "Cost of the equipment."
+        },
+        "modelNumber": {
+          "type": "string",
+          "description": "Model number of the equipment."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the equipment was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the equipment was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "cost",
+        "modelNumber",
+        "createdAt",
+        "updatedAt"
       ]
     },
     "Customer": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Customer",
       "type": "object",
-      "description": "Represents a customer managed by a user.",
+      "description": "Represents a customer of the HVAC business.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the customer."
+          "description": "Unique identifier for the customer.",
+          "format": "uuid"
         },
         "userId": {
           "type": "string",
@@ -58,13 +206,23 @@
           "description": "Email address of the customer.",
           "format": "email"
         },
-        "phone": {
+        "phoneNumber": {
           "type": "string",
           "description": "Phone number of the customer."
         },
         "address": {
           "type": "string",
           "description": "Address of the customer."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the customer was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the customer was last updated.",
+          "format": "date-time"
         }
       },
       "required": [
@@ -73,62 +231,63 @@
         "firstName",
         "lastName",
         "email",
-        "phone"
+        "phoneNumber",
+        "address",
+        "createdAt",
+        "updatedAt"
       ]
     },
     "Proposal": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Proposal",
       "type": "object",
-      "description": "Represents a proposal created for a customer.",
+      "description": "Represents a proposal generated for a customer.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the proposal."
-        },
-        "customerId": {
-          "type": "string",
-          "description": "Reference to Customer. (Relationship: Customer 1:N Proposal)"
+          "description": "Unique identifier for the proposal.",
+          "format": "uuid"
         },
         "userId": {
           "type": "string",
           "description": "Reference to User. (Relationship: User 1:N Proposal)"
         },
-        "dateCreated": {
+        "customerId": {
           "type": "string",
-          "description": "Date when the proposal was created.",
-          "format": "date-time"
+          "description": "Reference to Customer. (Relationship: Customer 1:N Proposal)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the proposal."
+        },
+        "gbbOptions": {
+          "type": "string",
+          "description": "AI-generated Good-Better-Best options for the proposal."
         },
         "status": {
           "type": "string",
           "description": "Status of the proposal (e.g., Draft, Sent, Accepted, Rejected)."
         },
-        "goodOption": {
+        "createdAt": {
           "type": "string",
-          "description": "The 'Good' option generated by the AI."
+          "description": "Timestamp indicating when the proposal was created.",
+          "format": "date-time"
         },
-        "betterOption": {
+        "updatedAt": {
           "type": "string",
-          "description": "The 'Better' option generated by the AI."
-        },
-        "bestOption": {
-          "type": "string",
-          "description": "The 'Best' option generated by the AI."
-        },
-        "lineItemIds": {
-          "type": "array",
-          "description": "References to Line Items. (Relationship: Proposal 1:N LineItem)",
-          "items": {
-            "type": "string"
-          }
+          "description": "Timestamp indicating when the proposal was last updated.",
+          "format": "date-time"
         }
       },
       "required": [
         "id",
-        "customerId",
         "userId",
-        "dateCreated",
-        "status"
+        "customerId",
+        "name",
+        "gbbOptions",
+        "status",
+        "createdAt",
+        "updatedAt"
       ]
     },
     "LineItem": {
@@ -139,7 +298,8 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the line item."
+          "description": "Unique identifier for the line item.",
+          "format": "uuid"
         },
         "proposalId": {
           "type": "string",
@@ -156,6 +316,24 @@
         "unitPrice": {
           "type": "number",
           "description": "Unit price of the item."
+        },
+        "materialId": {
+          "type": "string",
+          "description": "Reference to Material. (Relationship: Material 1:N LineItem)"
+        },
+        "equipmentId": {
+          "type": "string",
+          "description": "Reference to Equipment. (Relationship: Equipment 1:N LineItem)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the line item was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the line item was last updated.",
+          "format": "date-time"
         }
       },
       "required": [
@@ -163,142 +341,64 @@
         "proposalId",
         "description",
         "quantity",
-        "unitPrice"
-      ]
-    },
-    "PriceBookEntry": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "PriceBookEntry",
-      "type": "object",
-      "description": "Represents an entry in the price book.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the price book entry."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N PriceBookEntry)"
-        },
-        "itemCode": {
-          "type": "string",
-          "description": "Item code or SKU."
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the item."
-        },
-        "cost": {
-          "type": "number",
-          "description": "Cost of the item."
-        },
-        "price": {
-          "type": "number",
-          "description": "Price of the item."
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "itemCode",
-        "description",
-        "cost",
-        "price"
+        "unitPrice",
+        "createdAt",
+        "updatedAt"
       ]
     },
     "Subscription": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Subscription",
       "type": "object",
-      "description": "Represents a user's subscription details.",
+      "description": "Represents a user's subscription status.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the subscription."
+          "description": "Unique identifier for the subscription.",
+          "format": "uuid"
         },
         "userId": {
           "type": "string",
           "description": "Reference to User. (Relationship: User 1:1 Subscription)"
         },
-        "startDate": {
+        "stripeSubscriptionId": {
           "type": "string",
-          "description": "Start date of the subscription.",
-          "format": "date-time"
-        },
-        "endDate": {
-          "type": "string",
-          "description": "End date of the subscription.",
-          "format": "date-time"
-        },
-        "planType": {
-          "type": "string",
-          "description": "Type of subscription plan (e.g., Solo, Team, Enterprise)."
+          "description": "Stripe subscription ID."
         },
         "status": {
           "type": "string",
-          "description": "Status of the subscription (e.g., Active, Trial, Canceled)."
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "startDate",
-        "endDate",
-        "planType",
-        "status"
-      ]
-    },
-    "CompetitorPrice": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "CompetitorPrice",
-      "type": "object",
-      "description": "Represents pricing data scraped from competitors.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the competitor price data."
+          "description": "Status of the subscription (e.g., active, trialing, canceled)."
         },
-        "userId": {
+        "createdAt": {
           "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N CompetitorPrice)"
+          "description": "Timestamp indicating when the subscription was created.",
+          "format": "date-time"
         },
-        "sourceUrl": {
+        "updatedAt": {
           "type": "string",
-          "description": "URL where the price data was scraped from.",
-          "format": "uri"
-        },
-        "itemDescription": {
-          "type": "string",
-          "description": "Description of the item being priced."
-        },
-        "price": {
-          "type": "number",
-          "description": "The price of the item."
-        },
-        "dateScraped": {
-          "type": "string",
-          "description": "Date when the price data was scraped.",
+          "description": "Timestamp indicating when the subscription was last updated.",
           "format": "date-time"
         }
       },
       "required": [
         "id",
         "userId",
-        "sourceUrl",
-        "itemDescription",
-        "price",
-        "dateScraped"
+        "stripeSubscriptionId",
+        "status",
+        "createdAt",
+        "updatedAt"
       ]
     },
     "JobCostingData": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "JobCostingData",
       "type": "object",
-      "description": "Represents the data for calculating job costs.",
+      "description": "Represents the job costing information for a specific job.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the job costing data."
+          "description": "Unique identifier for the job costing data.",
+          "format": "uuid"
         },
         "userId": {
           "type": "string",
@@ -314,11 +414,17 @@
         },
         "fixedOverhead": {
           "type": "number",
-          "description": "Fixed overhead costs allocated to the job."
+          "description": "Fixed overhead costs associated with the job."
         },
-        "estimatedHours": {
-          "type": "number",
-          "description": "Estimated labor hours for the job."
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the job costing data was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the job costing data was last updated.",
+          "format": "date-time"
         }
       },
       "required": [
@@ -327,43 +433,56 @@
         "directCosts",
         "indirectCosts",
         "fixedOverhead",
-        "estimatedHours"
+        "createdAt",
+        "updatedAt"
       ]
     },
-    "ProposalAnalytics": {
+    "CompetitorPrice": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ProposalAnalytics",
+      "title": "CompetitorPrice",
       "type": "object",
-      "description": "Represents analytics data for proposals.",
+      "description": "Represents a competitor's pricing data for a specific service or product.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the proposal analytics data."
+          "description": "Unique identifier for the competitor price data.",
+          "format": "uuid"
         },
-        "proposalId": {
+        "userId": {
           "type": "string",
-          "description": "Reference to Proposal. (Relationship: Proposal 1:1 ProposalAnalytics)"
+          "description": "Reference to User. (Relationship: User 1:N CompetitorPrice)"
         },
-        "views": {
-          "type": "number",
-          "description": "Number of times the proposal has been viewed."
-        },
-        "acceptanceRate": {
-          "type": "number",
-          "description": "Acceptance rate of the proposal."
-        },
-        "dateTracked": {
+        "competitorName": {
           "type": "string",
-          "description": "Date when the analytics were tracked.",
+          "description": "Name of the competitor."
+        },
+        "serviceDescription": {
+          "type": "string",
+          "description": "Description of the service or product being offered."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price offered by the competitor."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the competitor price data was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the competitor price data was last updated.",
           "format": "date-time"
         }
       },
       "required": [
         "id",
-        "proposalId",
-        "views",
-        "acceptanceRate",
-        "dateTracked"
+        "userId",
+        "competitorName",
+        "serviceDescription",
+        "price",
+        "createdAt",
+        "updatedAt"
       ]
     }
   },
@@ -382,11 +501,71 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores user account information.  The 'userId' is used for path-based ownership.",
+          "description": "Stores user profile information. Accessible only by the user themselves.",
           "params": [
             {
               "name": "userId",
               "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/companyFinancialSettings/{companyFinancialSettingId}",
+        "definition": {
+          "entityName": "CompanyFinancialSetting",
+          "schema": {
+            "$ref": "#/backend/entities/CompanyFinancialSetting"
+          },
+          "description": "Stores financial settings for each company. Accessible only by the user themselves.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "companyFinancialSettingId",
+              "description": "The unique identifier of the company financial settings."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/materials/{materialId}",
+        "definition": {
+          "entityName": "Material",
+          "schema": {
+            "$ref": "#/backend/entities/Material"
+          },
+          "description": "Stores materials for each user. Accessible only by the user themselves.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "materialId",
+              "description": "The unique identifier of the material."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/equipment/{equipmentId}",
+        "definition": {
+          "entityName": "Equipment",
+          "schema": {
+            "$ref": "#/backend/entities/Equipment"
+          },
+          "description": "Stores equipment for each user. Accessible only by the user themselves.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "equipmentId",
+              "description": "The unique identifier of the equipment."
             }
           ]
         }
@@ -398,7 +577,7 @@
           "schema": {
             "$ref": "#/backend/entities/Customer"
           },
-          "description": "Stores customer data owned by a specific user. Includes denormalized 'userId' for authorization independence.",
+          "description": "Stores customers for each user. Accessible only by the user themselves.",
           "params": [
             {
               "name": "userId",
@@ -418,7 +597,7 @@
           "schema": {
             "$ref": "#/backend/entities/Proposal"
           },
-          "description": "Stores proposals created by a specific user. Includes denormalized 'userId' and 'customerId' for authorization independence.",
+          "description": "Stores proposals for each user. Includes denormalized 'members' map for authorization independence.",
           "params": [
             {
               "name": "userId",
@@ -438,7 +617,7 @@
           "schema": {
             "$ref": "#/backend/entities/LineItem"
           },
-          "description": "Stores line items associated with a specific proposal. Includes denormalized 'userId' and 'proposalId' for authorization independence.",
+          "description": "Stores line items for each proposal. Accessible only by the user themselves.",
           "params": [
             {
               "name": "userId",
@@ -456,33 +635,13 @@
         }
       },
       {
-        "path": "/users/{userId}/priceBookEntries/{priceBookEntryId}",
-        "definition": {
-          "entityName": "PriceBookEntry",
-          "schema": {
-            "$ref": "#/backend/entities/PriceBookEntry"
-          },
-          "description": "Stores price book entries managed by a specific user. Includes denormalized 'userId' for authorization independence.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "priceBookEntryId",
-              "description": "The unique identifier of the price book entry."
-            }
-          ]
-        }
-      },
-      {
         "path": "/users/{userId}/subscriptions/{subscriptionId}",
         "definition": {
           "entityName": "Subscription",
           "schema": {
             "$ref": "#/backend/entities/Subscription"
           },
-          "description": "Stores subscription details for a specific user.  Includes denormalized 'userId' for authorization independence.",
+          "description": "Stores subscription information for each user. Accessible only by the user themselves.",
           "params": [
             {
               "name": "userId",
@@ -496,33 +655,13 @@
         }
       },
       {
-        "path": "/users/{userId}/competitorPrices/{competitorPriceId}",
-        "definition": {
-          "entityName": "CompetitorPrice",
-          "schema": {
-            "$ref": "#/backend/entities/CompetitorPrice"
-          },
-          "description": "Stores competitor pricing data scraped by a specific user. Includes denormalized 'userId' for authorization independence.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "competitorPriceId",
-              "description": "The unique identifier of the competitor price data."
-            }
-          ]
-        }
-      },
-      {
         "path": "/users/{userId}/jobCostingData/{jobCostingDataId}",
         "definition": {
           "entityName": "JobCostingData",
           "schema": {
             "$ref": "#/backend/entities/JobCostingData"
           },
-          "description": "Stores job costing data for a specific user. Includes denormalized 'userId' for authorization independence.",
+          "description": "Stores job costing data for each user. Accessible only by the user themselves.",
           "params": [
             {
               "name": "userId",
@@ -536,17 +675,21 @@
         }
       },
       {
-        "path": "/proposalsAnalytics/{proposalAnalyticsId}",
+        "path": "/users/{userId}/competitorPrices/{competitorPriceId}",
         "definition": {
-          "entityName": "ProposalAnalytics",
+          "entityName": "CompetitorPrice",
           "schema": {
-            "$ref": "#/backend/entities/ProposalAnalytics"
+            "$ref": "#/backend/entities/CompetitorPrice"
           },
-          "description": "Stores analytics data for proposals.  This is a top level collection to allow easy querying. Ensure security rules are in place to prevent unauthorized access.",
+          "description": "Stores competitor price data for each user. Accessible only by the user themselves.",
           "params": [
             {
-              "name": "proposalAnalyticsId",
-              "description": "The unique identifier of the proposal analytics data."
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "competitorPriceId",
+              "description": "The unique identifier of the competitor price."
             }
           ]
         }
@@ -554,36 +697,40 @@
       {
         "path": "/roles_admin/{userId}",
         "definition": {
-          "entityName": "roles_admin",
+          "entityName": "AdminRole",
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Indicates that a user has admin roles. Existence of the document implies admin role.",
+          "description": "Collection to store UIDs of admin users. Existence of a document grants admin access.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user."
+              "description": "The unique identifier of the admin user."
             }
           ]
         }
       },
       {
-        "path": "/analysis_jobs/{jobId}",
+        "path": "/analytics/{dataType}/{docId}",
         "definition": {
-          "entityName": "analysis_jobs",
+          "entityName": "AnalyticsData",
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores metadata for running asynchronous analysis jobs, such as competitor price analysis.  Security rules must prevent unauthorized job creation and access.",
+          "description": "Collection to store analytics data.  Data type could be 'proposal_views', 'acceptance_rates', etc.",
           "params": [
             {
-              "name": "jobId",
-              "description": "The unique identifier of the analysis job."
+              "name": "dataType",
+              "description": "The type of analytics data."
+            },
+            {
+              "name": "docId",
+              "description": "The unique identifier of the analytics document."
             }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, while adhering to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). It leverages denormalization to avoid hierarchical authorization dependencies and facilitates atomic operations.  Structural segregation is used to group homogeneous data with the same security needs together. Consistent access modeling patterns (path-based ownership for private data, membership maps for collaborative data) are applied throughout the design.\n\nAuthorization Independence is achieved by denormalizing authorization data (e.g., user IDs, roles) into subcollections where needed, eliminating the need for `get()` calls in security rules.  For example, the `userId` is copied into `customers`, `proposals`, `priceBookEntries`, `competitorPrices`, and `jobCostingData` to allow security rules to directly check the owner without needing to read the user document.\n\nQAPs are supported by using structural segregation: each collection stores data with a specific access model (e.g., user-owned data in `/users/{userId}/...`).  List operations are secured by filtering based on the `request.auth.uid` and the denormalized authorization data within each document. Membership maps, if used, would also be included directly within documents to avoid extra reads during list operations. The structure will allow us to create simple and robust security rules.\n\nAdditional collections are created for admin roles (`/roles_admin/{uid}`) and for analysis (`/analysis_jobs`)."
+    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability, adhering to the specified principles. It leverages path-based ownership for user-specific data and denormalization for collaborative data. User data and related entities are stored under the `/users/{userId}` path, ensuring only the authenticated user can access their data. This structure supports secure list operations (QAPs) because each collection's security rules can be independently defined based on path and document content, without relying on filtering.  The structure uses denormalization strategy for team access to proposals. The `proposals` collection includes a denormalized `members` map, copying user roles from the `/users/{userId}/roles/{roleId}` document (if applicable) to allow authorization without `get()` calls. This ensures atomic operations and simplifies security rule evaluation.  Separate collections are used for admin and analysis roles. The mere presence of a document in `/roles_admin/{uid}` grants administrative privileges.  For efficient analysis, a separate collection `/analytics/{dataType}/{docId}` is used for aggregated data."
   }
 }
