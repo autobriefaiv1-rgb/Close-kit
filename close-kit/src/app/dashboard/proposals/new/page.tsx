@@ -1,21 +1,23 @@
-import { Button } from "@/components/ui/button";
+'use client';
+
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Table,
   TableBody,
@@ -23,11 +25,66 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { mockCustomers } from "@/lib/data";
-import { PlusCircle, Trash, Upload } from "lucide-react";
+} from '@/components/ui/table';
+import { PlusCircle, Trash, Upload, Loader2, MoreVertical } from 'lucide-react';
+import { useState } from 'react';
+import { useFirebase, useCollection, addDocumentNonBlocking, useMemoFirebase, useDoc } from '@/firebase';
+import { collection, doc, serverTimestamp } from 'firebase/firestore';
+import type { Customer, UserProfile } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export default function NewProposalPage() {
+    const { firestore, user } = useFirebase();
+    const { toast } = useToast();
+    const router = useRouter();
+
+    const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+    const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
+    const customersQuery = useMemoFirebase(
+      () => userProfile ? collection(firestore, 'organizations', userProfile.organizationId, 'customers') : null,
+      [firestore, userProfile]
+    );
+    const { data: customers } = useCollection<Customer>(customersQuery);
+
+    const [selectedCustomerId, setSelectedCustomerId] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+
+
+    const handleSendProposal = async () => {
+        if (!user || !firestore || !userProfile) return;
+
+        if (!selectedCustomerId) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Please select a customer.' });
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const selectedCustomer = customers?.find(c => c.id === selectedCustomerId);
+            const proposalData = {
+                organizationId: userProfile.organizationId,
+                customerId: selectedCustomerId,
+                customerName: selectedCustomer?.name || 'Unknown',
+                status: 'Sent', // Or 'Draft' if you save as draft
+                amount: 3754.10, // Placeholder
+                createdAt: serverTimestamp(),
+            };
+
+            await addDocumentNonBlocking(collection(firestore, 'organizations', userProfile.organizationId, 'proposals'), proposalData);
+            
+            toast({ title: 'Proposal Sent!', description: 'Your proposal has been successfully sent.' });
+            router.push('/dashboard/proposals');
+
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Error', description: error.message });
+            setIsSaving(false);
+        }
+    }
+
+
   return (
     <div className="mx-auto grid max-w-6xl flex-1 auto-rows-max gap-4">
       <div className="flex items-center gap-4">
@@ -35,9 +92,28 @@ export default function NewProposalPage() {
           New Proposal
         </h1>
         <div className="hidden items-center gap-2 md:ml-auto md:flex">
-          <Button variant="outline">Save Draft</Button>
-          <Button>Send Proposal</Button>
+          <Button variant="outline" disabled={isSaving}>Save Draft</Button>
+          <Button onClick={handleSendProposal} disabled={isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Send Proposal
+          </Button>
         </div>
+         <div className="md:hidden ml-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="outline">
+                  <MoreVertical />
+                  <span className="sr-only">More</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem disabled={isSaving}>Save Draft</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSendProposal} disabled={isSaving}>
+                    {isSaving ? 'Sending...' : 'Send Proposal'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
       </div>
       <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
         <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
@@ -51,13 +127,13 @@ export default function NewProposalPage() {
             <CardContent className="grid gap-6">
               <div className="grid gap-3">
                 <Label htmlFor="customer">Customer</Label>
-                <Select>
+                <Select onValueChange={setSelectedCustomerId} value={selectedCustomerId}>
                   <SelectTrigger id="customer" aria-label="Select customer">
                     <SelectValue placeholder="Select customer" />
                   </SelectTrigger>
                   <SelectContent>
-                    {mockCustomers.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.name}>
+                    {customers?.map((customer) => (
+                      <SelectItem key={customer.id} value={customer.id}>
                         {customer.name}
                       </SelectItem>
                     ))}
@@ -178,12 +254,6 @@ export default function NewProposalPage() {
             </CardContent>
           </Card>
         </div>
-      </div>
-      <div className="flex items-center justify-center gap-2 md:hidden">
-        <Button variant="outline" size="sm">
-          Save Draft
-        </Button>
-        <Button size="sm">Send Proposal</Button>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import { doc } from 'firebase/firestore';
 import {
   ArrowLeft,
   Copy,
+  MoreVertical,
 } from 'lucide-react';
 import { notFound, useParams } from 'next/navigation';
 import {
@@ -32,6 +33,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 function ProposalDetailsSkeleton() {
     return (
@@ -136,7 +138,7 @@ export default function ProposalDetailsPage() {
             customerId
           )
         : null,
-    [userProfile, customerId]
+    [userProfile, customerId, firestore]
   );
   const { data: customer, isLoading: isCustomerLoading } = useDoc<Customer>(
     customerRef
@@ -180,6 +182,20 @@ export default function ProposalDetailsPage() {
           <Button variant="outline">Print</Button>
           <Button>Mark as Accepted</Button>
         </div>
+         <div className="md:hidden ml-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="outline">
+                  <MoreVertical />
+                  <span className="sr-only">More</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>Print</DropdownMenuItem>
+                <DropdownMenuItem>Mark as Accepted</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
       </div>
       <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
         <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
