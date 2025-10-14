@@ -1,32 +1,164 @@
+/**
+ * @file Firestore Security Rules
+ * @description This ruleset enforces a strict user-ownership and organization-based access model.
+ *
+ * Data Structure:
+ * - /organizations/{organizationId}: Stores organization details, accessible only by the organization owner.
+ * - /organizations/{organizationId}/customers/{customerId}: Stores customer data, accessible only by members of the organization.
+ * - /organizations/{organizationId}/proposals/{proposalId}: Stores proposal data, accessible only by members of the organization.
+ * - /organizations/{organizationId}/priceBookItems/{priceBookItemId}: Stores price book items, accessible only by members of the organization.
+ * - /users/{userId}: Stores user profile data, accessible only by the user themselves.
+ *
+ * Key Security Decisions:
+ * - User listing is disallowed.
+ * - All write operations require authentication.
+ * - Data validation is minimal, focusing on ownership and relational integrity.
+ *
+ * Denormalization for Authorization:
+ * - The `organizationId` is present on the `UserProfile`, `Customer`, `Proposal`, and `PriceBookItem` entities to allow for organization-based access control without additional reads.
+ *
+ * Structural Segregation:
+ * - Private user data is stored under `/users/{userId}`, ensuring that only the user can access their own data.
+ */
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper function to get the user's organization ID from their profile
-    function getUserOrgId() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId;
+
+    /**
+     * @description Secures the `organizations` collection, allowing only the owner to manage the organization.
+     * @path /organizations/{organizationId}
+     * @allow (create) User with matching auth.uid can create an organization.
+     * @deny (create) User tries to create an organization with an ownerId that doesn't match their auth.uid.
+     * @allow (get, list) User can read their organization data if they are the owner.
+     * @deny (get, list) User tries to read an organization they don't own.
+     * @allow (update, delete) Owner can update/delete the organization.
+     * @deny (update, delete) Non-owner tries to update/delete the organization.
+     * @principle Enforces document ownership for writes; restricts read access to the owner.
+     */
+    match /organizations/{organizationId} {
+      function isOwner(organizationId) {
+        return request.auth.uid == resource.data.ownerId;
+      }
+      function isCreatingOwner() {
+          return request.auth.uid == request.resource.data.ownerId;
+      }
+      function isExistingOwner(organizationId) {
+          return request.auth.uid == get(/databases/$(database)/documents/organizations/$(organizationId)).data.ownerId;
+      }
+
+      allow get: if request.auth != null && isOwner(organizationId);
+      allow list: if false;
+      allow create: if request.auth != null && isCreatingOwner();
+      allow update: if request.auth != null && isExistingOwner(organizationId);
+      allow delete: if request.auth != null && isExistingOwner(organizationId);
     }
-    
-    // Helper function to check if the user belongs to the organization that owns the resource
-    function isUserInOrg(orgId) {
-      return getUserOrgId() == orgId;
+
+    /**
+     * @description Secures the `customers` collection, allowing only members of the organization to manage customers.
+     * @path /organizations/{organizationId}/customers/{customerId}
+     * @allow (create) User can create a customer if they are a member of the organization.
+     * @deny (create) User tries to create a customer for an organization they are not a member of.
+     * @allow (get, list) User can read customer data if they are a member of the organization.
+     * @deny (get, list) User tries to read customer data for an organization they are not a member of.
+     * @allow (update, delete) User can update/delete a customer if they are a member of the organization.
+     * @deny (update, delete) User tries to update/delete a customer for an organization they are not a member of.
+     * @principle Enforces organization-based access for customer data.
+     */
+    match /organizations/{organizationId}/customers/{customerId} {
+      function isOrganizationMember(organizationId) {
+        return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
+      }
+
+        function isExistingOrganizationMember(organizationId) {
+          return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
+        }
+
+      allow get: if request.auth != null && isOrganizationMember(organizationId);
+      allow list: if request.auth != null && isOrganizationMember(organizationId);
+      allow create: if request.auth != null && isOrganizationMember(organizationId);
+      allow update: if request.auth != null && isExistingOrganizationMember(organizationId);
+      allow delete: if request.auth != null && isExistingOrganizationMember(organizationId);
     }
-    
-    // Users can read their own profile
+
+    /**
+     * @description Secures the `proposals` collection, allowing only members of the organization to manage proposals.
+     * @path /organizations/{organizationId}/proposals/{proposalId}
+     * @allow (create) User can create a proposal if they are a member of the organization.
+     * @deny (create) User tries to create a proposal for an organization they are not a member of.
+     * @allow (get, list) User can read proposal data if they are a member of the organization.
+     * @deny (get, list) User tries to read proposal data for an organization they are not a member of.
+     * @allow (update, delete) User can update/delete a proposal if they are a member of the organization.
+     * @deny (update, delete) User tries to update/delete a proposal for an organization they are not a member of.
+     * @principle Enforces organization-based access for proposal data.
+     */
+    match /organizations/{organizationId}/proposals/{proposalId} {
+          function isOrganizationMember(organizationId) {
+            return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
+          }
+
+          function isExistingOrganizationMember(organizationId) {
+            return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
+          }
+      allow get: if request.auth != null && isOrganizationMember(organizationId);
+      allow list: if request.auth != null && isOrganizationMember(organizationId);
+      allow create: if request.auth != null && isOrganizationMember(organizationId);
+      allow update: if request.auth != null && isExistingOrganizationMember(organizationId);
+      allow delete: if request.auth != null && isExistingOrganizationMember(organizationId);
+    }
+
+    /**
+     * @description Secures the `priceBookItems` collection, allowing only members of the organization to manage price book items.
+     * @path /organizations/{organizationId}/priceBookItems/{priceBookItemId}
+     * @allow (create) User can create a price book item if they are a member of the organization.
+     * @deny (create) User tries to create a price book item for an organization they are not a member of.
+     * @allow (get, list) User can read price book item data if they are a member of the organization.
+     * @deny (get, list) User tries to read price book item data for an organization they are not a member of.
+     * @allow (update, delete) User can update/delete a price book item if they are a member of the organization.
+     * @deny (update, delete) User tries to update/delete a price book item for an organization they are not a member of.
+     * @principle Enforces organization-based access for price book item data.
+     */
+    match /organizations/{organizationId}/priceBookItems/{priceBookItemId} {
+          function isOrganizationMember(organizationId) {
+            return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
+          }
+
+          function isExistingOrganizationMember(organizationId) {
+            return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == organizationId;
+          }
+      allow get: if request.auth != null && isOrganizationMember(organizationId);
+      allow list: if request.auth != null && isOrganizationMember(organizationId);
+      allow create: if request.auth != null && isOrganizationMember(organizationId);
+      allow update: if request.auth != null && isExistingOrganizationMember(organizationId);
+      allow delete: if request.auth != null && isExistingOrganizationMember(organizationId);
+    }
+
+    /**
+     * @description Secures the `users` collection, allowing only the user themselves to manage their profile.
+     * @path /users/{userId}
+     * @allow (create) User with matching auth.uid can create their profile.
+     * @deny (create) User tries to create a profile with an ID that doesn't match their auth.uid.
+     * @allow (get) User can read their own profile data.
+     * @deny (get) User tries to read another user's profile.
+     * @allow (update, delete) User can update/delete their own profile.
+     * @deny (update, delete) User tries to update/delete another user's profile.
+     * @principle Enforces document ownership for writes; restricts read access to the owner.
+     */
     match /users/{userId} {
-      allow read, update: if request.auth.uid == userId;
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+      function isCreatingOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+          return request.auth.uid == get(/databases/$(database)/documents/users/$(userId)).data.id;
+      }
+      allow get: if request.auth != null && isOwner(userId);
+      allow list: if false;
+      allow create: if request.auth != null && isCreatingOwner(userId);
+      allow update: if request.auth != null && isOwner(userId);
+      allow delete: if request.auth != null && isOwner(userId);
     }
-    
-    // Organizations can be read by their own members
-    match /organizations/{orgId} {
-      allow read, update: if isUserInOrg(orgId);
-    }
-    
-    // Organization-specific data can only be accessed by members of that organization
-    match /organizations/{orgId}/{collection}/{docId} {
-      allow read, write, delete: if isUserInOrg(orgId);
-    }
-    
   }
 }
