@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
+import Link from "next/link";
 
 export default function SettingsPage() {
   const { firestore, user } = useFirebase();
@@ -27,7 +28,7 @@ export default function SettingsPage() {
   const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
-  const organizationRef = useMemoFirebase(() => userProfile ? doc(firestore, 'organizations', userProfile.organizationId) : null, [firestore, userProfile]);
+  const organizationRef = useMemoFirebase(() => userProfile?.organizationId ? doc(firestore, 'organizations', userProfile.organizationId) : null, [firestore, userProfile]);
   const { data: organization, isLoading: isOrgLoading } = useDoc<Organization>(organizationRef);
 
   const [isSaving, setIsSaving] = useState(false);
