@@ -8,9 +8,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, type User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,7 +19,7 @@ import { Loader2 } from 'lucide-react';
 import { doc } from 'firebase/firestore';
 import { useFirebase } from '@/firebase';
 import type { UserProfile } from '@/lib/types';
-import type { User } from 'firebase/auth';
+
 
 export default function LoginPage() {
   const { auth, firestore } = useFirebase();
@@ -31,34 +31,41 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   
-  // This effect handles redirection after a user logs in.
   const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
   
   useEffect(() => {
-    // We only want to redirect if we have a definitive user state.
     if (isUserLoading || !user) {
       return;
     }
-    
-    // Once we have a user, we must wait for their profile to load to know where to go.
+
+    // Check for email verification first
+    if (!user.emailVerified) {
+      router.push('/verify-email');
+      return;
+    }
+
     if (isProfileLoading) {
       return;
     }
 
     if (userProfile?.organizationId) {
-      // User has a profile and org, they are fully onboarded.
       router.push('/dashboard');
     } else {
-      // New user or incomplete profile, send to onboarding.
       router.push('/onboarding');
     }
-  }, [user, userProfile, isUserLoading, isProfileLoading, router]);
+  }, [user, user.emailVerified, userProfile, isUserLoading, isProfileLoading, router]);
 
-  const handleAuthAction = async (authPromise: Promise<any>) => {
+  const handleAuthAction = async (authPromise: Promise<any>, isNewUser: boolean = false) => {
     try {
-      await authPromise;
-      // On success, the useEffect above will handle redirection.
+      const userCredential = await authPromise;
+      if (isNewUser && userCredential.user) {
+        await sendEmailVerification(userCredential.user);
+        toast({
+          title: "Verification Email Sent",
+          description: "Please check your inbox to verify your email address."
+        });
+      }
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -71,17 +78,25 @@ export default function LoginPage() {
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await handleAuthAction(
-      signInWithEmailAndPassword(auth, email, password)
-        .catch(error => {
-          // If user not found, try to create an account.
-          if (error.code === 'auth/user-not-found') {
-            return createUserWithEmailAndPassword(auth, email, password);
-          }
-          // For other errors, re-throw to be caught by handleAuthAction.
-          throw error;
-        })
-    );
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found') {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(userCredential.user);
+        toast({
+          title: "Account Created!",
+          description: "We've sent a verification link to your email."
+        });
+
+      } else {
+        toast({
+            variant: 'destructive',
+            title: 'Authentication Failed',
+            description: error.message || 'An unknown error occurred.',
+        });
+      }
+    }
     setIsLoading(false);
   };
 
@@ -92,8 +107,7 @@ export default function LoginPage() {
     setIsGoogleLoading(false);
   };
 
-  // Show a global loading state if we're waiting for initial user state or redirecting.
-  if (isUserLoading || (user && isProfileLoading)) {
+  if (isUserLoading || (user && (isProfileLoading || !user.emailVerified))) {
     return (
         <div className="flex min-h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
@@ -101,8 +115,7 @@ export default function LoginPage() {
     );
   }
 
-  // If user is already logged in, show loading while we wait for redirect.
-  if (user) {
+  if (user && user.emailVerified) {
      return (
         <div className="flex min-h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
