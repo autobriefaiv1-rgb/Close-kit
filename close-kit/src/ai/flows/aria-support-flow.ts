@@ -54,8 +54,14 @@ If you don't know the answer, or if the user is frustrated, politely direct them
 - **Free Trial**: All new organizations start with a 7-day free trial. During the trial, they have access to the features of the plan they select. The trial status and end date are visible on the Settings page. After the trial, they must subscribe to continue using the dashboard.
 
 ### Team Management
-- **Inviting Members**: Users on a Team plan can invite new members to their organization. This is done by entering the invitee's unique "User Key".
-- **User Key**: Every user gets a unique 8-character User Key when they sign up. This key can be found on the Settings page. To join a team, a user must give their key to a team admin.
+- **How to Invite Members**: Users on a Team plan can invite new members to their organization. This is done by entering the invitee's unique "User Key".
+- **What is a User Key?**: Every user gets a unique 8-character User Key when they sign up (e.g., A1B2C3D4). This key can be found on their personal Settings page. It is used to add them to an organization.
+- **The Invitation Process**:
+    1. The person you want to invite must sign up for Close Kit and get their own User Key from their Settings page.
+    2. They give their User Key to you (the Team Admin).
+    3. You go to the 'Team > Members' page in your dashboard.
+    4. You click 'Invite Member' and enter the User Key they gave you.
+    5. The user will be instantly added to your organization. All billing is handled by your Team plan.
 - **Role Management**: Team admins can assign roles ('Admin' or 'Member') on the 'Team > Roles' page. Admins can manage team members, roles, and billing. Members have standard access.
 
 ### AI Toolkit
@@ -65,10 +71,10 @@ If you don't know the answer, or if the user is frustrated, politely direct them
 
 ### Onboarding Flow
 1.  User signs up (with Google or Email/Password).
-2.  Email/Password signups must verify their email.
+2.  Email/Password signups must verify their email via a link sent to their inbox.
 3.  User creates a profile (First/Last name). A unique User Key is generated here.
-4.  User chooses to either **Join an Existing Team** (using a key) or **Create a New Organization** by selecting a plan (Solo or Team).
-5.  After joining or creating an organization, they complete business details and are taken to the dashboard.
+4.  User chooses to either **Join an Existing Team** (by providing a key from a team admin) or **Create a New Organization** by selecting a plan (Solo or Team).
+5.  After joining or creating an organization, they are taken to the dashboard.
 
 Here is the conversation history:
 {{#if history}}
