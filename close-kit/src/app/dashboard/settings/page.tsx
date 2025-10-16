@@ -16,11 +16,16 @@ import type { UserProfile, Organization } from '@/lib/types';
 import { doc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, KeyRound, Copy, Shield } from 'lucide-react';
+import { Loader2, KeyRound, Copy, Shield, Bell, Download, ShieldAlert } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+
+type Trade = 'hvac' | 'plumbing' | 'electrical' | 'other';
+type CompanySize = '1-5' | '6-15' | '16-50' | '50+';
 
 export default function SettingsPage() {
   const { firestore, user } = useFirebase();
@@ -37,6 +42,8 @@ export default function SettingsPage() {
     firstName: '',
     lastName: '',
     email: '',
+    trade: undefined,
+    companySize: undefined,
   });
   const [org, setOrg] = useState<Partial<Organization>>({
     name: '',
@@ -80,7 +87,9 @@ export default function SettingsPage() {
     try {
       setDocumentNonBlocking(userProfileRef, {
           firstName: profile.firstName,
-          lastName: profile.lastName
+          lastName: profile.lastName,
+          trade: profile.trade,
+          companySize: profile.companySize
       }, { merge: true });
       
       if (organizationRef) {
@@ -117,13 +126,17 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle>Profile</CardTitle>
             <CardDescription>
-              Update your personal information and find your user key.
+              Update your personal information, business details, and find your user key.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
             {isLoading ? (
                 <div className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="grid md:grid-cols-2 gap-4">
                         <Skeleton className="h-10 w-full" />
                         <Skeleton className="h-10 w-full" />
                     </div>
@@ -140,6 +153,32 @@ export default function SettingsPage() {
                     <div className="grid gap-2">
                         <Label htmlFor="lastName">Last Name</Label>
                         <Input id="lastName" value={profile.lastName || ''} onChange={handleProfileInputChange} />
+                    </div>
+                </div>
+                 <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="trade">Primary Trade</Label>
+                        <Select value={profile.trade} onValueChange={(value: Trade) => setProfile(p => ({...p, trade: value}))}>
+                            <SelectTrigger id="trade"><SelectValue placeholder="Select trade" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="hvac">HVAC</SelectItem>
+                                <SelectItem value="plumbing">Plumbing</SelectItem>
+                                <SelectItem value="electrical">Electrical</SelectItem>
+                                <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="companySize">Company Size</Label>
+                         <Select value={profile.companySize} onValueChange={(value: CompanySize) => setProfile(p => ({...p, companySize: value}))}>
+                            <SelectTrigger id="companySize"><SelectValue placeholder="Select size" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1-5">1-5 employees</SelectItem>
+                              <SelectItem value="6-15">6-15 employees</SelectItem>
+                              <SelectItem value="16-50">16-50 employees</SelectItem>
+                              <SelectItem value="50+">50+ employees</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
                 <div className="grid gap-2">
@@ -227,6 +266,51 @@ export default function SettingsPage() {
             </CardContent>
             </Card>
         )}
+        
+        <Card>
+            <CardHeader>
+                <CardTitle>Notifications</CardTitle>
+                <CardDescription>Manage your email notification preferences.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-6">
+                <div className="flex items-center justify-between rounded-lg border p-4">
+                    <div>
+                        <Label htmlFor="proposal-viewed" className="flex items-center gap-2">
+                           <Bell className="h-4 w-4" />
+                           Proposal Viewed
+                        </Label>
+                        <p className="text-sm text-muted-foreground mt-1">
+                           Receive an email when a customer views a proposal you sent.
+                        </p>
+                    </div>
+                    <Switch
+                        id="proposal-viewed"
+                        aria-label="Toggle proposal viewed notifications"
+                    />
+                </div>
+            </CardContent>
+        </Card>
+        
+         <Card>
+            <CardHeader>
+                <CardTitle>Data</CardTitle>
+                <CardDescription>Manage your application data.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <div className="flex items-center justify-between rounded-lg border p-4">
+                    <div>
+                        <Label className="flex items-center gap-2">
+                           <Download className="h-4 w-4" />
+                           Export My Data
+                        </Label>
+                        <p className="text-sm text-muted-foreground mt-1">
+                           Download a copy of all your customers, proposals, and price book items.
+                        </p>
+                    </div>
+                   <Button variant="outline">Export Data</Button>
+                </div>
+            </CardContent>
+        </Card>
 
         {userProfile?.organizationId && (
             <Card>
@@ -253,6 +337,33 @@ export default function SettingsPage() {
             </CardFooter>
             </Card>
         )}
+        
+         <Card className="border-destructive">
+            <CardHeader>
+                <CardTitle className="text-destructive flex items-center gap-2"><ShieldAlert /> Danger Zone</CardTitle>
+                <CardDescription>These actions are permanent and cannot be undone.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="destructive">Delete Account</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete your
+                            account and remove your data from our servers.
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction>Continue</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </CardContent>
+        </Card>
       </div>
     </div>
   );
