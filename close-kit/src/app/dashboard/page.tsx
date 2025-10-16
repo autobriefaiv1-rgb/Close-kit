@@ -37,7 +37,7 @@ import { Button } from '@/components/ui/button';
 import { ChartConfig, ChartContainer } from '@/components/ui/chart';
 import { useFirebase, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import type { Proposal, UserProfile, ProposalStatus } from '@/lib/types';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, query, orderBy, limit } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -84,7 +84,6 @@ export default function Dashboard() {
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
-    // This check runs only on the client-side
     const hasSeenWelcome = localStorage.getItem('hasSeenWelcomeTour');
     if (!hasSeenWelcome) {
       setShowWelcome(true);
@@ -104,15 +103,17 @@ export default function Dashboard() {
       userProfile?.organizationId ? collection(firestore, 'organizations', userProfile.organizationId, 'proposals') : null,
     [firestore, userProfile]
   );
-  const { data: proposals, isLoading: isProposalsLoading } = useCollection<Proposal>(proposalsQuery);
+  
+  const recentProposalsQuery = useMemoFirebase(
+    () => userProfile?.organizationId ? query(collection(firestore, 'organizations', userProfile.organizationId, 'proposals'), orderBy('createdAt', 'desc'), limit(5)) : null,
+    [firestore, userProfile]
+  )
 
-  const isLoading = isProfileLoading || isProposalsLoading;
+  const { data: allProposals, isLoading: isAllProposalsLoading } = useCollection<Proposal>(proposalsQuery);
+  const { data: recentProposals, isLoading: isRecentProposalsLoading } = useCollection<Proposal>(recentProposalsQuery);
 
-  const recentProposals = proposals
-    ? [...proposals]
-        .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis())
-        .slice(0, 5)
-    : [];
+
+  const isLoading = isProfileLoading || isAllProposalsLoading || isRecentProposalsLoading;
 
   const statusVariant = (
     status: ProposalStatus
@@ -124,24 +125,24 @@ export default function Dashboard() {
   };
 
   const totalRevenue =
-    proposals
+    allProposals
       ?.filter(p => p.status === 'Accepted')
       .reduce((sum, p) => sum + p.amount, 0) || 0;
 
-  const sentOrClosedCount = proposals?.filter(p => ['Sent', 'Accepted', 'Rejected'].includes(p.status)).length || 0;
-  const acceptedCount = proposals?.filter(p => p.status === 'Accepted').length || 0;
+  const sentOrClosedCount = allProposals?.filter(p => ['Sent', 'Accepted', 'Rejected'].includes(p.status)).length || 0;
+  const acceptedCount = allProposals?.filter(p => p.status === 'Accepted').length || 0;
   
   const acceptanceRate = sentOrClosedCount > 0 ? (acceptedCount / sentOrClosedCount) * 100 : 0;
 
-  const proposalsSent = proposals?.filter(p => p.status === 'Sent').length || 0;
-  const draftProposals = proposals?.filter(p => p.status === 'Draft').length || 0;
+  const proposalsSent = allProposals?.filter(p => p.status === 'Sent').length || 0;
+  const draftProposals = allProposals?.filter(p => p.status === 'Draft').length || 0;
 
   const proposalStatusData = [
     { name: 'Accepted', value: acceptedCount, fill: 'hsl(var(--chart-1))' },
     { name: 'Sent', value: proposalsSent, fill: 'hsl(var(--chart-2))'  },
     { name: 'Draft', value: draftProposals, fill: 'hsl(var(--chart-3))'  },
-    { name: 'Rejected', value: proposals?.filter(p => p.status === 'Rejected').length || 0, fill: 'hsl(var(--chart-4))' },
-  ];
+    { name: 'Rejected', value: allProposals?.filter(p => p.status === 'Rejected').length || 0, fill: 'hsl(var(--chart-4))' },
+  ].filter(item => item.value > 0);
 
   const chartConfig: ChartConfig = {
     proposals: {
@@ -265,7 +266,7 @@ export default function Dashboard() {
                       <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                     </TableRow>
                   ))
-                ) : recentProposals.length > 0 ? (
+                ) : recentProposals && recentProposals.length > 0 ? (
                   recentProposals.map((proposal) => (
                     <TableRow key={proposal.id}>
                       <TableCell>
@@ -287,7 +288,7 @@ export default function Dashboard() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={4} className="h-24 text-center">
-                      No proposals yet.
+                      No proposals yet. <Link href="/dashboard/proposals/new" className="text-primary underline">Create one now</Link>!
                     </TableCell>
                   </TableRow>
                 )}
@@ -302,27 +303,44 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             {isLoading ? <div className="flex items-center justify-center h-[250px]"><Skeleton className="h-48 w-48 rounded-full" /></div> :
-            <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={proposalStatusData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label
-                  >
-                    {proposalStatusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <Legend iconSize={10} />
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-             </ChartContainer>
+             (!allProposals || allProposals.length === 0) ? (
+                 <div className="flex flex-col items-center justify-center h-[250px] text-center text-muted-foreground">
+                    <PieChart className="h-10 w-10 mb-4" />
+                    <p>No proposal data to display yet.</p>
+                 </div>
+             ) : (
+                <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+                  <ResponsiveContainer width="100%" height={250}>
+                    <PieChart>
+                      <Pie
+                        data={proposalStatusData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        labelLine={false}
+                        label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                          const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                          const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
+                          const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
+                          return (percent > 0.05) ? (
+                            <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central">
+                              {`${(percent * 100).toFixed(0)}%`}
+                            </text>
+                          ) : null;
+                        }}
+                      >
+                        {proposalStatusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                      <Legend iconSize={10} />
+                      <Tooltip formatter={(value, name) => [`${value} proposals`, name]} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+             )
             }
           </CardContent>
         </Card>

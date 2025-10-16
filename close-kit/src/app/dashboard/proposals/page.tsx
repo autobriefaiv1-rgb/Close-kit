@@ -17,12 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Proposal, ProposalStatus, UserProfile } from '@/lib/types';
 import { useFirebase, useCollection, useMemoFirebase, useDoc } from '@/firebase';
-import { collection, query, where, doc } from 'firebase/firestore';
+import { collection, query, where, doc, orderBy } from 'firebase/firestore';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -40,10 +40,11 @@ export default function ProposalsPage() {
   const proposalsQuery = useMemoFirebase(() => {
     if (!userProfile?.organizationId) return null;
     const baseCollection = collection(firestore, 'organizations', userProfile.organizationId, 'proposals');
+    const orderedQuery = query(baseCollection, orderBy('createdAt', 'desc'));
     if (statusFilter && statusFilter !== 'all') {
-      return query(baseCollection, where('status', '==', statusFilter));
+      return query(orderedQuery, where('status', '==', statusFilter));
     }
-    return baseCollection;
+    return orderedQuery;
   }, [firestore, userProfile, statusFilter]);
 
   const { data: proposals, isLoading: isProposalsLoading } = useCollection<Proposal>(proposalsQuery);
@@ -63,7 +64,7 @@ export default function ProposalsPage() {
     router.push(newPath);
   };
   
-  const renderProposalRows = (proposalsToList: Proposal[] | null) => {
+  const renderProposalRows = (proposalsToList: Proposal[] | null | undefined) => {
     if (isLoading) {
       return [...Array(5)].map((_, i) => (
         <TableRow key={i}>
@@ -107,7 +108,7 @@ export default function ProposalsPage() {
   };
   
   return (
-    <Tabs defaultValue={defaultTab} onValueChange={handleTabChange}>
+    <Tabs defaultValue={defaultTab} onValueChange={handleTabChange} className="w-full">
       <div className="flex items-center">
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
