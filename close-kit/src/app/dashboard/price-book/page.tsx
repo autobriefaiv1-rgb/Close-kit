@@ -1,11 +1,13 @@
-import { PlusCircle } from "lucide-react";
+'use client';
+
+import { PlusCircle } from 'lucide-react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -13,8 +15,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -23,19 +25,74 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { mockPriceBook } from "@/lib/data";
+} from '@/components/ui/select';
+import { useFirebase, useCollection, addDocumentNonBlocking, useMemoFirebase, useDoc } from '@/firebase';
+import type { PriceBookItem, UserProfile } from '@/lib/types';
+import { useState } from 'react';
+import { collection, doc } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function PriceBookPage() {
+  const { firestore, user } = useFirebase();
+  const { toast } = useToast();
+  
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+  const priceBookQuery = useMemoFirebase(
+    () => userProfile?.organizationId ? collection(firestore, 'organizations', userProfile.organizationId, 'priceBookItems') : null,
+    [firestore, userProfile]
+  );
+  const { data: priceBook, isLoading: isPriceBookLoading } = useCollection<PriceBookItem>(priceBookQuery);
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [newItem, setNewItem] = useState<{name: string, category: 'Material' | 'Equipment' | 'Labor' | '', cost: string, unit: string}>({
+    name: '',
+    category: '',
+    cost: '',
+    unit: '',
+  });
+
+  const handleSaveItem = async () => {
+    if (!user || !firestore || !userProfile?.organizationId) return;
+    if (!newItem.name || !newItem.category || !newItem.cost) {
+        toast({ variant: 'destructive', title: 'Missing Information', description: 'Name, category, and cost are required.' });
+        return;
+    }
+    
+    setIsSaving(true);
+    try {
+        const itemData = { 
+            ...newItem, 
+            cost: parseFloat(newItem.cost),
+            organizationId: userProfile.organizationId
+        };
+        await addDocumentNonBlocking(collection(firestore, 'organizations', userProfile.organizationId, 'priceBookItems'), itemData);
+        
+        toast({ title: 'Item Added', description: `${newItem.name} has been added to your price book.` });
+        setIsDialogOpen(false);
+        setNewItem({ name: '', category: '', cost: '', unit: '' });
+    } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Error', description: error.message });
+    } finally {
+        setIsSaving(false);
+    }
+  };
+
+  const isLoading = isProfileLoading || isPriceBookLoading;
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center">
@@ -45,7 +102,7 @@ export default function PriceBookPage() {
             Manage costs for materials, equipment, and labor.
           </CardDescription>
         </div>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="ml-auto gap-1">
               <PlusCircle className="h-4 w-4" />
@@ -64,20 +121,20 @@ export default function PriceBookPage() {
                 <Label htmlFor="name" className="text-right">
                   Name
                 </Label>
-                <Input id="name" className="col-span-3" />
+                <Input id="name" className="col-span-3" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="category" className="text-right">
                   Category
                 </Label>
-                <Select>
+                <Select onValueChange={(value: 'Material' | 'Equipment' | 'Labor') => setNewItem({...newItem, category: value})}>
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="material">Material</SelectItem>
-                    <SelectItem value="equipment">Equipment</SelectItem>
-                    <SelectItem value="labor">Labor</SelectItem>
+                    <SelectItem value="Material">Material</SelectItem>
+                    <SelectItem value="Equipment">Equipment</SelectItem>
+                    <SelectItem value="Labor">Labor</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -85,17 +142,20 @@ export default function PriceBookPage() {
                 <Label htmlFor="cost" className="text-right">
                   Cost
                 </Label>
-                <Input id="cost" type="number" className="col-span-3" />
+                <Input id="cost" type="number" className="col-span-3" value={newItem.cost} onChange={e => setNewItem({...newItem, cost: e.target.value})} />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="unit" className="text-right">
                   Unit
                 </Label>
-                <Input id="unit" placeholder="e.g., each, per foot" className="col-span-3" />
+                <Input id="unit" placeholder="e.g., each, per foot" className="col-span-3" value={newItem.unit} onChange={e => setNewItem({...newItem, unit: e.target.value})} />
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">Save Item</Button>
+              <Button onClick={handleSaveItem} disabled={isSaving}>
+                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Item
+                </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -111,14 +171,31 @@ export default function PriceBookPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockPriceBook.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.name}</TableCell>
-                <TableCell>{item.category}</TableCell>
-                <TableCell>{item.unit}</TableCell>
-                <TableCell className="text-right">${item.cost.toFixed(2)}</TableCell>
-              </TableRow>
-            ))}
+            {isLoading ? (
+                [...Array(5)].map((_, i) => (
+                    <TableRow key={i}>
+                        <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                        <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                        <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                        <TableCell className="text-right"><Skeleton className="h-5 w-12 ml-auto" /></TableCell>
+                    </TableRow>
+                ))
+            ) : priceBook && priceBook.length > 0 ? (
+                priceBook.map((item) => (
+                <TableRow key={item.id}>
+                    <TableCell className="font-medium">{item.name}</TableCell>
+                    <TableCell>{item.category}</TableCell>
+                    <TableCell>{item.unit}</TableCell>
+                    <TableCell className="text-right">${item.cost.toFixed(2)}</TableCell>
+                </TableRow>
+                ))
+            ) : (
+                <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">
+                        No price book items found.
+                    </TableCell>
+                </TableRow>
+            )}
           </TableBody>
         </Table>
       </CardContent>

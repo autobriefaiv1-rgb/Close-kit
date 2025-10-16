@@ -6,6 +6,8 @@ import {
   FileText,
   Users,
   Inbox,
+  X,
+  Lightbulb,
 } from 'lucide-react';
 import {
   PieChart,
@@ -15,7 +17,6 @@ import {
   Legend,
   Tooltip,
 } from 'recharts';
-
 import {
   Card,
   CardContent,
@@ -33,36 +34,113 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { mockProposals } from '@/lib/data';
 import { ChartConfig, ChartContainer } from '@/components/ui/chart';
+import { useFirebase, useCollection, useMemoFirebase, useDoc } from '@/firebase';
+import type { Proposal, UserProfile, ProposalStatus } from '@/lib/types';
+import { collection, doc } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useEffect } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Rocket } from 'lucide-react';
+
+function WelcomeTour({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <Alert className="mb-6 border-primary relative">
+      <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={onDismiss}>
+        <X className="h-4 w-4" />
+        <span className="sr-only">Dismiss</span>
+      </Button>
+      <Rocket className="h-4 w-4" />
+      <AlertTitle className="font-headline text-lg">Welcome to Close Kit!</AlertTitle>
+      <AlertDescription>
+        <p className="mb-4">You're all set up. Here’s a quick tour of your new toolkit:</p>
+        <ul className="list-disc pl-5 space-y-3 text-sm">
+          <li><strong>Dashboard:</strong> This is your command center, giving you a bird's-eye view of revenue, acceptance rates, and recent activity.</li>
+          <li><strong>Proposals:</strong> Create, send, and track professional proposals. This is where you'll spend most of your time closing deals.</li>
+          <li><strong>Customers:</strong> Manage all your client contact information and job history in one organized place.</li>
+          <li><strong>Team:</strong> Invite and manage your team members (available on the Team plan).</li>
+          <li><strong>Price Book:</strong> Keep a centralized list of your materials, labor costs, and equipment to build proposals quickly and accurately.</li>
+          <li><strong>AI Toolkit:</strong> Leverage AI to generate compelling sales options (Good-Better-Best), translate technical jargon, and analyze competitor pricing.</li>
+          <li><strong>Analytics:</strong> Dive deeper into your proposal performance and revenue trends over time.</li>
+           <li><strong>Settings:</strong> Update your personal and company information.</li>
+        </ul>
+        <div className="mt-4 flex items-start gap-3 rounded-lg bg-secondary p-4">
+          <Lightbulb className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
+          <div className='text-secondary-foreground'>
+            <h4 className="font-semibold">Pro Tip: Ask Aria for Help!</h4>
+            <p className='text-sm'>Stuck on something? Click the floating chat icon in the bottom right corner of any page to get instant answers from our AI assistant, Aria!</p>
+          </div>
+        </div>
+        <p className="mt-4 font-medium">Ready to get started? Let's <Link href="/dashboard/proposals/new" className="font-semibold underline text-primary">create your first proposal</Link>!</p>
+      </AlertDescription>
+    </Alert>
+  );
+}
+
 
 export default function Dashboard() {
-  const recentProposals = mockProposals.slice(0, 5);
+  const { firestore, user } = useFirebase();
 
-  const statusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    // This check runs only on the client-side
+    const hasSeenWelcome = localStorage.getItem('hasSeenWelcomeTour');
+    if (!hasSeenWelcome) {
+      setShowWelcome(true);
+    }
+  }, []);
+
+  const handleDismissWelcome = () => {
+    localStorage.setItem('hasSeenWelcomeTour', 'true');
+    setShowWelcome(false);
+  };
+
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+  const proposalsQuery = useMemoFirebase(
+    () =>
+      userProfile?.organizationId ? collection(firestore, 'organizations', userProfile.organizationId, 'proposals') : null,
+    [firestore, userProfile]
+  );
+  const { data: proposals, isLoading: isProposalsLoading } = useCollection<Proposal>(proposalsQuery);
+
+  const isLoading = isProfileLoading || isProposalsLoading;
+
+  const recentProposals = proposals
+    ? [...proposals]
+        .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis())
+        .slice(0, 5)
+    : [];
+
+  const statusVariant = (
+    status: ProposalStatus
+  ): 'default' | 'secondary' | 'destructive' | 'outline' => {
     if (status === 'Accepted') return 'default';
     if (status === 'Sent') return 'secondary';
     if (status === 'Draft') return 'outline';
     return 'destructive';
   };
 
-  const totalRevenue = mockProposals
-    .filter(p => p.status === 'Accepted')
-    .reduce((sum, p) => sum + p.amount, 0);
+  const totalRevenue =
+    proposals
+      ?.filter(p => p.status === 'Accepted')
+      .reduce((sum, p) => sum + p.amount, 0) || 0;
 
-  const acceptanceRate =
-    (mockProposals.filter(p => p.status === 'Accepted').length /
-      mockProposals.filter(p => p.status === 'Sent' || p.status === 'Accepted' || p.status === 'Rejected').length) *
-    100;
+  const sentOrClosedCount = proposals?.filter(p => ['Sent', 'Accepted', 'Rejected'].includes(p.status)).length || 0;
+  const acceptedCount = proposals?.filter(p => p.status === 'Accepted').length || 0;
+  
+  const acceptanceRate = sentOrClosedCount > 0 ? (acceptedCount / sentOrClosedCount) * 100 : 0;
 
-  const proposalsSent = mockProposals.filter(p => p.status === 'Sent').length;
-  const draftProposals = mockProposals.filter(p => p.status === 'Draft').length;
+  const proposalsSent = proposals?.filter(p => p.status === 'Sent').length || 0;
+  const draftProposals = proposals?.filter(p => p.status === 'Draft').length || 0;
 
   const proposalStatusData = [
-    { name: 'Accepted', value: mockProposals.filter(p => p.status === 'Accepted').length, fill: 'hsl(var(--chart-1))' },
+    { name: 'Accepted', value: acceptedCount, fill: 'hsl(var(--chart-1))' },
     { name: 'Sent', value: proposalsSent, fill: 'hsl(var(--chart-2))'  },
     { name: 'Draft', value: draftProposals, fill: 'hsl(var(--chart-3))'  },
-    { name: 'Rejected', value: mockProposals.filter(p => p.status === 'Rejected').length, fill: 'hsl(var(--chart-4))' },
+    { name: 'Rejected', value: proposals?.filter(p => p.status === 'Rejected').length || 0, fill: 'hsl(var(--chart-4))' },
   ];
 
   const chartConfig: ChartConfig = {
@@ -90,6 +168,7 @@ export default function Dashboard() {
 
   return (
     <div className="grid gap-6">
+      {showWelcome && <WelcomeTour onDismiss={handleDismissWelcome} />}
        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
          <Card className="hover:bg-muted/50 transition-colors">
           <Link href="/dashboard/analytics">
@@ -98,9 +177,9 @@ export default function Dashboard() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
+              {isLoading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>}
               <p className="text-xs text-muted-foreground">
-                +20.1% from last month
+                All-time accepted proposals
               </p>
             </CardContent>
           </Link>
@@ -114,35 +193,35 @@ export default function Dashboard() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{acceptanceRate.toFixed(0)}%</div>
+               {isLoading ? <Skeleton className="h-8 w-1/2" /> : <div className="text-2xl font-bold">{acceptanceRate.toFixed(0)}%</div>}
               <p className="text-xs text-muted-foreground">
-                +10.5% from last month
+                Of all sent proposals
               </p>
             </CardContent>
           </Link>
         </Card>
         <Card className="hover:bg-muted/50 transition-colors">
-          <Link href="/dashboard/proposals?status=sent">
+          <Link href="/dashboard/proposals?status=Sent">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Proposals Sent</CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+{proposalsSent}</div>
+               {isLoading ? <Skeleton className="h-8 w-1/4" /> : <div className="text-2xl font-bold">+{proposalsSent}</div>}
               <p className="text-xs text-muted-foreground">
-                +19% from last month
+                Awaiting customer response
               </p>
             </CardContent>
           </Link>
         </Card>
         <Card className="hover:bg-muted/50 transition-colors">
-          <Link href="/dashboard/proposals?status=draft">
+          <Link href="/dashboard/proposals?status=Draft">
            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Draft Proposals</CardTitle>
             <Inbox className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{draftProposals}</div>
+            {isLoading ? <Skeleton className="h-8 w-1/4" /> : <div className="text-2xl font-bold">{draftProposals}</div>}
             <p className="text-xs text-muted-foreground">
               Awaiting completion
             </p>
@@ -177,24 +256,41 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentProposals.map((proposal) => (
-                  <TableRow key={proposal.id}>
-                    <TableCell>
-                      <div className="font-medium">{proposal.customerName}</div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={statusVariant(proposal.status)}>
-                        {proposal.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      ${proposal.amount.toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(proposal.createdAt).toLocaleDateString()}
+                {isLoading ? (
+                  [...Array(5)].map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-5 w-12 ml-auto" /></TableCell>
+                      <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : recentProposals.length > 0 ? (
+                  recentProposals.map((proposal) => (
+                    <TableRow key={proposal.id}>
+                      <TableCell>
+                        <div className="font-medium">{proposal.customerName}</div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={statusVariant(proposal.status)}>
+                          {proposal.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        ${proposal.amount.toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        {proposal.createdAt.toDate().toLocaleDateString()}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">
+                      No proposals yet.
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -205,6 +301,7 @@ export default function Dashboard() {
             <CardDescription>A breakdown of all your proposals by their current status.</CardDescription>
           </CardHeader>
           <CardContent>
+            {isLoading ? <div className="flex items-center justify-center h-[250px]"><Skeleton className="h-48 w-48 rounded-full" /></div> :
             <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
@@ -226,6 +323,7 @@ export default function Dashboard() {
                 </PieChart>
               </ResponsiveContainer>
              </ChartContainer>
+            }
           </CardContent>
         </Card>
       </div>
