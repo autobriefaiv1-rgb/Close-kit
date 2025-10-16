@@ -16,10 +16,11 @@ import type { UserProfile, Organization } from '@/lib/types';
 import { doc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, KeyRound, Copy } from 'lucide-react';
+import { Loader2, KeyRound, Copy, Shield } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import Link from "next/link";
+import { Switch } from "@/components/ui/switch";
 
 export default function SettingsPage() {
   const { firestore, user } = useFirebase();
@@ -65,6 +66,12 @@ export default function SettingsPage() {
     const { id, value } = e.target;
     setOrg(prev => ({ ...prev, [id]: value }));
   };
+  
+  const handleAnalyticsToggle = (enabled: boolean) => {
+    if (!organizationRef) return;
+    setDocumentNonBlocking(organizationRef, { analyticsEnabled: enabled }, { merge: true });
+     toast({ title: 'Setting Saved', description: `Analytics access has been ${enabled ? 'enabled' : 'disabled'}.` });
+  }
 
   const handleSave = async () => {
     if (!user || !userProfileRef) return;
@@ -188,6 +195,36 @@ export default function SettingsPage() {
                     Save Organization
                 </Button>
             </CardFooter>
+            </Card>
+        )}
+        
+        {userProfile?.role === 'admin' && organization?.subscriptionPlan === 'team' && (
+           <Card>
+            <CardHeader>
+                <CardTitle>Administrator Settings</CardTitle>
+                <CardDescription>
+                Manage advanced settings for your team.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-6">
+                <div className="flex items-center justify-between rounded-lg border p-4">
+                    <div>
+                        <Label htmlFor="analytics-access" className="flex items-center gap-2">
+                            <Shield className="h-4 w-4" />
+                            Analytics Access
+                        </Label>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Enable or disable access to the Analytics page for all team members.
+                        </p>
+                    </div>
+                    <Switch
+                        id="analytics-access"
+                        checked={organization?.analyticsEnabled}
+                        onCheckedChange={handleAnalyticsToggle}
+                        aria-label="Toggle analytics access"
+                    />
+                </div>
+            </CardContent>
             </Card>
         )}
 

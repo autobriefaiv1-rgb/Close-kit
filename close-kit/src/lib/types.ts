@@ -7,6 +7,7 @@ export type Organization = {
   subscriptionPlan?: 'solo' | 'team';
   subscriptionStatus?: 'trial' | 'active' | 'expired' | 'canceled';
   trialEndDate?: Timestamp;
+  analyticsEnabled?: boolean;
 }
 
 export type UserProfile = {

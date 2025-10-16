@@ -30,6 +30,10 @@
         "trialEndDate": {
             "type": "object",
             "description": "The timestamp when the free trial ends."
+        },
+        "analyticsEnabled": {
+          "type": "boolean",
+          "description": "Whether analytics is enabled for the team."
         }
       },
       "required": ["id", "ownerId", "name"]
