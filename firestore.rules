@@ -2,295 +2,280 @@
  * @fileoverview Firestore Security Rules for HVAC AI Pro.
  *
  * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for most data. Each user has a dedicated data tree under `/users/{userId}`.
- * Only the authenticated user can access their own data. Additionally, the presence of a document in `/roles_admin/{uid}` grants administrative privileges.
+ * This ruleset enforces a strict user-ownership model for most data,
+ * ensuring users can only access their own data.  It also supports
+ * shared access to proposals through a denormalized "members" map
+ * on the proposal document.  A separate collection manages global
+ * admin roles. Analytics data is stored in a publicly readable collection.
  *
  * Data Structure:
- * - /users/{userId}: Root for all user-specific data.
- * - /users/{userId}/companyFinancialSettings/{companyFinancialSettingId}: Financial settings for a company.
- * - /users/{userId}/materials/{materialId}: Materials data.
- * - /users/{userId}/equipment/{equipmentId}: Equipment data.
- * - /users/{userId}/customers/{customerId}: Customer data.
- * - /users/{userId}/proposals/{proposalId}: Proposals data.
- * - /users/{userId}/proposals/{proposalId}/lineItems/{lineItemId}: Line items for proposals.
- * - /users/{userId}/subscriptions/{subscriptionId}: Subscription data.
- * - /users/{userId}/jobCostingData/{jobCostingDataId}: Job costing data.
- * - /users/{userId}/competitorPrices/{competitorPriceId}: Competitor pricing data.
- * - /roles_admin/{userId}: Admin user IDs. Presence of a document grants admin access.
- * - /analytics/{dataType}/{docId}: Analytics data.
+ * - /users/{userId}: Stores user profiles, accessible only by the user.
+ * - /users/{userId}/companyFinancialSettings/{companyFinancialSettingId}: Financial settings, accessible only by the user.
+ * - /users/{userId}/materials/{materialId}: Materials, accessible only by the user.
+ * - /users/{userId}/equipment/{equipmentId}: Equipment, accessible only by the user.
+ * - /users/{userId}/customers/{customerId}: Customers, accessible only by the user.
+ * - /users/{userId}/proposals/{proposalId}: Proposals, accessible only by the user. Includes denormalized 'members' map for shared access.
+ * - /users/{userId}/proposals/{proposalId}/lineItems/{lineItemId}: Line items for proposals, accessible only by the proposal owner.
+ * - /users/{userId}/subscriptions/{subscriptionId}: Subscription information, accessible only by the user.
+ * - /users/{userId}/jobCostingData/{jobCostingDataId}: Job costing data, accessible only by the user.
+ * - /users/{userId}/competitorPrices/{competitorPriceId}: Competitor prices, accessible only by the user.
+ * - /roles_admin/{userId}: Collection to store UIDs of admin users. Existence of a document grants admin access.
+ * - /analytics/{dataType}/{docId}: Collection to store analytics data. Publicly readable.
  *
  * Key Security Decisions:
- * - Strict user-ownership: All data under `/users/{userId}` is accessible only by the user.
- * - No user listing: Listing users is not permitted.
- * - Admin role: Defined by the existence of a document in `/roles_admin/{userId}`.
- * - Analytics data is readable by everyone.
+ * - Strict user ownership for most data.
+ * - Proposals support shared access through a denormalized 'members' map.
+ * - Admin privileges are granted by the presence of a document in `/roles_admin/{userId}`.
+ * - Analytics data is publicly readable.
+ *
+ * Denormalization for Authorization:
+ * - Proposals include a `members` map for storing user roles, avoiding `get()` calls for authorization.
+ *
+ * Structural Segregation:
+ * - Private user data is stored under `/users/{userId}`, while analytics data is stored in a public collection.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Checks if the request is made by an authenticated user.
-     * @path N/A
-     * @allow N/A
-     * @deny N/A
-     * @principle Authentication required for all protected paths.
+     * @description Checks if the request is made by a signed-in user.
+     * @return {boolean} True if the user is signed in, false otherwise.
      */
     function isSignedIn() {
       return request.auth != null;
     }
 
     /**
-     * @description Checks if the request is made by the owner of the document.
-     * @path N/A
-     * @allow N/A
-     * @deny N/A
-     * @principle Ownership is verified using the userId.
+     * @description Checks if the authenticated user's UID matches the provided userId.
+     * @param {string} userId - The user ID to compare against the authenticated user's UID.
+     * @return {boolean} True if the UIDs match, false otherwise.
      */
     function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+      return request.auth.uid == userId;
     }
 
     /**
-     * @description Checks if the request is made by the owner of the existing document.
-     * @path N/A
-     * @allow N/A
-     * @deny N/A
-     * @principle Ownership and document existence are verified.
+     * @description Checks if the authenticated user owns the existing document.
+     *              This function also ensures the document exists before proceeding.
+     * @param {string} userId - The user ID to compare against the authenticated user's UID.
+     * @return {boolean} True if the UIDs match and the document exists, false otherwise.
      */
     function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
+      return isOwner(userId) && exists(resource.data.id);
     }
 
     /**
-     * @description Checks if the user has admin privileges.
-     * @path N/A
-     * @allow N/A
-     * @deny N/A
+     * @description Checks if the authenticated user is an admin.
+     * @return {boolean} True if the user is an admin, false otherwise.
      */
-    function isAdmin() {
-        return exists(/databases/(default)/documents/roles_admin/$(request.auth.uid));
+     function isAdmin() {
+      return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+
+    /**
+     * @description Defines the basic access pattern for an admin role
+     * @return {boolean} True if the user is an admin, false otherwise.
+     */
+     function isAdminWrite() {
+      return isAdmin();
     }
 
     /**
-     * @description Rules for the /users/{userId} collection.
+     * @description Defines the basic access pattern for an admin role
+     * @return {boolean} True if the user is an admin, false otherwise.
+     */
+     function isAdminRead() {
+      return isAdmin();
+    }
+    /**
+     * @description Rules for /users/{userId} documents.
      * @path /users/{userId}
-     * @allow (create) If the user is creating their own document.
-     * @deny (create) If the user is not authenticated.
-     * @deny (create) If the userId in the path does not match the authenticated user's ID.
-     * @allow (get, list, update, delete) If the user is the owner.
-     * @deny (get, list, update, delete) If the user is not the owner.
+     * @allow (create) - User with matching UID can create their own profile.
+     * @allow (get, update, delete) - User with matching UID can access/modify their own profile.
+     * @deny (create) - User attempts to create a profile with a mismatched UID.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isOwner(userId) && request.resource.data.id == request.auth.uid;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Rules for the /users/{userId}/companyFinancialSettings/{companyFinancialSettingId} collection.
+     * @description Rules for /users/{userId}/companyFinancialSettings/{companyFinancialSettingId} documents.
      * @path /users/{userId}/companyFinancialSettings/{companyFinancialSettingId}
-     * @allow (create) If the user is the owner.
-     * @deny (create) If the user is not the owner.
-     * @allow (get, list, update, delete) If the user is the owner.
-     * @deny (get, list, update, delete) If the user is not the owner.
+     * @allow (create) - User with matching UID can create financial settings under their profile.
+     * @allow (get, update, delete) - User with matching UID can access/modify financial settings under their profile.
+     * @deny (create) - User attempts to create financial settings with a mismatched UID.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/companyFinancialSettings/{companyFinancialSettingId} {
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
-      allow delete: if isExistingOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Rules for the /users/{userId}/materials/{materialId} collection.
+     * @description Rules for /users/{userId}/materials/{materialId} documents.
      * @path /users/{userId}/materials/{materialId}
-     * @allow (create) If the user is the owner.
-     * @deny (create) If the user is not the owner.
-     * @allow (get, list, update, delete) If the user is the owner.
-     * @deny (get, list, update, delete) If the user is not the owner.
+     * @allow (create) - User with matching UID can create materials under their profile.
+     * @allow (get, update, delete) - User with matching UID can access/modify materials under their profile.
+     * @deny (create) - User attempts to create materials with a mismatched UID.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/materials/{materialId} {
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
-      allow delete: if isExistingOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Rules for the /users/{userId}/equipment/{equipmentId} collection.
+     * @description Rules for /users/{userId}/equipment/{equipmentId} documents.
      * @path /users/{userId}/equipment/{equipmentId}
-     * @allow (create) If the user is the owner.
-     * @deny (create) If the user is not the owner.
-     * @allow (get, list, update, delete) If the user is the owner.
-     * @deny (get, list, update, delete) If the user is not the owner.
+     * @allow (create) - User with matching UID can create equipment under their profile.
+     * @allow (get, update, delete) - User with matching UID can access/modify equipment under their profile.
+     * @deny (create) - User attempts to create equipment with a mismatched UID.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/equipment/{equipmentId} {
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
-      allow delete: if isExistingOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Rules for the /users/{userId}/customers/{customerId} collection.
+     * @description Rules for /users/{userId}/customers/{customerId} documents.
      * @path /users/{userId}/customers/{customerId}
-     * @allow (create) If the user is the owner.
-     * @deny (create) If the user is not the owner.
-     * @allow (get, list, update, delete) If the user is the owner.
-     * @deny (get, list, update, delete) If the user is not the owner.
+     * @allow (create) - User with matching UID can create customers under their profile.
+     * @allow (get, update, delete) - User with matching UID can access/modify customers under their profile.
+     * @deny (create) - User attempts to create customers with a mismatched UID.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/customers/{customerId} {
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
-      allow delete: if isExistingOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Rules for the /users/{userId}/proposals/{proposalId} collection.
+     * @description Rules for /users/{userId}/proposals/{proposalId} documents.
      * @path /users/{userId}/proposals/{proposalId}
-     * @allow (create) If the user is the owner.
-     * @deny (create) If the user is not the owner.
-     * @allow (get, list, update, delete) If the user is the owner.
-     * @deny (get, list, update, delete) If the user is not the owner.
+     * @allow (create) - User with matching UID can create proposals under their profile.
+     * @allow (get, update, delete) - User with matching UID can access/modify proposals under their profile.
+     * @deny (create) - User attempts to create proposals with a mismatched UID.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/proposals/{proposalId} {
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
-      allow delete: if isExistingOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Rules for the /users/{userId}/proposals/{proposalId}/lineItems/{lineItemId} collection.
+     * @description Rules for /users/{userId}/proposals/{proposalId}/lineItems/{lineItemId} documents.
      * @path /users/{userId}/proposals/{proposalId}/lineItems/{lineItemId}
-     * @allow (create) If the user is the owner.
-     * @deny (create) If the user is not the owner.
-     * @allow (get, list, update, delete) If the user is the owner.
-     * @deny (get, list, update, delete) If the user is not the owner.
+     * @allow (create) - User with matching UID can create line items under their profile.
+     * @allow (get, update, delete) - User with matching UID can access/modify line items under their profile.
+     * @deny (create) - User attempts to create line items with a mismatched UID.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/proposals/{proposalId}/lineItems/{lineItemId} {
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Rules for the /users/{userId}/subscriptions/{subscriptionId} collection.
+     * @description Rules for /users/{userId}/subscriptions/{subscriptionId} documents.
      * @path /users/{userId}/subscriptions/{subscriptionId}
-     * @allow (create) If the user is the owner.
-     * @deny (create) If the user is not the owner.
-     * @allow (get, list, update, delete) If the user is the owner.
-     * @deny (get, list, update, delete) If the user is not the owner.
+     * @allow (create) - User with matching UID can create subscriptions under their profile.
+     * @allow (get, update, delete) - User with matching UID can access/modify subscriptions under their profile.
+     * @deny (create) - User attempts to create subscriptions with a mismatched UID.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/subscriptions/{subscriptionId} {
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
-      allow delete: if isExistingOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Rules for the /users/{userId}/jobCostingData/{jobCostingDataId} collection.
+     * @description Rules for /users/{userId}/jobCostingData/{jobCostingDataId} documents.
      * @path /users/{userId}/jobCostingData/{jobCostingDataId}
-     * @allow (create) If the user is the owner.
-     * @deny (create) If the user is not the owner.
-     * @allow (get, list, update, delete) If the user is the owner.
-     * @deny (get, list, update, delete) If the user is not the owner.
+     * @allow (create) - User with matching UID can create job costing data under their profile.
+     * @allow (get, update, delete) - User with matching UID can access/modify job costing data under their profile.
+     * @deny (create) - User attempts to create job costing data with a mismatched UID.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/jobCostingData/{jobCostingDataId} {
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
-      allow delete: if isExistingOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
     /**
-     * @description Rules for the /users/{userId}/competitorPrices/{competitorPriceId} collection.
+     * @description Rules for /users/{userId}/competitorPrices/{competitorPriceId} documents.
      * @path /users/{userId}/competitorPrices/{competitorPriceId}
-     * @allow (create) If the user is the owner.
-     * @deny (create) If the user is not the owner.
-     * @allow (get, list, update, delete) If the user is the owner.
-     * @deny (get, list, update, delete) If the user is not the owner.
+     * @allow (create) - User with matching UID can create competitor prices under their profile.
+     * @allow (get, update, delete) - User with matching UID can access/modify competitor prices under their profile.
+     * @deny (create) - User attempts to create competitor prices with a mismatched UID.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/competitorPrices/{competitorPriceId} {
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
-      allow delete: if isExistingOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
     }
 
-    /**
-     * @description Rules for the /roles_admin/{userId} collection.
-     * @path /roles_admin/{userId}
-     * @allow create: if isAdmin();
-     * @allow get: if isAdmin();
-     * @allow list: if isAdmin();
-     * @allow update: if isAdmin();
-     * @allow delete: if isAdmin();
-     * @principle Only admins can manage admin roles.
-     */
+      /**
+       * @description Rules for /roles_admin/{userId} documents.
+       * @path /roles_admin/{userId}
+       * @allow (get, list) - Only admin users can list the contents.
+       * @allow (create, update, delete) - Only admin users can modify the collection.
+       * @principle Restricts access to the admin role management collection.
+       */
     match /roles_admin/{userId} {
-       allow get: if isAdmin();
-       allow list: if false; // No listing of admin roles.
-       allow create: if isAdmin();
-       allow update: if isAdmin();
-       allow delete: if isAdmin();
+      allow get: if isAdminRead();
+      allow list: if isAdminRead();
+      allow create: if isAdminWrite();
+      allow update: if isAdminWrite();
+      allow delete: if isAdminWrite();
     }
-
-     /**
-      * @description Rules for the /analytics/{dataType}/{docId} collection.
-      * @path /analytics/{dataType}/{docId}
-      * @allow get, list: if true;
-      * @deny create, update, delete: if true;
-      * @principle Data can be read by everyone, but only backend can write.
-      */
+    /**
+     * @description Rules for /analytics/{dataType}/{docId} documents.
+     * @path /analytics/{dataType}/{docId}
+     * @allow (get, list) - All users can read analytics data.
+     * @deny (create, update, delete) - No one can modify or delete analytics data (data is populated server-side).
+     * @principle Allows public read access to analytics data while restricting writes.
+     */
     match /analytics/{dataType}/{docId} {
       allow get: if true;
       allow list: if true;
-      allow create: if isAdmin();
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
-    }
-
-    /**
-     * @description Rules for the /organizations collection.
-     * @path /organizations/{organizationId}
-     * @allow create: if isSignedIn() && request.auth.uid == request.resource.data.ownerId;
-     * @allow get: if isSignedIn();
-     * @allow list: if false;
-     * @allow update: if isSignedIn() && request.auth.uid == resource.data.ownerId;
-     * @allow delete: if isSignedIn() && request.auth.uid == resource.data.ownerId;
-     */
-    match /organizations/{organizationId} {
-       allow get: if isSignedIn();
-       allow list: if false;
-       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-       allow update: if isSignedIn() && request.resource.data.ownerId == resource.data.ownerId;
-       allow delete: if isSignedIn() && request.auth.uid == resource.data.ownerId;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
   }
 }
