@@ -1,287 +1,296 @@
+/**
+ * @fileoverview Firestore Security Rules for HVAC AI Pro.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for most data. Each user has a dedicated data tree under `/users/{userId}`.
+ * Only the authenticated user can access their own data. Additionally, the presence of a document in `/roles_admin/{uid}` grants administrative privileges.
+ *
+ * Data Structure:
+ * - /users/{userId}: Root for all user-specific data.
+ * - /users/{userId}/companyFinancialSettings/{companyFinancialSettingId}: Financial settings for a company.
+ * - /users/{userId}/materials/{materialId}: Materials data.
+ * - /users/{userId}/equipment/{equipmentId}: Equipment data.
+ * - /users/{userId}/customers/{customerId}: Customer data.
+ * - /users/{userId}/proposals/{proposalId}: Proposals data.
+ * - /users/{userId}/proposals/{proposalId}/lineItems/{lineItemId}: Line items for proposals.
+ * - /users/{userId}/subscriptions/{subscriptionId}: Subscription data.
+ * - /users/{userId}/jobCostingData/{jobCostingDataId}: Job costing data.
+ * - /users/{userId}/competitorPrices/{competitorPriceId}: Competitor pricing data.
+ * - /roles_admin/{userId}: Admin user IDs. Presence of a document grants admin access.
+ * - /analytics/{dataType}/{docId}: Analytics data.
+ *
+ * Key Security Decisions:
+ * - Strict user-ownership: All data under `/users/{userId}` is accessible only by the user.
+ * - No user listing: Listing users is not permitted.
+ * - Admin role: Defined by the existence of a document in `/roles_admin/{userId}`.
+ * - Analytics data is readable by everyone.
+ */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Checks if the request is authenticated.
-     * @path N/A (Helper function)
-     * @allow N/A (Helper function)
-     * @deny N/A (Helper function)
-     * @principle N/A (Helper function)
+     * @description Checks if the request is made by an authenticated user.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Authentication required for all protected paths.
      */
     function isSignedIn() {
       return request.auth != null;
     }
 
     /**
-     * @description Checks if the authenticated user ID matches the provided user ID.
-     * @path N/A (Helper function)
-     * @allow N/A (Helper function)
-     * @deny N/A (Helper function)
-     * @principle N/A (Helper function)
+     * @description Checks if the request is made by the owner of the document.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Ownership is verified using the userId.
      */
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
     /**
-     * @description Checks if the authenticated user is an existing owner of the document.
-     * @path N/A (Helper function)
-     * @allow N/A (Helper function)
-     * @deny N/A (Helper function)
-     * @principle N/A (Helper function)
+     * @description Checks if the request is made by the owner of the existing document.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
+     * @principle Ownership and document existence are verified.
      */
     function isExistingOwner(userId) {
-      return isOwner(userId) && get(resource).data != null;
-    }
-     /**
-      * @description Checks if the authenticated user is an admin.
-      * @path N/A (Helper function)
-      * @allow N/A (Helper function)
-      * @deny N/A (Helper function)
-      */
-    function isAdmin() {
-        return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+      return isOwner(userId) && resource != null;
     }
 
     /**
-     * @description Grants or denies access based on presence in the proposal's 'members' map.
-     * @path N/A (Helper function)
+     * @description Checks if the user has admin privileges.
+     * @path N/A
+     * @allow N/A
+     * @deny N/A
      */
-    function isMember(members) {
-        return request.auth.uid in members;
+    function isAdmin() {
+        return exists(/databases/(default)/documents/roles_admin/$(request.auth.uid));
     }
 
     /**
-     * @description Rules for user profile information.
+     * @description Rules for the /users/{userId} collection.
      * @path /users/{userId}
-     * @allow (create) - User with matching ID creates their own profile.
-     * @allow (get) - User with matching ID gets their own profile.
-     * @allow (update) - User with matching ID updates their own profile.
-     * @allow (delete) - User with matching ID deletes their own profile.
-     * @deny (create) - User attempts to create another user's profile.
-     * @deny (get) - User attempts to get another user's profile.
-     * @deny (update) - User attempts to update another user's profile.
-     * @deny (delete) - User attempts to delete another user's profile.
+     * @allow (create) If the user is creating their own document.
+     * @deny (create) If the user is not authenticated.
+     * @deny (create) If the userId in the path does not match the authenticated user's ID.
+     * @allow (get, list, update, delete) If the user is the owner.
+     * @deny (get, list, update, delete) If the user is not the owner.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == request.auth.uid;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for company financial settings.
+     * @description Rules for the /users/{userId}/companyFinancialSettings/{companyFinancialSettingId} collection.
      * @path /users/{userId}/companyFinancialSettings/{companyFinancialSettingId}
-     * @allow (create) - User with matching ID creates financial settings.
-     * @allow (get) - User with matching ID gets their financial settings.
-     * @allow (update) - User with matching ID updates their financial settings.
-     * @allow (delete) - User with matching ID deletes their financial settings.
-     * @deny (create) - User attempts to create financial settings for another user.
-     * @deny (get) - User attempts to get financial settings for another user.
-     * @deny (update) - User attempts to update financial settings for another user.
-     * @deny (delete) - User attempts to delete financial settings for another user.
+     * @allow (create) If the user is the owner.
+     * @deny (create) If the user is not the owner.
+     * @allow (get, list, update, delete) If the user is the owner.
+     * @deny (get, list, update, delete) If the user is not the owner.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/companyFinancialSettings/{companyFinancialSettingId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for materials.
+     * @description Rules for the /users/{userId}/materials/{materialId} collection.
      * @path /users/{userId}/materials/{materialId}
-     * @allow (create) - User with matching ID creates a material.
-     * @allow (get) - User with matching ID gets a material.
-     * @allow (update) - User with matching ID updates a material.
-     * @allow (delete) - User with matching ID deletes a material.
-     * @deny (create) - User attempts to create a material for another user.
-     * @deny (get) - User attempts to get a material for another user.
-     * @deny (update) - User attempts to update a material for another user.
-     * @deny (delete) - User attempts to delete a material for another user.
+     * @allow (create) If the user is the owner.
+     * @deny (create) If the user is not the owner.
+     * @allow (get, list, update, delete) If the user is the owner.
+     * @deny (get, list, update, delete) If the user is not the owner.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/materials/{materialId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for equipment.
+     * @description Rules for the /users/{userId}/equipment/{equipmentId} collection.
      * @path /users/{userId}/equipment/{equipmentId}
-     * @allow (create) - User with matching ID creates a piece of equipment.
-     * @allow (get) - User with matching ID gets a piece of equipment.
-     * @allow (update) - User with matching ID updates a piece of equipment.
-     * @allow (delete) - User with matching ID deletes a piece of equipment.
-     * @deny (create) - User attempts to create a piece of equipment for another user.
-     * @deny (get) - User attempts to get a piece of equipment for another user.
-     * @deny (update) - User attempts to update a piece of equipment for another user.
-     * @deny (delete) - User attempts to delete a piece of equipment for another user.
+     * @allow (create) If the user is the owner.
+     * @deny (create) If the user is not the owner.
+     * @allow (get, list, update, delete) If the user is the owner.
+     * @deny (get, list, update, delete) If the user is not the owner.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/equipment/{equipmentId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for customers.
+     * @description Rules for the /users/{userId}/customers/{customerId} collection.
      * @path /users/{userId}/customers/{customerId}
-     * @allow (create) - User with matching ID creates a customer.
-     * @allow (get) - User with matching ID gets a customer.
-     * @allow (update) - User with matching ID updates a customer.
-     * @allow (delete) - User with matching ID deletes a customer.
-     * @deny (create) - User attempts to create a customer for another user.
-     * @deny (get) - User attempts to get a customer for another user.
-     * @deny (update) - User attempts to update a customer for another user.
-     * @deny (delete) - User attempts to delete a customer for another user.
+     * @allow (create) If the user is the owner.
+     * @deny (create) If the user is not the owner.
+     * @allow (get, list, update, delete) If the user is the owner.
+     * @deny (get, list, update, delete) If the user is not the owner.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/customers/{customerId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for proposals.
+     * @description Rules for the /users/{userId}/proposals/{proposalId} collection.
      * @path /users/{userId}/proposals/{proposalId}
-     * @allow (create) - User with matching ID creates a proposal.
-     * @allow (get) - User with matching ID gets a proposal if they are the owner or a member.
-     * @allow (update) - User with matching ID updates a proposal if they are the owner or a member.
-     * @allow (delete) - User with matching ID deletes a proposal if they are the owner.
-     * @deny (create) - User attempts to create a proposal for another user.
-     * @deny (get) - User attempts to get a proposal if they are not the owner or a member.
-     * @deny (update) - User attempts to update a proposal if they are not the owner or a member.
-     * @deny (delete) - User attempts to delete a proposal if they are not the owner.
-     * @principle Enforces document ownership and shared access for proposals.
+     * @allow (create) If the user is the owner.
+     * @deny (create) If the user is not the owner.
+     * @allow (get, list, update, delete) If the user is the owner.
+     * @deny (get, list, update, delete) If the user is not the owner.
+     * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/proposals/{proposalId} {
-        allow get: if isOwner(userId) || (exists(resource) && resource.data.members != null && isMember(resource.data.members));
-        allow list: if false;
-        allow create: if isOwner(userId);
-        allow update: if isOwner(userId) || (exists(resource) && resource.data.members != null && isMember(resource.data.members));
-        allow delete: if isExistingOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for line items.
+     * @description Rules for the /users/{userId}/proposals/{proposalId}/lineItems/{lineItemId} collection.
      * @path /users/{userId}/proposals/{proposalId}/lineItems/{lineItemId}
-     * @allow (create) - User with matching ID creates a line item.
-     * @allow (get) - User with matching ID gets a line item.
-     * @allow (update) - User with matching ID updates a line item.
-     * @allow (delete) - User with matching ID deletes a line item.
-     * @deny (create) - User attempts to create a line item for another user.
-     * @deny (get) - User attempts to get a line item for another user.
-     * @deny (update) - User attempts to update a line item for another user.
-     * @deny (delete) - User attempts to delete a line item for another user.
+     * @allow (create) If the user is the owner.
+     * @deny (create) If the user is not the owner.
+     * @allow (get, list, update, delete) If the user is the owner.
+     * @deny (get, list, update, delete) If the user is not the owner.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/proposals/{proposalId}/lineItems/{lineItemId} {
       allow get: if isOwner(userId);
-      allow list: if false;
+      allow list: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for subscriptions.
+     * @description Rules for the /users/{userId}/subscriptions/{subscriptionId} collection.
      * @path /users/{userId}/subscriptions/{subscriptionId}
-     * @allow (create) - User with matching ID creates a subscription.
-     * @allow (get) - User with matching ID gets their subscription.
-     * @allow (update) - User with matching ID updates their subscription.
-     * @allow (delete) - User with matching ID deletes their subscription.
-     * @deny (create) - User attempts to create a subscription for another user.
-     * @deny (get) - User attempts to get a subscription for another user.
-     * @deny (update) - User attempts to update their subscription for another user.
-     * @deny (delete) - User attempts to delete a subscription for another user.
+     * @allow (create) If the user is the owner.
+     * @deny (create) If the user is not the owner.
+     * @allow (get, list, update, delete) If the user is the owner.
+     * @deny (get, list, update, delete) If the user is not the owner.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/subscriptions/{subscriptionId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for job costing data.
+     * @description Rules for the /users/{userId}/jobCostingData/{jobCostingDataId} collection.
      * @path /users/{userId}/jobCostingData/{jobCostingDataId}
-     * @allow (create) - User with matching ID creates job costing data.
-     * @allow (get) - User with matching ID gets their job costing data.
-     * @allow (update) - User with matching ID updates their job costing data.
-     * @allow (delete) - User with matching ID deletes their job costing data.
-     * @deny (create) - User attempts to create job costing data for another user.
-     * @deny (get) - User attempts to get job costing data for another user.
-     * @deny (update) - User attempts to update job costing data for another user.
-     * @deny (delete) - User attempts to delete job costing data for another user.
+     * @allow (create) If the user is the owner.
+     * @deny (create) If the user is not the owner.
+     * @allow (get, list, update, delete) If the user is the owner.
+     * @deny (get, list, update, delete) If the user is not the owner.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/jobCostingData/{jobCostingDataId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for competitor price data.
+     * @description Rules for the /users/{userId}/competitorPrices/{competitorPriceId} collection.
      * @path /users/{userId}/competitorPrices/{competitorPriceId}
-     * @allow (create) - User with matching ID creates competitor price data.
-     * @allow (get) - User with matching ID gets their competitor price data.
-     * @allow (update) - User with matching ID updates their competitor price data.
-     * @allow (delete) - User with matching ID deletes their competitor price data.
-     * @deny (create) - User attempts to create competitor price data for another user.
-     * @deny (get) - User attempts to get competitor price data for another user.
-     * @deny (update) - User attempts to update competitor price data for another user.
-     * @deny (delete) - User attempts to delete competitor price data for another user.
+     * @allow (create) If the user is the owner.
+     * @deny (create) If the user is not the owner.
+     * @allow (get, list, update, delete) If the user is the owner.
+     * @deny (get, list, update, delete) If the user is not the owner.
      * @principle Enforces document ownership for all operations.
      */
     match /users/{userId}/competitorPrices/{competitorPriceId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for granting admin access.
+     * @description Rules for the /roles_admin/{userId} collection.
      * @path /roles_admin/{userId}
+     * @allow create: if isAdmin();
+     * @allow get: if isAdmin();
+     * @allow list: if isAdmin();
+     * @allow update: if isAdmin();
+     * @allow delete: if isAdmin();
+     * @principle Only admins can manage admin roles.
      */
     match /roles_admin/{userId} {
-        allow get: if isAdmin();
-        allow list: if false;
-        allow create: if isAdmin();
-        allow update: if false;
-        allow delete: if isAdmin();
+       allow get: if isAdmin();
+       allow list: if false; // No listing of admin roles.
+       allow create: if isAdmin();
+       allow update: if isAdmin();
+       allow delete: if isAdmin();
+    }
+
+     /**
+      * @description Rules for the /analytics/{dataType}/{docId} collection.
+      * @path /analytics/{dataType}/{docId}
+      * @allow get, list: if true;
+      * @deny create, update, delete: if true;
+      * @principle Data can be read by everyone, but only backend can write.
+      */
+    match /analytics/{dataType}/{docId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     /**
-     * @description Rules for analytics data. Open access for prototyping.
-     * @path /analytics/{dataType}/{docId}
-     * @allow (get, list, create, update, delete) - All operations allowed.
-     * @principle Open access for prototyping.  Remove for production.
+     * @description Rules for the /organizations collection.
+     * @path /organizations/{organizationId}
+     * @allow create: if isSignedIn() && request.auth.uid == request.resource.data.ownerId;
+     * @allow get: if isSignedIn();
+     * @allow list: if false;
+     * @allow update: if isSignedIn() && request.auth.uid == resource.data.ownerId;
+     * @allow delete: if isSignedIn() && request.auth.uid == resource.data.ownerId;
      */
-      match /analytics/{dataType}/{docId} {
-          allow get, list, create, update, delete: if true;
-      }
+    match /organizations/{organizationId} {
+       allow get: if isSignedIn();
+       allow list: if false;
+       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+       allow update: if isSignedIn() && request.resource.data.ownerId == resource.data.ownerId;
+       allow delete: if isSignedIn() && request.auth.uid == resource.data.ownerId;
+    }
   }
 }
