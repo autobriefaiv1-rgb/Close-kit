@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import './globals.css';
 import { FirebaseClientProvider } from '@/firebase';
+import { MissingApiKeyWarning } from '@/components/missing-api-key-warning';
 
 export const metadata: Metadata = {
   title: 'Close Kit',
@@ -34,6 +35,7 @@ export default function RootLayout({
         )}
       >
         <FirebaseClientProvider>
+          <MissingApiKeyWarning />
           {children}
         </FirebaseClientProvider>
         <Toaster />

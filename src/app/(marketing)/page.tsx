@@ -29,34 +29,34 @@ const features = [
   {
     icon: <BrainCircuit className="w-10 h-10 text-primary" />,
     title: "AI-Powered Options Generator",
-    description: "Instantly create Good-Better-Best options from job details. Our AI leverages your proprietary data to craft perfectly tiered options that upsell customers without pressure. This simple feature alone can dramatically increase your average ticket size by presenting clear, value-driven choices.",
+    description: "Instantly create Good-Better-Best options from job details. Our AI leverages your proprietary data to craft perfectly tiered options that upsell customers without pressure. This simple feature alone can dramatically increase your average ticket size by presenting clear, value-driven choices that help customers sell themselves on more profitable packages.",
     image: PlaceHolderImages.find((img) => img.id === 'feature-gbb'),
     dataAiHint: "abstract options",
-    points: ["Increase average job value by 15-30%", "Reduce quoting time by 50%", "Empower techs to upsell confidently"]
+    points: ["Increase average job value by 15-30%", "Reduce quoting time by over 50%", "Empower techs to upsell confidently"]
   },
   {
     icon: <Languages className="w-10 h-10 text-primary" />,
     title: "Narrative Translator",
-    description: "Convert complex technical jargon into clear, customer-friendly explanations that anyone can understand. Build trust, demonstrate expertise, and help clients see the true value in your work, leading to faster approvals and higher customer satisfaction.",
+    description: "Convert complex technical jargon into clear, customer-friendly explanations that build trust and demonstrate expertise. Stop confusing your clients with acronyms and technical terms. Help them see the true value in your work, leading to faster approvals and higher customer satisfaction.",
     image: PlaceHolderImages.find((img) => img.id === 'feature-translator'),
     dataAiHint: "abstract language",
-    points: ["Build customer trust and transparency", "Justify higher-end options effectively", "Reduce follow-up questions and delays"]
+    points: ["Build immediate customer trust and transparency", "Justify higher-end options effectively", "Reduce follow-up questions and delays"]
   },
   {
     icon: <FileText className="w-10 h-10 text-primary" />,
     title: "Mobile Proposal Builder",
-    description: "Don't wait to get back to the office. Craft professional, branded proposals on-the-go with a touch-optimized interface. Manage customers, line items, and photos right from your tablet or phone, and send proposals before you even leave the driveway.",
+    description: "Don't wait to get back to the office while your competitor closes the deal. Craft professional, branded proposals on-the-go with a touch-optimized interface. Manage customers, line items, and photos right from your tablet or phone, and send proposals before you even leave the driveway.",
     image: PlaceHolderImages.find((img) => img.id === 'feature-proposal'),
     dataAiHint: "tablet work",
-    points: ["Create and send proposals in minutes", "Capture photos and notes on-site", "Works seamlessly on any device"]
+    points: ["Create and send professional proposals in minutes", "Capture photos and notes directly on-site", "Works seamlessly on any phone or tablet"]
   },
   {
     icon: <LineChart className="w-10 h-10 text-primary" />,
     title: "Proposal Analytics",
-    description: "Stop guessing what works. Gain critical insights with real-time proposal tracking. See when a customer opens your proposal, how long they view it, and which options they focus on. Use this data to refine your sales strategy and close more deals.",
+    description: "Stop guessing what works and start knowing. Gain critical insights with real-time proposal tracking. See exactly when a customer opens your proposal, how long they view it, and which options they focus on. Use this data to refine your sales strategy, follow up at the perfect moment, and close more deals.",
     image: PlaceHolderImages.find((img) => img.id === 'feature-analytics'),
     dataAiHint: "dashboard chart",
-    points: ["Track proposal views and acceptance rates", "Identify your most profitable services", "Optimize your sales follow-up process"]
+    points: ["Track proposal views, acceptance rates, and revenue", "Identify your most profitable services and technicians", "Optimize your sales follow-up process with real data"]
   },
 ];
 
@@ -85,17 +85,17 @@ const whyChooseUsPoints = [
     {
         icon: <ShieldCheck className="w-12 h-12 text-primary"/>,
         title: "Built for Your Trade",
-        description: "We're not a generic, one-size-fits-all solution. Close Kit is purpose-built for the specific needs of field service contractors. Every feature is designed to solve the real-world problems you face daily."
+        description: "We're not a generic, one-size-fits-all solution. Close Kit is purpose-built for the specific needs of field service contractors. Every feature is designed to solve the real-world problems you face daily, from the truck to the office."
     },
     {
         icon: <Zap className="w-12 h-12 text-primary"/>,
         title: "Unmatched Speed & Efficiency",
-        description: "Our platform is engineered for speed. From lightning-fast proposal generation to instant AI analysis, we help you and your team get more done in less time, reducing administrative overhead and maximizing billable hours."
+        description: "Our platform is engineered for speed because we know time is money. From lightning-fast proposal generation to instant AI analysis, we help your team get more done in less time, reducing administrative overhead and maximizing billable hours."
     },
     {
         icon: <TrendingUp className="w-12 h-12 text-primary"/>,
         title: "Focus on Profitability",
-        description: "Our tools are laser-focused on one thing: growing your bottom line. Whether it's increasing average ticket size with GBB options or optimizing your close rate with analytics, we help you turn every job into a more profitable one."
+        description: "Our tools are laser-focused on one thing: growing your bottom line. Whether it's increasing average ticket size with GBB options or optimizing your close rate with analytics, we help you turn every single job into a more profitable one."
     }
 ];
 
@@ -118,7 +118,7 @@ export default function LandingPage() {
                   Win More Bids, Effortlessly.
                 </h1>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                  Close Kit is the all-in-one platform that empowers you to create winning proposals in minutes, optimize your pricing with market data, and manage your business more efficiently. Stop leaving money on the table. Start closing more profitable jobs and transforming your operations with the power of AI.
+                  Close Kit is the all-in-one AI platform that empowers your field service team to create winning proposals in minutes, not hours. Stop leaving money on the table with quotes that don't sell. Start closing more profitable jobs and transform your operations with the power of AI.
                 </p>
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -132,7 +132,7 @@ export default function LandingPage() {
                       <Link href="#features">Explore Features</Link>
                     </Button>
                   </div>
-                  <p className="text-sm text-muted-foreground">No credit card required.</p>
+                  <p className="text-sm text-muted-foreground">No credit card required. Unlock your growth potential today.</p>
                 </div>
               </div>
             </AnimatedSection>
@@ -166,7 +166,7 @@ export default function LandingPage() {
                 Your New Workflow, Supercharged
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                From the initial quote to the final invoice, Close Kit simplifies every step of your process. Spend less time buried in paperwork and more time doing what you do best: providing quality service to your customers.
+                From the initial quote to the final invoice, Close Kit simplifies every step of your process. Spend less time buried in paperwork and more time doing what you do best: providing quality service and growing your business.
               </p>
             </div>
           </AnimatedSection>
@@ -177,7 +177,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">1. Build Proposals Fast</h3>
                 <p className="text-muted-foreground">
-                  Ditch the clunky spreadsheets and Word docs. Use our intuitive mobile app to gather job details on-site, then let our AI instantly generate professional Good-Better-Best options. It pulls directly from your own price book, creating an accurate, impressive proposal in minutes, not hours.
+                  Ditch the clunky spreadsheets. Use our intuitive mobile app to gather job details on-site, then let our AI instantly generate professional Good-Better-Best options. It pulls directly from your own price book, creating an accurate, impressive proposal in minutes, not hours.
                 </p>
             </AnimatedSection>
              <AnimatedSection className="grid gap-4 text-center" delay={100}>
@@ -186,7 +186,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">2. Win More Jobs</h3>
                 <p className="text-muted-foreground">
-                    Send beautiful, easy-to-understand proposals that empower your clients. They can easily view options, accept the one that fits their budget, and sign digitally from any device. Our real-time analytics show you the exact moment your proposal is viewed, so you can follow up with perfect timing and close the deal.
+                    Send beautiful, easy-to-understand proposals that empower your clients to choose the best option for their budget. They can accept and sign digitally from any device. Our real-time analytics show you the exact moment your proposal is viewed, so you can follow up with perfect timing and close the deal.
                 </p>
             </AnimatedSection>
              <AnimatedSection className="grid gap-4 text-center" delay={200}>
@@ -195,7 +195,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">3. Analyze & Grow</h3>
                 <p className="text-muted-foreground">
-                    The powerful analytics dashboard gives you a bird's-eye view of your business's health. Track close rates, revenue trends, and your most profitable services to stop guessing and start making data-driven decisions. Close Kit gives you the insights you need to scale your business with confidence.
+                    The powerful analytics dashboard gives you a bird's-eye view of your business's health. Track close rates, revenue trends, and your most profitable services to stop guessing and start making data-driven decisions that scale your business with confidence.
                 </p>
             </AnimatedSection>
           </div>
@@ -215,7 +215,7 @@ export default function LandingPage() {
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Our suite of AI-powered tools is designed to handle the heavy
-                lifting, from quoting to customer communication, so you can focus on quality work and customer satisfaction.
+                lifting, from quoting to customer communication, so you can focus on quality work, customer satisfaction, and profitability.
               </p>
             </div>
           </AnimatedSection>
@@ -270,7 +270,7 @@ export default function LandingPage() {
                             The Contractor's Unfair Advantage
                         </h2>
                         <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                            In a competitive market, you need tools that give you a definitive edge. We combine cutting-edge AI with deep industry knowledge to create a platform that doesn't just help you work—it helps you win more, earn more, and build a stronger business.
+                            In a competitive market, you need tools that give you a definitive edge. We combine cutting-edge AI with deep industry knowledge to create a platform that doesn't just help you work—it helps you win more, earn more, and build a stronger, more resilient business.
                         </p>
                     </div>
                 </AnimatedSection>
@@ -303,7 +303,7 @@ export default function LandingPage() {
                 What Our Customers Are Saying
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                See how contractors are using Close Kit to grow their businesses and delight their customers.
+                See how contractors across the country are using Close Kit to grow their businesses and delight their customers every day.
               </p>
             </div>
           </AnimatedSection>
@@ -346,14 +346,14 @@ export default function LandingPage() {
           <AnimatedSection>
             <div className="space-y-4">
               <h2 className="font-headline text-4xl font-bold tracking-tighter md:text-5xl/tight">
-                Ready to Upgrade Your Business?
+                Ready to Stop Quoting and Start Closing?
               </h2>
               <p className="mx-auto max-w-[600px] md:text-xl">
-                Join hundreds of successful contractors who use Close Kit to build a more profitable and efficient business. Get started with a 7-day free trial, no credit card required.
+                Join hundreds of successful contractors who use Close Kit to build a more profitable and efficient business. Your journey to smarter sales starts now. Get started with a 7-day free trial, no credit card required.
               </p>
               <Button size="lg" variant="secondary" className="text-lg" asChild>
                 <Link href="/login">
-                  Start Free Trial
+                  Start Free Trial Now
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
@@ -364,6 +364,8 @@ export default function LandingPage() {
     </div>
   );
 }
+    
+
     
 
     
