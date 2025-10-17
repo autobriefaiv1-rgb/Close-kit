@@ -8,48 +8,7 @@ import { Check } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { PayPalTeamButton } from '@/components/paypal-team-button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useEffect, useRef, useState } from 'react';
-import { cn } from '@/lib/utils';
-
-const AnimatedSection = ({ children, className }: { children: React.ReactNode, className?: string }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
-    };
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        "transition-all duration-1000 ease-out",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10",
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-};
+import { AnimatedSection } from '@/components/animated-section';
 
 const pricingImage = PlaceHolderImages.find((img) => img.id === 'pricing-team');
 
@@ -73,7 +32,7 @@ export default function TeamPlanPage() {
               <Link href="/login">Login</Link>
             </Button>
             <Button asChild>
-              <Link href="/signup">Sign Up</Link>
+              <Link href="/login">Sign Up</Link>
             </Button>
           </div>
         </div>
@@ -100,7 +59,7 @@ export default function TeamPlanPage() {
             </ul>
           </AnimatedSection>
           
-          <AnimatedSection>
+          <AnimatedSection delay={100}>
             <div className="relative aspect-video overflow-hidden rounded-xl shadow-lg transition-transform duration-500 hover:scale-105">
               {pricingImage && (
                 <Image

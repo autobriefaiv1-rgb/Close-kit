@@ -18,13 +18,12 @@ import {
   ChevronRight,
   Star,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { AnimatedSection } from "@/components/animated-section";
 
 const features = [
   {
@@ -102,47 +101,6 @@ const whyChooseUsPoints = [
 
 const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-image');
 
-const AnimatedSection = ({ children, className }: { children: React.ReactNode, className?: string }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
-    };
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        "transition-all duration-1000 ease-out",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10",
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-};
-
-
 export default function LandingPage() {
   return (
     <div className="flex-1 overflow-x-hidden">
@@ -165,7 +123,7 @@ export default function LandingPage() {
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2 min-[400px]:flex-row">
                     <Button size="lg" asChild>
-                      <Link href="/signup">
+                      <Link href="/login">
                         Start Your 7-Day Free Trial
                         <ArrowRight className="ml-2 h-5 w-5" />
                       </Link>
@@ -178,7 +136,7 @@ export default function LandingPage() {
                 </div>
               </div>
             </AnimatedSection>
-            <AnimatedSection>
+            <AnimatedSection delay={100}>
             <div className="relative aspect-video overflow-hidden rounded-xl shadow-2xl transition-transform duration-500 hover:scale-105">
               {heroImage && (
                 <Image
@@ -222,7 +180,7 @@ export default function LandingPage() {
                   Ditch the clunky spreadsheets and Word docs. Use our intuitive mobile app to gather job details on-site, then let our AI instantly generate professional Good-Better-Best options. It pulls directly from your own price book, creating an accurate, impressive proposal in minutes, not hours.
                 </p>
             </AnimatedSection>
-             <AnimatedSection className="grid gap-4 text-center">
+             <AnimatedSection className="grid gap-4 text-center" delay={100}>
                 <div className="flex justify-center items-center">
                    <DollarSign className="w-12 h-12 text-primary" />
                 </div>
@@ -231,7 +189,7 @@ export default function LandingPage() {
                     Send beautiful, easy-to-understand proposals that empower your clients. They can easily view options, accept the one that fits their budget, and sign digitally from any device. Our real-time analytics show you the exact moment your proposal is viewed, so you can follow up with perfect timing and close the deal.
                 </p>
             </AnimatedSection>
-             <AnimatedSection className="grid gap-4 text-center">
+             <AnimatedSection className="grid gap-4 text-center" delay={200}>
                  <div className="flex justify-center items-center">
                    <LineChart className="w-12 h-12 text-primary" />
                 </div>
@@ -318,7 +276,7 @@ export default function LandingPage() {
                 </AnimatedSection>
                 <div className="mx-auto grid max-w-5xl items-start gap-12 py-12 lg:grid-cols-3">
                     {whyChooseUsPoints.map((point, index) => (
-                        <AnimatedSection key={index} className="grid gap-4 text-center">
+                        <AnimatedSection key={index} className="grid gap-4 text-center" delay={index * 100}>
                             <div className="flex justify-center items-center">
                                 {point.icon}
                             </div>
@@ -351,7 +309,7 @@ export default function LandingPage() {
           </AnimatedSection>
           <div className="mx-auto grid max-w-5xl items-start gap-8 py-12 lg:grid-cols-3 lg:gap-12">
             {reviews.map((review, index) => (
-              <AnimatedSection key={index}>
+              <AnimatedSection key={index} delay={index * 100}>
                 <Card className="h-full flex flex-col">
                   <CardHeader className="flex-row items-center gap-4">
                     {review.avatar && (
@@ -394,7 +352,7 @@ export default function LandingPage() {
                 Join hundreds of successful contractors who use Close Kit to build a more profitable and efficient business. Get started with a 7-day free trial, no credit card required.
               </p>
               <Button size="lg" variant="secondary" className="text-lg" asChild>
-                <Link href="/signup">
+                <Link href="/login">
                   Start Free Trial
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
