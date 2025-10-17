@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Check, X } from 'lucide-react';
 import { Logo } from '@/components/logo';
-import { PayPalButton } from '@/components/paypal-button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { AnimatedSection } from '@/components/animated-section';
+import { SubscriptionButton } from '@/components/SubscriptionButton';
 
 const pricingImage = PlaceHolderImages.find((img) => img.id === 'pricing-solo');
 
@@ -146,7 +146,7 @@ export default function SoloPlanPage() {
                         <span className="text-muted-foreground">/month</span>
                       </div>
                       <div className="pt-2">
-                          <PayPalButton />
+                          <SubscriptionButton planId="P-3A8278213L525924FNDVH53Y" planName="solo" />
                       </div>
                   </CardContent>
               </Card>

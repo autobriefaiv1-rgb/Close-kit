@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Check } from 'lucide-react';
 import { Logo } from '@/components/logo';
-import { PayPalTeamButton } from '@/components/paypal-team-button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { AnimatedSection } from '@/components/animated-section';
+import { SubscriptionButton } from '@/components/SubscriptionButton';
 
 const pricingImage = PlaceHolderImages.find((img) => img.id === 'pricing-team');
 
@@ -123,7 +123,7 @@ export default function TeamPlanPage() {
                   <span className="text-muted-foreground">/month</span>
                 </div>
                 <div className="pt-2">
-                    <PayPalTeamButton />
+                    <SubscriptionButton planId="P-1WS55184A9046101RNDVIJZI" planName="team" />
                 </div>
               </CardContent>
             </Card>
