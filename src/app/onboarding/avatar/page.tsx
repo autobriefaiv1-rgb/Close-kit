@@ -20,12 +20,12 @@ import { cn } from '@/lib/utils';
 import { User } from 'lucide-react';
 
 const avatars = [
-    '/avatars/01.png',
-    '/avatars/02.png',
-    '/avatars/03.png',
-    '/avatars/04.png',
-    '/avatars/05.png',
-    '/avatars/06.png',
+    'https://picsum.photos/seed/avatar01/200/200',
+    'https://picsum.photos/seed/avatar02/200/200',
+    'https://picsum.photos/seed/avatar03/200/200',
+    'https://picsum.photos/seed/avatar04/200/200',
+    'https://picsum.photos/seed/avatar05/200/200',
+    'https://picsum.photos/seed/avatar06/200/200',
 ];
 
 export default function OnboardingAvatarPage() {
