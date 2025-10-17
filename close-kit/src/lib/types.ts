@@ -7,12 +7,12 @@ export type Organization = {
   subscriptionPlan?: 'solo' | 'team';
   subscriptionStatus?: 'trial' | 'active' | 'expired' | 'canceled';
   trialEndDate?: Timestamp;
-  analyticsEnabled?: boolean;
+  analyticsEnabled: boolean;
 }
 
 export type UserProfile = {
   id: string; // matches auth uid
-  organizationId?: string; // Optional now
+  organizationId?: string; // Optional on creation, required after onboarding
   firstName: string;
   lastName: string;
   email: string;

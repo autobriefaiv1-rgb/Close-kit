@@ -14,8 +14,84 @@ import { Check, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Logo } from '@/components/logo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useFirebase, setDocumentNonBlocking, addDocumentNonBlocking, useDoc, useMemoFirebase } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { collection, doc, Timestamp, writeBatch } from 'firebase/firestore';
+import { add } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import type { UserProfile } from '@/lib/types';
+
 
 export default function PricingPage() {
+    const { firestore, user } = useFirebase();
+    const router = useRouter();
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState<'solo' | 'team' | null>(null);
+
+    const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+    const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+    const handleChoosePlan = async (plan: 'solo' | 'team') => {
+        if (!user || !userProfile) {
+            // If user is not logged in, redirect them to sign up.
+            // Pass the plan as a query param so we can pre-select it after they sign up.
+            router.push(`/login?plan=${plan}`);
+            return;
+        }
+
+        if(userProfile.organizationId) {
+            toast({
+                title: 'Already in an Organization',
+                description: 'You can manage your subscription from the settings page.',
+                variant: 'default'
+            });
+            router.push('/dashboard/settings');
+            return;
+        }
+        
+        setIsLoading(plan);
+
+        try {
+            const batch = writeBatch(firestore);
+            const trialEndDate = add(new Date(), { days: 7 });
+
+            // Create the new organization
+            const orgRef = doc(collection(firestore, 'organizations'));
+            batch.set(orgRef, {
+                name: `${userProfile.firstName}'s Organization`, // Default name
+                ownerId: user.uid,
+                subscriptionPlan: plan,
+                subscriptionStatus: 'trial',
+                analyticsEnabled: plan === 'team', // Enable analytics by default for team plan
+                trialEndDate: Timestamp.fromDate(trialEndDate),
+            });
+
+            // Update the user's profile with the new organization ID and admin role
+            const userRef = doc(firestore, 'users', user.uid);
+            batch.update(userRef, { organizationId: orgRef.id, role: 'admin' });
+
+            await batch.commit();
+
+            toast({
+                title: `Welcome to the ${plan} plan!`,
+                description: `Your 7-day free trial has started.`
+            });
+
+            router.push('/onboarding/details');
+
+        } catch (error: any) {
+             toast({
+                variant: 'destructive',
+                title: 'Something went wrong',
+                description: error.message,
+            });
+             setIsLoading(null);
+        }
+    }
+
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -89,8 +165,9 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button size="lg" className="w-full" asChild>
-                <Link href="/login">Start 7-Day Free Trial</Link>
+              <Button size="lg" className="w-full" onClick={() => handleChoosePlan('solo')} disabled={isLoading === 'solo' || isProfileLoading}>
+                {isLoading === 'solo' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Choose Solo
               </Button>
             </CardFooter>
           </Card>
@@ -114,7 +191,7 @@ export default function PricingPage() {
                   <span>Everything in Solo, plus:</span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <Check className="h-5 w-5 text-primary" />
+                  <Users className="h-5 w-5 text-primary" />
                   <span>Up to 5 team members</span>
                 </li>
                  <li className="flex items-center gap-3">
@@ -136,8 +213,9 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button size="lg" className="w-full" asChild>
-                <Link href="/login">Start 7-Day Free Trial</Link>
+               <Button size="lg" className="w-full" onClick={() => handleChoosePlan('team')} disabled={isLoading === 'team' || isProfileLoading}>
+                 {isLoading === 'team' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Choose Team
               </Button>
             </CardFooter>
           </Card>
@@ -178,7 +256,7 @@ export default function PricingPage() {
                  <AccordionItem value="what-is-user-key">
                 <AccordionTrigger className="text-lg font-semibold text-left">What is a User Key and why do I need one?</AccordionTrigger>
                 <AccordionContent className="pt-2 text-muted-foreground">
-                  A User Key is a unique 8-character code (e.g., A1B2C3D4) assigned to every Close Kit user. It's a secure replacement for email-based invitations. Sharing your User Key allows a team administrator to add you to their organization without you having to accept an email invite. You can find your personal User Key on your **Settings** page.
+                  A User Key is a unique 8-character code (e.g., A1B2C3D4) assigned to every Close Kit user upon signing up. It's a secure replacement for email-based invitations. An admin on a Team plan can add you to their organization by entering your User Key. You can find your personal User Key on your **Settings** page.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="can-i-change-plans">
@@ -189,7 +267,6 @@ export default function PricingPage() {
               </AccordionItem>
             </Accordion>
         </div>
-
       </main>
     </div>
   );

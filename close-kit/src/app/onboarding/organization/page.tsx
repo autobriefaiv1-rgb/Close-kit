@@ -11,9 +11,9 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useFirebase, setDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
+import { useFirebase, setDocumentNonBlocking } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { collection, doc, Timestamp, writeBatch, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, doc, query, where, getDocs, limit } from 'firebase/firestore';
 import { Loader2, Users, Building, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -35,7 +35,7 @@ export default function OnboardingOrganizationPage() {
     setIsJoining(true);
 
     try {
-      // Find the user (team owner) by their userKey
+      // Find the user (team admin) by their userKey
       const usersRef = collection(firestore, 'users');
       const q = query(usersRef, where('userKey', '==', inviteKey), limit(1));
       const querySnapshot = await getDocs(q);
@@ -46,9 +46,8 @@ export default function OnboardingOrganizationPage() {
         return;
       }
 
-      const teamOwnerProfile = querySnapshot.docs[0].data();
-      const teamOwnerId = querySnapshot.docs[0].id;
-      const organizationId = teamOwnerProfile.organizationId;
+      const teamAdminProfile = querySnapshot.docs[0].data();
+      const organizationId = teamAdminProfile.organizationId;
 
       if (!organizationId) {
          toast({ variant: 'destructive', title: 'Invalid Team', description: 'The user associated with this key does not belong to an organization.' });
@@ -63,7 +62,7 @@ export default function OnboardingOrganizationPage() {
         role: 'member', // Assign a default role
       }, { merge: true });
 
-      toast({ title: 'Team Joined!', description: `You have successfully joined ${teamOwnerProfile.organizationName || 'the team'}.` });
+      toast({ title: 'Team Joined!', description: `You have successfully joined the team.` });
       router.push('/dashboard');
 
     } catch (error: any) {
@@ -84,17 +83,18 @@ export default function OnboardingOrganizationPage() {
                 Join an Existing Team
                 </CardTitle>
                 <CardDescription className="text-center">
-                If you received an invite key from a team member, enter it here to join their organization.
+                If you received a user key from an administrator, enter it here to join their organization.
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
                 <div className="grid gap-2">
-                <Label htmlFor="inviteKey">Invite Key</Label>
+                <Label htmlFor="inviteKey">Admin's User Key</Label>
                 <Input
                     id="inviteKey"
-                    placeholder="Enter your 8-character key"
+                    placeholder="Enter 8-character key"
                     value={inviteKey}
                     onChange={(e) => setInviteKey(e.target.value.toUpperCase())}
+                    maxLength={8}
                 />
                 </div>
             </CardContent>
@@ -123,7 +123,7 @@ export default function OnboardingOrganizationPage() {
             <CardFooter>
                 <Button className="w-full" asChild>
                     <Link href="/pricing">
-                        Choose a Plan <ArrowRight className="ml-2" />
+                        Choose a Plan <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                 </Button>
             </CardFooter>

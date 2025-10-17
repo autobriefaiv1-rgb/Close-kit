@@ -52,6 +52,7 @@ export interface UserHookResult {
   isUserLoading: boolean;
   userError: Error | null;
   isAdmin: boolean;
+  auth: Auth | null;
 }
 
 // React Context
@@ -84,9 +85,14 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       auth,
       async (firebaseUser) => { // Auth state determined
         if (firebaseUser) {
-            const idTokenResult = await firebaseUser.getIdTokenResult();
-            const isAdmin = !!idTokenResult.claims.isAdmin;
-            setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null, isAdmin });
+            try {
+                const idTokenResult = await firebaseUser.getIdTokenResult();
+                const isAdmin = !!idTokenResult.claims.isAdmin;
+                setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null, isAdmin });
+            } catch (error) {
+                 console.error("Error getting ID token:", error);
+                 setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null, isAdmin: false });
+            }
         } else {
             setUserAuthState({ user: null, isUserLoading: false, userError: null, isAdmin: false });
         }
@@ -190,6 +196,6 @@ export const useUser = (): UserHookResult => {
     if (context === undefined) {
         throw new Error('useUser must be used within a FirebaseProvider.');
     }
-  const { user, isUserLoading, userError, isAdmin } = context;
-  return { user, isUserLoading, userError, isAdmin };
+  const { user, isUserLoading, userError, isAdmin, auth } = context;
+  return { user, isUserLoading, userError, isAdmin, auth };
 };

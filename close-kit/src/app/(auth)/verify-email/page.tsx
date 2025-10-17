@@ -35,20 +35,26 @@ export default function VerifyEmailPage() {
     }
 
     const interval = setInterval(async () => {
-        try {
-            await user.reload();
-            if (user.emailVerified) {
+        if (auth.currentUser) {
+            try {
+                await auth.currentUser.reload();
+                if (auth.currentUser.emailVerified) {
+                    clearInterval(interval);
+                    toast({
+                        title: "Email Verified!",
+                        description: "Redirecting you to the onboarding flow."
+                    });
+                    router.push('/onboarding');
+                }
+            } catch (error) {
+                console.error("Error reloading user:", error);
                 clearInterval(interval);
-                router.push('/onboarding');
             }
-        } catch (error) {
-            console.error("Error reloading user:", error);
-            clearInterval(interval);
         }
     }, 3000); // Check every 3 seconds
 
     return () => clearInterval(interval);
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, router, auth, toast]);
 
   const handleResendVerification = async () => {
     if (!user) return;

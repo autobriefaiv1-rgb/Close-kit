@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { CircleUser, Menu, Search, MoreVertical } from 'lucide-react';
+import { CircleUser, Menu, Search } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { signOut } from 'firebase/auth';
 
 export function DashboardHeader() {
-  const { user, isUserLoading, auth } = useUser();
+  const { user, auth } = useUser();
 
   const handleLogout = () => {
     if(auth) {

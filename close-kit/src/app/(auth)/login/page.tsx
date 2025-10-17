@@ -35,26 +35,24 @@ export default function LoginPage() {
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
   
   useEffect(() => {
-    if (isUserLoading || !user) {
-      return;
-    }
+    if (isUserLoading) return; // Wait until user state is resolved
+    
+    if (!user) return; // If no user, stay on login page
 
-    // Check for email verification first
-    if (!user.emailVerified) {
+    // Check for email verification first for non-Google users
+    if (user.providerData[0]?.providerId === 'password' && !user.emailVerified) {
       router.push('/verify-email');
       return;
     }
 
-    if (isProfileLoading) {
-      return;
-    }
+    if (isProfileLoading) return; // Wait for profile to load
 
     if (userProfile?.organizationId) {
       router.push('/dashboard');
     } else {
       router.push('/onboarding');
     }
-  }, [user, user.emailVerified, userProfile, isUserLoading, isProfileLoading, router]);
+  }, [user, userProfile, isUserLoading, isProfileLoading, router]);
 
   const handleAuthAction = async (authPromise: Promise<any>, isNewUser: boolean = false) => {
     try {
@@ -82,13 +80,20 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await sendEmailVerification(userCredential.user);
-        toast({
-          title: "Account Created!",
-          description: "We've sent a verification link to your email."
-        });
-
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await sendEmailVerification(userCredential.user);
+            toast({
+            title: "Account Created!",
+            description: "We've sent a verification link to your email."
+            });
+        } catch (creationError: any) {
+             toast({
+                variant: 'destructive',
+                title: 'Sign Up Failed',
+                description: creationError.message || 'An unknown error occurred.',
+            });
+        }
       } else {
         toast({
             variant: 'destructive',
@@ -107,7 +112,7 @@ export default function LoginPage() {
     setIsGoogleLoading(false);
   };
 
-  if (isUserLoading || (user && (isProfileLoading || (user.providerData[0].providerId === 'password' && !user.emailVerified)))) {
+  if (isUserLoading || (user && isProfileLoading)) {
     return (
         <div className="flex min-h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
@@ -115,7 +120,8 @@ export default function LoginPage() {
     );
   }
 
-  if (user && user.emailVerified) {
+  // If user is logged in and verified (and we're just waiting for routing), show loader
+  if (user && (user.emailVerified || user.providerData[0].providerId !== 'password')) {
      return (
         <div className="flex min-h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
