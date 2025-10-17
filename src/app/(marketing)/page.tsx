@@ -118,7 +118,7 @@ export default function LandingPage() {
                   Win More Bids, Effortlessly.
                 </h1>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                  Close Kit is the all-in-one AI platform that empowers your field service team to create winning proposals in minutes, not hours. Stop leaving money on the table with quotes that don't sell. Start closing more profitable jobs and transform your operations with the power of AI.
+                  Close Kit is the all-in-one AI platform that empowers your field service team to create winning proposals in minutes, not hours. Stop leaving money on the table with quotes that don't sell. Start closing more profitable jobs and transform your operations with the power of AI. Our intelligent tools streamline your entire sales process—from initial quote to final signature—so you can focus on what you do best: quality work and customer satisfaction.
                 </p>
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -177,7 +177,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">1. Build Proposals Fast</h3>
                 <p className="text-muted-foreground">
-                  Ditch the clunky spreadsheets. Use our intuitive mobile app to gather job details on-site, then let our AI instantly generate professional Good-Better-Best options. It pulls directly from your own price book, creating an accurate, impressive proposal in minutes, not hours.
+                  Ditch the clunky spreadsheets. Use our intuitive mobile app to gather job details on-site, then let our AI instantly generate professional Good-Better-Best options. It pulls directly from your own price book, creating an accurate, impressive proposal in minutes, not hours. This means faster turnarounds and happier customers.
                 </p>
             </AnimatedSection>
              <AnimatedSection className="grid gap-4 text-center" delay={100}>
@@ -186,7 +186,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">2. Win More Jobs</h3>
                 <p className="text-muted-foreground">
-                    Send beautiful, easy-to-understand proposals that empower your clients to choose the best option for their budget. They can accept and sign digitally from any device. Our real-time analytics show you the exact moment your proposal is viewed, so you can follow up with perfect timing and close the deal.
+                    Send beautiful, easy-to-understand proposals that empower your clients to choose the best option for their budget. They can accept and sign digitally from any device. Our real-time analytics show you the exact moment your proposal is viewed, so you can follow up with perfect timing and close the deal before your competitors even call back.
                 </p>
             </AnimatedSection>
              <AnimatedSection className="grid gap-4 text-center" delay={200}>
@@ -195,7 +195,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold font-headline">3. Analyze & Grow</h3>
                 <p className="text-muted-foreground">
-                    The powerful analytics dashboard gives you a bird's-eye view of your business's health. Track close rates, revenue trends, and your most profitable services to stop guessing and start making data-driven decisions that scale your business with confidence.
+                    The powerful analytics dashboard gives you a bird's-eye view of your business's health. Track close rates, revenue trends, and your most profitable services to stop guessing and start making data-driven decisions that scale your business with confidence and clarity. Identify top-performing technicians and optimize your sales strategies.
                 </p>
             </AnimatedSection>
           </div>
@@ -270,7 +270,7 @@ export default function LandingPage() {
                             The Contractor's Unfair Advantage
                         </h2>
                         <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                            In a competitive market, you need tools that give you a definitive edge. We combine cutting-edge AI with deep industry knowledge to create a platform that doesn't just help you work—it helps you win more, earn more, and build a stronger, more resilient business.
+                            In a competitive market, you need tools that give you a definitive edge. We combine cutting-edge AI with deep industry knowledge to create a platform that doesn't just help you work—it helps you win more, earn more, and build a stronger, more resilient business. Our platform is built from the ground up to solve the unique challenges that service contractors face every day.
                         </p>
                     </div>
                 </AnimatedSection>
@@ -349,7 +349,7 @@ export default function LandingPage() {
                 Ready to Stop Quoting and Start Closing?
               </h2>
               <p className="mx-auto max-w-[600px] md:text-xl">
-                Join hundreds of successful contractors who use Close Kit to build a more profitable and efficient business. Your journey to smarter sales starts now. Get started with a 7-day free trial, no credit card required.
+                Join hundreds of successful contractors who use Close Kit to build a more profitable and efficient business. Your journey to smarter sales starts now. Get started with a 7-day free trial, no credit card required. Stop leaving money on the table and start winning the jobs you deserve.
               </p>
               <Button size="lg" variant="secondary" className="text-lg" asChild>
                 <Link href="/login">
