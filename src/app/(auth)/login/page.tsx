@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, type User } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -39,7 +39,6 @@ export default function LoginPage() {
       return;
     }
 
-    // Check for email verification first for non-Google users
     if (user.providerData[0]?.providerId === 'password' && !user.emailVerified) {
       router.push('/verify-email');
       return;
@@ -49,46 +48,47 @@ export default function LoginPage() {
       return;
     }
 
-    if (userProfile?.organizationId) {
+    if (userProfile && userProfile.organizationId) {
       router.push('/dashboard');
     } else {
       router.push('/onboarding');
     }
   }, [user, userProfile, isUserLoading, isProfileLoading, router]);
 
-  const handleAuthAction = async (authPromise: Promise<any>, isNewUser: boolean = false) => {
-    try {
-      const userCredential = await authPromise;
-      if (isNewUser && userCredential.user) {
-        await sendEmailVerification(userCredential.user);
-        toast({
-          title: "Verification Email Sent",
-          description: "Please check your inbox to verify your email address."
-        });
-      }
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Authentication Failed',
-        description: error.message || 'An unknown error occurred.',
-      });
-    }
-  };
-
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast({
+        variant: 'destructive',
+        title: 'Missing Information',
+        description: 'Please enter both email and password.',
+      });
+      return;
+    }
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // On successful login, the useEffect will handle redirection.
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await sendEmailVerification(userCredential.user);
-        toast({
-          title: "Account Created!",
-          description: "We've sent a verification link to your email."
-        });
-
+        // If user doesn't exist, create a new account
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          if (userCredential.user) {
+            await sendEmailVerification(userCredential.user);
+            toast({
+              title: 'Account Created!',
+              description: "We've sent a verification link to your email. Please verify to continue.",
+            });
+            // The useEffect will redirect to /verify-email
+          }
+        } catch (creationError: any) {
+           toast({
+            variant: 'destructive',
+            title: 'Sign Up Failed',
+            description: creationError.message || 'Could not create your account.',
+          });
+        }
       } else {
         toast({
             variant: 'destructive',
@@ -96,18 +96,29 @@ export default function LoginPage() {
             description: error.message || 'An unknown error occurred.',
         });
       }
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
-    await handleAuthAction(signInWithPopup(auth, provider));
-    setIsGoogleLoading(false);
+    try {
+      await signInWithPopup(auth, provider);
+      // On successful login, the useEffect will handle redirection.
+    } catch (error: any) {
+       toast({
+        variant: 'destructive',
+        title: 'Authentication Failed',
+        description: error.message || 'An unknown error occurred.',
+      });
+    } finally {
+        setIsGoogleLoading(false);
+    }
   };
 
-  if (isUserLoading || (user && (isProfileLoading || (user.providerData[0].providerId === 'password' && !user.emailVerified)))) {
+  if (isUserLoading || (user && isProfileLoading)) {
     return (
         <div className="flex min-h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
@@ -115,7 +126,7 @@ export default function LoginPage() {
     );
   }
 
-  // If user is logged in, show loading screen while we figure out where to send them
+  // If user is logged in, show loading while redirecting
   if (user) {
      return (
         <div className="flex min-h-screen items-center justify-center">
@@ -137,7 +148,7 @@ export default function LoginPage() {
         <div className="grid gap-4">
             <Button variant="outline" onClick={handleGoogleSignIn} disabled={isGoogleLoading || isLoading}>
               {isGoogleLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 64.5C308 106.9 280.7 96 248 96c-88.8 0-160.1 71.1-160.1 160s71.3 160 160.1 160c98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>}
-              Sign in with Google
+              Continue with Google
             </Button>
 
             <div className="relative">

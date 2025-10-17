@@ -40,23 +40,10 @@ const prompt = ai.definePrompt({
   name: 'analyzeCompetitorPricingPrompt',
   input: {schema: AnalyzeCompetitorPricingInputSchema},
   output: {schema: AnalyzeCompetitorPricingOutputSchema},
-  prompt: `You are a pricing strategy expert for contractors.
-
-Analyze the competitor pricing data and job details provided, and suggest an optimal pricing strategy to remain competitive and maximize profitability.
-Consider the desired profit margin when formulating the strategy.
-
-Competitor Pricing Data: {{{competitorData}}}
-Job Details: {{{jobDetails}}}
-Desired Profit Margin: {{{desiredProfitMargin}}}%
-
-Based on this information, provide a suggested pricing strategy and a justification for the strategy.
-
-Format your response as:
-Suggested Pricing Strategy: [Suggested pricing strategy]
-Price Justification: [Justification for the suggested pricing strategy]`,
+  prompt: `You are a pricing strategy expert for contractors.\n\nAnalyze the competitor pricing data and job details provided, and suggest an optimal pricing strategy to remain competitive and maximize profitability.\nConsider the desired profit margin when formulating the strategy.\n\nCompetitor Pricing Data: {{{competitorData}}}\nJob Details: {{{jobDetails}}}\nDesired Profit Margin: {{{desiredProfitMargin}}}%\n\nBased on this information, provide a suggested pricing strategy and a justification for the strategy.\n\nFormat your response as:\nSuggested Pricing Strategy: [Suggested pricing strategy]\nPrice Justification: [Justification for the suggested pricing strategy]`,
 });
 
-const analyzeCompetitorPricingFlow = ai.defineFlow(
+export const analyzeCompetitorPricingFlow = ai.defineFlow(
   {
     name: 'analyzeCompetitorPricingFlow',
     inputSchema: AnalyzeCompetitorPricingInputSchema,

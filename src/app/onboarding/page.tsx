@@ -19,7 +19,6 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (isUserLoading || isProfileLoading) {
-      // Wait until both user and profile are loaded
       return;
     }
 
@@ -28,7 +27,11 @@ export default function OnboardingPage() {
       return;
     }
 
-    // Now we know we have a user and their profile (or lack thereof)
+    if (user.providerData[0]?.providerId === 'password' && !user.emailVerified) {
+      router.replace('/verify-email');
+      return;
+    }
+
     if (!userProfile || !userProfile.firstName || !userProfile.lastName) {
       router.replace('/onboarding/profile');
     } else if (!userProfile.organizationId) {
@@ -36,7 +39,6 @@ export default function OnboardingPage() {
     } else if (!userProfile.trade || !userProfile.companySize) {
       router.replace('/onboarding/details');
     } else {
-      // If all checks pass, they are fully onboarded
       router.replace('/dashboard');
     }
   }, [user, isUserLoading, userProfile, isProfileLoading, router]);
@@ -44,6 +46,7 @@ export default function OnboardingPage() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <Loader2 className="h-8 w-8 animate-spin" />
+      <p className="ml-4 text-muted-foreground">Directing you...</p>
     </div>
   );
 }

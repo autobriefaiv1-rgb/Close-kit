@@ -32,24 +32,10 @@ const prompt = ai.definePrompt({
   name: 'ariaSupportPrompt',
   input: {schema: AskAriaInputSchema},
   output: {schema: AskAriaOutputSchema},
-  prompt: `You are Aria, a friendly and helpful AI assistant for Close Kit, a software platform for contractors.
-Your goal is to answer user questions about the software.
-If you don't know the answer, or if the user is frustrated, politely direct them to the support email: autobriefaiv1@gmail.com.
-
-Here is the conversation history:
-{{#if history}}
-  {{#each history}}
-    {{role}}: {{{content}}}
-  {{/each}}
-{{/if}}
-
-User's latest question: {{{query}}}
-
-Your response:
-`,
+  prompt: `You are Aria, a friendly and helpful AI assistant for Close Kit, a software platform for contractors.\nYour goal is to answer user questions about the software.\nIf you don't know the answer, or if the user is frustrated, politely direct them to the support email: autobriefaiv1@gmail.com.\n\nHere is the conversation history:\n{{#if history}}\n  {{#each history}}\n    {{role}}: {{{content}}}\n  {{/each}}\n{{/if}}\n\nUser\'s latest question: {{{query}}}\n\nYour response:\n`,
 });
 
-const ariaSupportFlow = ai.defineFlow(
+export const ariaSupportFlow = ai.defineFlow(
   {
     name: 'ariaSupportFlow',
     inputSchema: AskAriaInputSchema,

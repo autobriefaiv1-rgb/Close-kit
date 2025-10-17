@@ -37,21 +37,10 @@ const prompt = ai.definePrompt({
   name: 'generateGoodBetterBestOptionsPrompt',
   input: {schema: GenerateGoodBetterBestOptionsInputSchema},
   output: {schema: GenerateGoodBetterBestOptionsOutputSchema},
-  prompt: `You are an AI assistant for generating Good-Better-Best options for contractors.
-
-  Based on the job description and proprietary pricing data provided, generate three options:
-  - Good: The most basic and cost-effective option.
-  - Better: An upgraded option with enhanced features or materials.
-  - Best: The premium option with the highest quality and most comprehensive features.
-
-  Job Description: {{{jobDescription}}}
-  Pricing Data: {{{pricingData}}}
-
-  Format your response as a JSON object with "goodOption", "betterOption", and "bestOption" keys.
-`,
+  prompt: `You are an AI assistant for generating Good-Better-Best options for contractors.\n\n  Based on the job description and proprietary pricing data provided, generate three options:\n  - Good: The most basic and cost-effective option.\n  - Better: An upgraded option with enhanced features or materials.\n  - Best: The premium option with the highest quality and most comprehensive features.\n\n  Job Description: {{{jobDescription}}}\n  Pricing Data: {{{pricingData}}}\n\n  Format your response as a JSON object with "goodOption", "betterOption", and "bestOption" keys.\n`,
 });
 
-const generateGoodBetterBestOptionsFlow = ai.defineFlow(
+export const generateGoodBetterBestOptionsFlow = ai.defineFlow(
   {
     name: 'generateGoodBetterBestOptionsFlow',
     inputSchema: GenerateGoodBetterBestOptionsInputSchema,

@@ -37,7 +37,7 @@ import { Button } from '@/components/ui/button';
 import { ChartConfig, ChartContainer } from '@/components/ui/chart';
 import { useFirebase, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import type { Proposal, UserProfile } from '@/lib/types';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, query, orderBy, limit } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -80,11 +80,9 @@ function WelcomeTour({ onDismiss }: { onDismiss: () => void }) {
 
 export default function Dashboard() {
   const { firestore, user } = useFirebase();
-
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
-    // This check runs only on the client-side
     const hasSeenWelcome = localStorage.getItem('hasSeenWelcomeTour');
     if (!hasSeenWelcome) {
       setShowWelcome(true);
@@ -104,13 +102,15 @@ export default function Dashboard() {
       userProfile ? collection(firestore, 'organizations', userProfile.organizationId, 'proposals') : null,
     [firestore, userProfile]
   );
-  const { data: proposals, isLoading } = useCollection<Proposal>(proposalsQuery);
+  const { data: proposals, isLoading: proposalsLoading } = useCollection<Proposal>(proposalsQuery);
+  
+  const recentProposalsQuery = useMemoFirebase(
+    () => userProfile ? query(collection(firestore, 'organizations', userProfile.organizationId, 'proposals'), orderBy('createdAt', 'desc'), limit(5)) : null,
+    [firestore, userProfile]
+  );
+  const { data: recentProposals, isLoading: recentsLoading } = useCollection<Proposal>(recentProposalsQuery);
 
-  const recentProposals = proposals
-    ? [...proposals]
-        .sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis())
-        .slice(0, 5)
-    : [];
+  const isLoading = proposalsLoading || recentsLoading;
 
   const statusVariant = (
     status: string
@@ -263,7 +263,7 @@ export default function Dashboard() {
                       <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                     </TableRow>
                   ))
-                ) : recentProposals.length > 0 ? (
+                ) : recentProposals && recentProposals.length > 0 ? (
                   recentProposals.map((proposal) => (
                     <TableRow key={proposal.id}>
                       <TableCell>

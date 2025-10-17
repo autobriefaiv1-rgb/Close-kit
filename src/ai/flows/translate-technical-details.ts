@@ -35,15 +35,10 @@ const prompt = ai.definePrompt({
   name: 'translateTechnicalDetailsPrompt',
   input: {schema: TranslateTechnicalDetailsInputSchema},
   output: {schema: TranslateTechnicalDetailsOutputSchema},
-  prompt: `You are an expert at translating technical details into customer-friendly explanations.
-
-  Technical Details: {{{technicalDetails}}}
-
-  Translate the above technical details into a customer-friendly explanation:
-  `,
+  prompt: `You are an expert at translating technical details into customer-friendly explanations.\n\n  Technical Details: {{{technicalDetails}}}\n\n  Translate the above technical details into a customer-friendly explanation:\n  `,
 });
 
-const translateTechnicalDetailsFlow = ai.defineFlow(
+export const translateTechnicalDetailsFlow = ai.defineFlow(
   {
     name: 'translateTechnicalDetailsFlow',
     inputSchema: TranslateTechnicalDetailsInputSchema,
