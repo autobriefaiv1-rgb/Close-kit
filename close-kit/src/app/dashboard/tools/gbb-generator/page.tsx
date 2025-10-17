@@ -13,31 +13,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { generateGoodBetterBestOptions } from "@/ai/flows/generate-good-better-best-options";
 import type { GenerateGoodBetterBestOptionsOutput } from "@/ai/flows/generate-good-better-best-options";
-import { Loader2, Wand2, Lock } from "lucide-react";
-import { useFirebase, useDoc, useMemoFirebase } from "@/firebase";
-import { doc } from 'firebase/firestore';
-import type { Organization, UserProfile } from '@/lib/types';
-import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link";
+import { Loader2, Wand2 } from "lucide-react";
 
 export default function GBBGeneratorPage() {
   const [jobDescription, setJobDescription] = useState("A standard 2-ton AC unit replacement for a 1500 sq ft single-family home. The existing unit is on the ground floor, easily accessible. Customer is looking for reliable but cost-effective options.");
   const [pricingData, setPricingData] = useState("- Basic 14 SEER unit: $1800\n- Mid-range 16 SEER unit: $2500\n- High-efficiency 18 SEER unit with smart thermostat: $3800\n- Labor: 8 hours @ $100/hr\n- Materials (pads, wiring, etc.): $250");
   const [result, setResult] = useState<GenerateGoodBetterBestOptionsOutput | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const { firestore, user } = useFirebase();
-
-  const userProfileRef = useMemoFirebase(
-    () => (user ? doc(firestore, 'users', user.uid) : null),
-    [firestore, user]
-  );
-  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
-
-  const organizationRef = useMemoFirebase(() => userProfile?.organizationId ? doc(firestore, 'organizations', userProfile.organizationId) : null, [firestore, userProfile]);
-  const { data: organization, isLoading: isOrgLoading } = useDoc<Organization>(organizationRef);
-
-  const isLoading = isProfileLoading || isOrgLoading;
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -50,32 +32,10 @@ export default function GBBGeneratorPage() {
       setResult(output);
     } catch (error) {
       console.error("Error generating options:", error);
-      // You could show an error toast here
     } finally {
       setLoading(false);
     }
   };
-  
-  if (isLoading) {
-    return <Skeleton className="h-96 w-full" />
-  }
-
-  if (organization?.subscriptionPlan !== 'team') {
-      return (
-          <Card className="flex flex-col items-center justify-center text-center p-12">
-              <div className="bg-primary/10 rounded-full p-4 mb-6">
-                  <Lock className="w-10 h-10 text-primary" />
-              </div>
-              <CardTitle className="font-headline text-2xl mb-2">Upgrade to Use Advanced AI Tools</CardTitle>
-              <CardDescription className="max-w-md mb-6">
-                  The Good-Better-Best Options Generator is a premium feature. Upgrade to the Team plan to leverage advanced AI and create compelling proposals effortlessly.
-              </CardDescription>
-              <Button asChild>
-                  <Link href="/pricing">View Upgrade Options</Link>
-              </Button>
-          </Card>
-      );
-  }
 
   return (
     <div className="grid gap-6">
