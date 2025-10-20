@@ -26,18 +26,21 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { PlusCircle, Trash, Upload, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { PlusCircle, Trash, Upload, Loader2, Image as ImageIcon, X } from 'lucide-react';
+import { useState, useRef } from 'react';
 import { useFirebase, useCollection, addDocumentNonBlocking, useMemoFirebase, useDoc } from '@/firebase';
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Customer, UserProfile } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function NewProposalPage() {
-    const { firestore, user } = useFirebase();
+    const { firestore, user, firebaseApp } = useFirebase();
     const { toast } = useToast();
     const router = useRouter();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
     const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
@@ -50,10 +53,30 @@ export default function NewProposalPage() {
 
     const [selectedCustomerId, setSelectedCustomerId] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+    const [photos, setPhotos] = useState<File[]>([]);
+    const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+    const [isUploading, setIsUploading] = useState(false);
 
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files) {
+            const newFiles = Array.from(event.target.files);
+            const allFiles = [...photos, ...newFiles];
+            setPhotos(allFiles);
+
+            const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+            const allPreviews = [...photoPreviews, ...newPreviews];
+            setPhotoPreviews(allPreviews);
+        }
+    };
+    
+    const removePhoto = (index: number) => {
+        setPhotos(photos.filter((_, i) => i !== index));
+        setPhotoPreviews(photoPreviews.filter((_, i) => i !== index));
+    };
 
     const handleSendProposal = async () => {
-        if (!user || !firestore || !userProfile) return;
+        if (!user || !firestore || !userProfile || !firebaseApp) return;
 
         if (!selectedCustomerId) {
             toast({ variant: 'destructive', title: 'Error', description: 'Please select a customer.' });
@@ -61,6 +84,27 @@ export default function NewProposalPage() {
         }
 
         setIsSaving(true);
+        let photoURLs: string[] = [];
+
+        if (photos.length > 0) {
+            setIsUploading(true);
+            const storage = getStorage(firebaseApp);
+            
+            try {
+                const uploadPromises = photos.map(photo => {
+                    const storageRef = ref(storage, `project-photos/${user.uid}/${Date.now()}-${photo.name}`);
+                    return uploadBytes(storageRef, photo).then(snapshot => getDownloadURL(snapshot.ref));
+                });
+                photoURLs = await Promise.all(uploadPromises);
+            } catch (error: any) {
+                 toast({ variant: 'destructive', title: 'Photo Upload Failed', description: error.message });
+                 setIsSaving(false);
+                 setIsUploading(false);
+                 return;
+            }
+            setIsUploading(false);
+        }
+
         try {
             const selectedCustomer = customers?.find(c => c.id === selectedCustomerId);
             const proposalData = {
@@ -70,6 +114,7 @@ export default function NewProposalPage() {
                 status: 'Sent', // Or 'Draft' if you save as draft
                 amount: 3754.10, // Placeholder
                 createdAt: serverTimestamp(),
+                photoURLs: photoURLs,
             };
 
             await addDocumentNonBlocking(collection(firestore, 'organizations', userProfile.organizationId, 'proposals'), proposalData);
@@ -93,8 +138,8 @@ export default function NewProposalPage() {
         <div className="hidden items-center gap-2 md:ml-auto md:flex">
           <Button variant="outline" disabled={isSaving}>Save Draft</Button>
           <Button onClick={handleSendProposal} disabled={isSaving}>
-            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Send Proposal
+            {(isSaving || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isUploading ? 'Uploading Photos...' : 'Send Proposal'}
           </Button>
         </div>
       </div>
@@ -222,18 +267,39 @@ export default function NewProposalPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-2">
-                <div className="grid h-48 w-full cursor-pointer grid-cols-2 gap-2">
-                    <div className="flex items-center justify-center rounded-md border border-dashed text-sm">
-                        <Upload className="h-4 w-4 text-muted-foreground" />
-                        <span className="sr-only">Upload</span>
-                    </div>
-                     <div className="flex items-center justify-center rounded-md border border-dashed text-sm">
-                        <Upload className="h-4 w-4 text-muted-foreground" />
-                        <span className="sr-only">Upload</span>
-                    </div>
-                </div>
-              </div>
+               <div className="grid gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                     {photoPreviews.map((preview, index) => (
+                        <div key={index} className="relative aspect-square">
+                           <Image src={preview} alt={`Photo preview ${index + 1}`} fill className="object-cover rounded-md" />
+                           <Button
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-1 right-1 h-6 w-6 rounded-full"
+                              onClick={() => removePhoto(index)}
+                           >
+                              <X className="h-4 w-4" />
+                           </Button>
+                        </div>
+                     ))}
+                     <div
+                        className="flex items-center justify-center flex-col gap-2 rounded-md border-2 border-dashed text-sm text-muted-foreground cursor-pointer aspect-square hover:bg-muted/50 transition-colors"
+                        onClick={() => fileInputRef.current?.click()}
+                     >
+                        <Upload className="h-6 w-6" />
+                        <span>Upload</span>
+                     </div>
+                  </div>
+
+                  <Input
+                     ref={fileInputRef}
+                     type="file"
+                     multiple
+                     accept="image/*"
+                     className="hidden"
+                     onChange={handleFileChange}
+                  />
+               </div>
             </CardContent>
           </Card>
         </div>
@@ -243,8 +309,8 @@ export default function NewProposalPage() {
           Save Draft
         </Button>
         <Button size="sm" onClick={handleSendProposal} disabled={isSaving}>
-            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Send Proposal
+            {(isSaving || isUploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isUploading ? 'Uploading...' : 'Send Proposal'}
         </Button>
       </div>
     </div>

@@ -268,6 +268,14 @@
           "type": "string",
           "description": "Status of the proposal (e.g., Draft, Sent, Accepted, Rejected)."
         },
+        "photoURLs": {
+          "type": "array",
+          "description": "An array of URLs for photos associated with the proposal.",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
         "createdAt": {
           "type": "string",
           "description": "Timestamp indicating when the proposal was created.",
@@ -732,5 +740,13 @@
       }
     ],
     "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability, adhering to the specified principles. It leverages path-based ownership for user-specific data and denormalization for collaborative data. User data and related entities are stored under the `/users/{userId}` path, ensuring only the authenticated user can access their data. This structure supports secure list operations (QAPs) because each collection's security rules can be independently defined based on path and document content, without relying on filtering.  The structure uses denormalization strategy for team access to proposals. The `proposals` collection includes a denormalized `members` map, copying user roles from the `/users/{userId}/roles/{roleId}` document (if applicable) to allow authorization without `get()` calls. This ensures atomic operations and simplifies security rule evaluation.  Separate collections are used for admin and analysis roles. The mere presence of a document in `/roles_admin/{uid}` grants administrative privileges.  For efficient analysis, a separate collection `/analytics/{dataType}/{docId}` is used for aggregated data."
+  },
+  "storage": {
+    "buckets": [
+      {
+        "name": "project-photos",
+        "description": "Stores user-uploaded photos for proposals and jobs."
+      }
+    ]
   }
 }
