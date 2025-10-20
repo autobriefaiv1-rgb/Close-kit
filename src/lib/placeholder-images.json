@@ -3,67 +3,103 @@
     {
       "id": "hero-image",
       "description": "A modern and clean HVAC unit installation.",
-      "imageUrl": "https://picsum.photos/seed/hvac1/1200/800",
+      "imageUrl": "https://images.unsplash.com/photo-1547156306-383679f4e4e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxIVkFDJTIwaW5zdGFsbGF0aW9ufGVufDB8fHx8MTc2MDg4MzM1N3ww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "HVAC installation"
     },
     {
       "id": "user-avatar",
       "description": "Default user avatar.",
-      "imageUrl": "https://picsum.photos/seed/avatar1/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1535643302794-19c3804b874b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjA5MjcyMzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person portrait"
     },
     {
       "id": "feature-gbb",
       "description": "An abstract image representing choices or options.",
-      "imageUrl": "https://picsum.photos/seed/gbb/1200/800",
+      "imageUrl": "https://images.unsplash.com/photo-1637088059531-4ffcc89d0dd3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMG9wdGlvbnN8ZW58MHx8fHwxNzYwOTUyMDMzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "abstract options"
     },
     {
       "id": "feature-translator",
       "description": "An abstract image representing language and communication.",
-      "imageUrl": "https://picsum.photos/seed/translate/1200/800",
+      "imageUrl": "https://images.unsplash.com/photo-1666014214619-b0a572963b88?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YWJzdHJhY3QlMjBsYW5ndWFnZXxlbnwwfHx8fDE3NjA5NTIwMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "abstract language"
     },
     {
       "id": "feature-proposal",
       "description": "A person working on a tablet, building a proposal.",
-      "imageUrl": "https://picsum.photos/seed/proposal/1200/800",
+      "imageUrl": "https://images.unsplash.com/photo-1628815113969-0487917fc6a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8dGFibGV0JTIwd29ya3xlbnwwfHx8fDE3NjA5NTIwMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "tablet work"
     },
     {
       "id": "feature-analytics",
       "description": "A dashboard with charts and graphs.",
-      "imageUrl": "https://picsum.photos/seed/analytics/1200/800",
+      "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxkYXNoYm9hcmQlMjBjaGFydHxlbnwwfHx8fDE3NjA4NzYyODB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "dashboard chart"
     },
     {
       "id": "avatar-1",
       "description": "Avatar of a male construction worker.",
-      "imageUrl": "https://picsum.photos/seed/avatar-m1/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1624395213043-fa2e123b2656?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjA5MjE0MDR8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "man portrait"
     },
     {
       "id": "avatar-2",
       "description": "Avatar of a female professional.",
-      "imageUrl": "https://picsum.photos/seed/avatar-f1/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1580489944761-15a19d654956?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2MDk0MDg0N3ww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "woman portrait"
     },
     {
       "id": "avatar-3",
       "description": "Avatar of a male professional.",
-      "imageUrl": "https://picsum.photos/seed/avatar-m2/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW4lMjBwcm9mZXNzaW9uYWx8ZW58MHx8fHwxNzYwOTUxMTEwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "man professional"
+    },
+    {
+      "id": "onboarding-avatar-1",
+      "description": "Onboarding avatar option 1, woman.",
+      "imageUrl": "https://images.unsplash.com/photo-1579463148228-138296ac3b98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d29tYW4lMjBmYWNlfGVufDB8fHx8MTc2MDkxNDc5M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman face"
+    },
+    {
+      "id": "onboarding-avatar-2",
+      "description": "Onboarding avatar option 2, man.",
+      "imageUrl": "https://images.unsplash.com/photo-1595152452543-e5fc28ebc2b8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWFuJTIwZmFjZXxlbnwwfHx8fDE3NjA5MzQ1MjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man face"
+    },
+    {
+      "id": "onboarding-avatar-3",
+      "description": "Onboarding avatar option 3, woman.",
+      "imageUrl": "https://images.unsplash.com/photo-1573496527892-904f897eb744?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3b21hbiUyMHByb2Zlc3Npb25hbHxlbnwwfHx8fDE3NjA5Mjg1OTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman professional"
+    },
+    {
+      "id": "onboarding-avatar-4",
+      "description": "Onboarding avatar option 4, man.",
+      "imageUrl": "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW4lMjBwcm9mZXNzaW9uYWx8ZW58MHx8fHwxNzYwOTUxMTEwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man professional"
+    },
+    {
+      "id": "onboarding-avatar-5",
+      "description": "Onboarding avatar option 5, person.",
+      "imageUrl": "https://images.unsplash.com/photo-1695470667338-e7e8608ff048?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBmYWNlfGVufDB8fHx8MTc2MDg1NDQyOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person face"
+    },
+    {
+      "id": "onboarding-avatar-6",
+      "description": "Onboarding avatar option 6, person.",
+      "imageUrl": "https://images.unsplash.com/photo-1535643302794-19c3804b874b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjA5MjcyMzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
     },
     {
       "id": "pricing-solo",
       "description": "An abstract image representing business growth.",
-      "imageUrl": "https://picsum.photos/seed/pricing1/1200/800",
+      "imageUrl": "https://images.unsplash.com/photo-1757008284935-a26e7829af8a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxhYnN0cmFjdCUyMGdyb3d0aHxlbnwwfHx8fDE3NjA5NTIwMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "abstract growth"
     },
     {
       "id": "pricing-team",
       "description": "An abstract image representing teamwork and collaboration.",
-      "imageUrl": "https://picsum.photos/seed/pricing2/1200/800",
+      "imageUrl": "https://images.unsplash.com/photo-1561204652-a501fe30a82e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGNvbGxhYm9yYXRpb258ZW58MHx8fHwxNzYwOTI0ODQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "abstract collaboration"
     }
   ]

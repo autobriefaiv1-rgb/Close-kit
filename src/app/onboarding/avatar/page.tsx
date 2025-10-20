@@ -18,15 +18,9 @@ import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { User } from 'lucide-react';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-const avatars = [
-    'https://picsum.photos/seed/avatar01/200/200',
-    'https://picsum.photos/seed/avatar02/200/200',
-    'https://picsum.photos/seed/avatar03/200/200',
-    'https://picsum.photos/seed/avatar04/200/200',
-    'https://picsum.photos/seed/avatar05/200/200',
-    'https://picsum.photos/seed/avatar06/200/200',
-];
+const avatars = PlaceHolderImages.filter(img => img.id.startsWith('onboarding-avatar-'));
 
 export default function OnboardingAvatarPage() {
   const { firestore, user } = useFirebase();
@@ -73,17 +67,17 @@ export default function OnboardingAvatarPage() {
         </CardDescription>
       </CardHeader>
       <CardContent className="grid grid-cols-3 md:grid-cols-6 gap-4">
-        {avatars.map((avatarUrl) => (
+        {avatars.map((avatar) => (
           <button
-            key={avatarUrl}
-            onClick={() => setSelectedAvatar(avatarUrl)}
+            key={avatar.id}
+            onClick={() => setSelectedAvatar(avatar.imageUrl)}
             className={cn(
               'rounded-full ring-2 ring-transparent hover:ring-primary transition-all p-1',
-              selectedAvatar === avatarUrl && 'ring-primary'
+              selectedAvatar === avatar.imageUrl && 'ring-primary'
             )}
           >
             <Avatar className="h-24 w-24">
-              <AvatarImage src={avatarUrl} alt={`Avatar option`} />
+              <AvatarImage src={avatar.imageUrl} alt={avatar.description} data-ai-hint={avatar.imageHint} />
               <AvatarFallback><User /></AvatarFallback>
             </Avatar>
           </button>
