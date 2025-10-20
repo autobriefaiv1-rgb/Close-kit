@@ -41,6 +41,7 @@ export type Proposal = {
   status: ProposalStatus;
   amount: number;
   createdAt: Timestamp;
+  photoURLs?: string[];
 };
 
 export type PriceBookItem = {

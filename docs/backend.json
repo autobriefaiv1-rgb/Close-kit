@@ -502,6 +502,40 @@
         "totalProposals": { "type": "number" },
         "acceptanceRate": { "type": "number" }
       }
+    },
+    "PriceBookItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PriceBookItem",
+      "type": "object",
+      "description": "Represents an item in the company's price book.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the price book item."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "The ID of the organization this item belongs to."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the item."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the item (e.g., Material, Equipment, Labor).",
+          "enum": ["Material", "Equipment", "Labor"]
+        },
+        "cost": {
+          "type": "number",
+          "description": "Cost of the item."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measurement (e.g., each, per foot)."
+        }
+      },
+      "required": ["id", "organizationId", "name", "category", "cost"]
     }
   },
   "auth": {
@@ -744,6 +778,26 @@
             {
               "name": "docId",
               "description": "The unique identifier of the analytics document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/organizations/{orgId}/priceBookItems/{itemId}",
+        "definition": {
+          "entityName": "PriceBookItem",
+          "schema": {
+            "$ref": "#/backend/entities/PriceBookItem"
+          },
+          "description": "Stores price book items for an organization. Accessible by members of the organization.",
+          "params": [
+            {
+              "name": "orgId",
+              "description": "The unique identifier of the organization."
+            },
+            {
+              "name": "itemId",
+              "description": "The unique identifier of the price book item."
             }
           ]
         }

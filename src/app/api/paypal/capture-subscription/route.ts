@@ -2,8 +2,19 @@
 import {NextResponse} from 'next/server';
 import {getAuth} from 'firebase-admin/auth';
 import {getFirestore} from 'firebase-admin/firestore';
-import {app} from '@/firebase/admin'; // Assuming you have an admin app initialized
+import admin from 'firebase-admin';
 import {headers} from 'next/headers';
+
+// Initialize Firebase Admin SDK lazily
+function initializeFirebaseAdmin() {
+  if (!admin.apps.length) {
+    const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS!);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+  }
+  return admin.app();
+}
 
 // Exchange the authorization code for an access token
 async function getPayPalAccessToken() {
@@ -35,6 +46,7 @@ export async function POST(req: Request) {
   }
 
   try {
+    const app = initializeFirebaseAdmin();
     // 1. Verify the user's Firebase token
     const decodedToken = await getAuth(app).verifyIdToken(idToken);
     const userId = decodedToken.uid;

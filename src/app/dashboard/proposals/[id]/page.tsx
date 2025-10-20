@@ -124,8 +124,6 @@ export default function ProposalDetailsPage() {
     proposalRef
   );
 
-  // This is the corrected data-fetching logic.
-  // The customerRef now depends on `proposal` being loaded first.
   const customerRef = useMemoFirebase(
     () =>
       userProfile && proposal?.customerId
@@ -137,7 +135,7 @@ export default function ProposalDetailsPage() {
             proposal.customerId
           )
         : null,
-    [userProfile, proposal]
+    [firestore, userProfile, proposal?.customerId]
   );
   const { data: customer, isLoading: isCustomerLoading } = useDoc<Customer>(
     customerRef
