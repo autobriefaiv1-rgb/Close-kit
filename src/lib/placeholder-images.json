@@ -1,10 +1,10 @@
 {
   "placeholderImages": [
     {
-      "id": "hero-image",
-      "description": "A modern and clean HVAC unit installation.",
-      "imageUrl": "https://images.unsplash.com/photo-1547156306-383679f4e4e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxIVkFDJTIwaW5zdGFsbGF0aW9ufGVufDB8fHx8MTc2MDg4MzM1N3ww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "HVAC installation"
+      "id": "hero-image-new",
+      "description": "A contractor using a tablet in front of an HVAC unit.",
+      "imageUrl": "https://images.unsplash.com/photo-1617978621419-f5a4a983e25b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb250cmFjdG9yJTIwdGFibGV0fGVufDB8fHx8MTc2MTU1ODU4N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "contractor tablet"
     },
     {
       "id": "user-avatar",
@@ -13,28 +13,28 @@
       "imageHint": "person portrait"
     },
     {
-      "id": "feature-gbb",
-      "description": "An abstract image representing choices or options.",
-      "imageUrl": "https://images.unsplash.com/photo-1637088059531-4ffcc89d0dd3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMG9wdGlvbnN8ZW58MHx8fHwxNzYwOTUyMDMzfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "abstract options"
+      "id": "feature-gbb-new",
+      "description": "An abstract image representing choices or options with a vibrant gradient.",
+      "imageUrl": "https://images.unsplash.com/photo-1557682250-33bd709cbe85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdyYWRpZW50fGVufDB8fHx8MTc2MTU1ODg4N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract gradient"
     },
     {
-      "id": "feature-translator",
-      "description": "An abstract image representing language and communication.",
-      "imageUrl": "https://images.unsplash.com/photo-1528747045269-3505c0e85ce8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-      "imageHint": "abstract language"
+      "id": "feature-translator-new",
+      "description": "An abstract image representing communication with connected nodes.",
+      "imageUrl": "https://images.unsplash.com/photo-1587049352851-d48753572832?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGNvbW11bmljYXRpb258ZW58MHx8fHwxNzYxNTU4ODg3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract communication"
     },
     {
-      "id": "feature-proposal",
-      "description": "A person working on a tablet, building a proposal.",
-      "imageUrl": "https://images.unsplash.com/photo-1628815113969-0487917fc6a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8dGFibGV0JTIwd29ya3xlbnwwfHx8fDE3NjA5NTIwMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "id": "feature-proposal-new",
+      "description": "A person working on a tablet in a modern setting.",
+      "imageUrl": "https://images.unsplash.com/photo-1544256718-3b62ff080b94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0YWJsZXQlMjB3b3JrfGVufDB8fHx8MTc2MTU1ODg4N3ww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "tablet work"
     },
     {
-      "id": "feature-analytics",
-      "description": "A dashboard with charts and graphs.",
-      "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxkYXNoYm9hcmQlMjBjaGFydHxlbnwwfHx8fDE3NjA4NzYyODB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "dashboard chart"
+      "id": "feature-analytics-new",
+      "description": "A modern, clean dashboard with various charts and graphs.",
+      "imageUrl": "https://images.unsplash.com/photo-1611926653458-09294b3142bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkYXNoYm9hcmQlMjB1aXxlbnwwfHx8fDE3NjE1NTg4ODd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dashboard ui"
     },
     {
       "id": "avatar-1",

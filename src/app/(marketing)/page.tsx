@@ -30,7 +30,7 @@ const features = [
     icon: <BrainCircuit className="w-10 h-10 text-primary" />,
     title: "AI-Powered Options Generator",
     description: "Instantly create Good-Better-Best options from job details. Our AI leverages your proprietary data to craft perfectly tiered options that upsell customers without pressure. This simple feature alone can dramatically increase your average ticket size by presenting clear, value-driven choices that help customers sell themselves on more profitable packages.",
-    image: PlaceHolderImages.find((img) => img.id === 'feature-gbb'),
+    image: PlaceHolderImages.find((img) => img.id === 'feature-gbb-new'),
     dataAiHint: "abstract options",
     points: ["Increase average job value by 15-30%", "Reduce quoting time by over 50%", "Empower techs to upsell confidently"]
   },
@@ -38,15 +38,15 @@ const features = [
     icon: <Languages className="w-10 h-10 text-primary" />,
     title: "Narrative Translator",
     description: "Convert complex technical jargon into clear, customer-friendly explanations that build trust and demonstrate expertise. Stop confusing your clients with acronyms and technical terms. Help them see the true value in your work, leading to faster approvals and higher customer satisfaction.",
-    image: PlaceHolderImages.find((img) => img.id === 'feature-translator'),
-    dataAiHint: "abstract language",
+    image: PlaceHolderImages.find((img) => img.id === 'feature-translator-new'),
+    dataAiHint: "abstract communication",
     points: ["Build immediate customer trust and transparency", "Justify higher-end options effectively", "Reduce follow-up questions and delays"]
   },
   {
     icon: <FileText className="w-10 h-10 text-primary" />,
     title: "Mobile Proposal Builder",
     description: "Don't wait to get back to the office while your competitor closes the deal. Craft professional, branded proposals on-the-go with a touch-optimized interface. Manage customers, line items, and photos right from your tablet or phone, and send proposals before you even leave the driveway.",
-    image: PlaceHolderImages.find((img) => img.id === 'feature-proposal'),
+    image: PlaceHolderImages.find((img) => img.id === 'feature-proposal-new'),
     dataAiHint: "tablet work",
     points: ["Create and send professional proposals in minutes", "Capture photos and notes directly on-site", "Works seamlessly on any phone or tablet"]
   },
@@ -54,7 +54,7 @@ const features = [
     icon: <LineChart className="w-10 h-10 text-primary" />,
     title: "Proposal Analytics",
     description: "Stop guessing what works and start knowing. Gain critical insights with real-time proposal tracking. See exactly when a customer opens your proposal, how long they view it, and which options they focus on. Use this data to refine your sales strategy, follow up at the perfect moment, and close more deals.",
-    image: PlaceHolderImages.find((img) => img.id === 'feature-analytics'),
+    image: PlaceHolderImages.find((img) => img.id === 'feature-analytics-new'),
     dataAiHint: "dashboard chart",
     points: ["Track proposal views, acceptance rates, and revenue", "Identify your most profitable services and technicians", "Optimize your sales follow-up process with real data"]
   },
@@ -99,7 +99,7 @@ const whyChooseUsPoints = [
     }
 ];
 
-const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-image');
+const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-image-new');
 
 export default function LandingPage() {
   return (
@@ -122,7 +122,7 @@ export default function LandingPage() {
                 </p>
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                    <Button size="lg" asChild>
+                    <Button size="lg" asChild className="animate-pulse-slow">
                       <Link href="/login">
                         Start Your 7-Day Free Trial
                         <ArrowRight className="ml-2 h-5 w-5" />
@@ -173,7 +173,9 @@ export default function LandingPage() {
           <div className="mx-auto grid max-w-5xl items-start gap-12 py-12 lg:grid-cols-3">
              <AnimatedSection className="grid gap-4 text-center">
                 <div className="flex justify-center items-center">
-                   <FileText className="w-12 h-12 text-primary" />
+                   <div className="p-4 bg-primary/10 rounded-full transition-transform duration-300 hover:scale-110 hover:rotate-6">
+                     <FileText className="w-12 h-12 text-primary" />
+                   </div>
                 </div>
                 <h3 className="text-xl font-bold font-headline">1. Build Proposals Fast</h3>
                 <p className="text-muted-foreground">
@@ -182,7 +184,9 @@ export default function LandingPage() {
             </AnimatedSection>
              <AnimatedSection className="grid gap-4 text-center" delay={100}>
                 <div className="flex justify-center items-center">
-                   <DollarSign className="w-12 h-12 text-primary" />
+                   <div className="p-4 bg-primary/10 rounded-full transition-transform duration-300 hover:scale-110 hover:rotate-6">
+                     <DollarSign className="w-12 h-12 text-primary" />
+                   </div>
                 </div>
                 <h3 className="text-xl font-bold font-headline">2. Win More Jobs</h3>
                 <p className="text-muted-foreground">
@@ -191,7 +195,9 @@ export default function LandingPage() {
             </AnimatedSection>
              <AnimatedSection className="grid gap-4 text-center" delay={200}>
                  <div className="flex justify-center items-center">
-                   <LineChart className="w-12 h-12 text-primary" />
+                   <div className="p-4 bg-primary/10 rounded-full transition-transform duration-300 hover:scale-110 hover:rotate-6">
+                     <LineChart className="w-12 h-12 text-primary" />
+                   </div>
                 </div>
                 <h3 className="text-xl font-bold font-headline">3. Analyze & Grow</h3>
                 <p className="text-muted-foreground">
@@ -278,7 +284,9 @@ export default function LandingPage() {
                     {whyChooseUsPoints.map((point, index) => (
                         <AnimatedSection key={index} className="grid gap-4 text-center" delay={index * 100}>
                             <div className="flex justify-center items-center">
+                               <div className="p-4 bg-primary/10 rounded-full transition-transform duration-300 hover:scale-110 hover:rotate-6">
                                 {point.icon}
+                               </div>
                             </div>
                             <h3 className="text-xl font-bold font-headline">{point.title}</h3>
                             <p className="text-muted-foreground">
