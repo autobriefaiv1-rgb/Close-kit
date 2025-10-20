@@ -492,6 +492,16 @@
         "createdAt",
         "updatedAt"
       ]
+    },
+    "AnalyticsData": {
+      "title": "AnalyticsData",
+      "type": "object",
+      "description": "Represents aggregated analytics data.",
+      "properties": {
+        "totalRevenue": { "type": "number" },
+        "totalProposals": { "type": "number" },
+        "acceptanceRate": { "type": "number" }
+      }
     }
   },
   "auth": {
@@ -723,7 +733,7 @@
         "definition": {
           "entityName": "AnalyticsData",
           "schema": {
-            "$ref": "#/backend/entities/User"
+            "$ref": "#/backend/entities/AnalyticsData"
           },
           "description": "Collection to store analytics data.  Data type could be 'proposal_views', 'acceptance_rates', etc.",
           "params": [

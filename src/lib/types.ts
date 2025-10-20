@@ -7,6 +7,7 @@ export type Organization = {
   subscriptionPlan?: 'solo' | 'team';
   subscriptionStatus?: 'trial' | 'active' | 'expired' | 'canceled';
   trialEndDate?: Timestamp;
+  paypalSubscriptionId?: string;
 }
 
 export type UserProfile = {
@@ -50,3 +51,5 @@ export type PriceBookItem = {
   cost: number;
   unit: string;
 };
+
+    

@@ -17,10 +17,16 @@ import { Logo } from './logo';
 import { ThemeToggle } from './theme-toggle';
 import { useUser } from '@/firebase';
 import { useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 export function DashboardHeader() {
   const { user } = useUser();
   const [isAdmin, setIsAdmin] = useState(false);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [searchValue, setSearchValue] = useState(searchParams.get('search') || '');
 
   useEffect(() => {
     if (user) {
@@ -31,6 +37,37 @@ export function DashboardHeader() {
       });
     }
   }, [user]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSearchValue = e.target.value;
+    setSearchValue(newSearchValue);
+
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    
+    if (newSearchValue) {
+      current.set('search', newSearchValue);
+    } else {
+      current.delete('search');
+    }
+    
+    const search = current.toString();
+    const query = search ? `?${search}` : '';
+
+    // Only push to router if the path is the proposals page, otherwise just update state
+    if (pathname === '/dashboard/proposals') {
+       router.push(`${pathname}${query}`);
+    }
+  };
+  
+  // Effect to clear search input if navigating away from proposals page
+  useEffect(() => {
+    if (pathname !== '/dashboard/proposals') {
+      setSearchValue('');
+    } else {
+      setSearchValue(searchParams.get('search') || '');
+    }
+  }, [pathname, searchParams]);
+
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
@@ -67,12 +104,14 @@ export function DashboardHeader() {
       </Sheet>
 
       <div className="w-full flex-1">
-        <form>
+        <form onSubmit={(e) => { e.preventDefault(); router.push(`/dashboard/proposals?search=${searchValue}`) }}>
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search..."
+              placeholder="Search proposals by customer..."
+              value={searchValue}
+              onChange={handleSearchChange}
               className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
             />
           </div>
@@ -106,3 +145,5 @@ export function DashboardHeader() {
     </header>
   );
 }
+
+    

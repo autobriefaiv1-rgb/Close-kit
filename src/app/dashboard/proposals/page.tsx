@@ -25,11 +25,13 @@ import { useFirebase, useCollection, useMemoFirebase, useDoc } from '@/firebase'
 import { collection, query, where, doc } from 'firebase/firestore';
 import { useSearchParams } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useMemo } from 'react';
 
 export default function ProposalsPage() {
   const { firestore, user } = useFirebase();
   const searchParams = useSearchParams();
   const statusFilter = searchParams.get('status') as ProposalStatus | null;
+  const searchQuery = searchParams.get('search') || '';
   const defaultTab = statusFilter || 'all';
 
   const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
@@ -45,6 +47,12 @@ export default function ProposalsPage() {
   }, [firestore, userProfile, statusFilter]);
 
   const { data: proposals, isLoading } = useCollection<Proposal>(proposalsQuery);
+  
+  const filteredProposals = useMemo(() => {
+    if (!proposals) return null;
+    return proposals.filter(p => p.customerName.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [proposals, searchQuery])
+
 
   const statusVariant = (
     status: Proposal['status']
@@ -72,7 +80,7 @@ export default function ProposalsPage() {
       return (
         <TableRow>
           <TableCell colSpan={5} className="h-24 text-center">
-            No proposals found.
+            {searchQuery ? `No proposals found for "${searchQuery}".` : 'No proposals found.'}
           </TableCell>
         </TableRow>
       );
@@ -139,10 +147,12 @@ export default function ProposalsPage() {
                 </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>{renderProposalRows(proposals)}</TableBody>
+            <TableBody>{renderProposalRows(filteredProposals)}</TableBody>
           </Table>
         </CardContent>
       </Card>
     </Tabs>
   );
 }
+
+    
