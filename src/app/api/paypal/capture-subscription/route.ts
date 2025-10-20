@@ -2,30 +2,8 @@
 import {NextResponse} from 'next/server';
 import {getAuth} from 'firebase-admin/auth';
 import {getFirestore} from 'firebase-admin/firestore';
-import admin from 'firebase-admin';
+import {app} from '@/firebase/admin'; // Import the initialized admin app
 import {headers} from 'next/headers';
-
-// Initialize Firebase Admin SDK lazily
-function initializeFirebaseAdmin() {
-  if (!admin.apps.length) {
-    // Construct the service account object from individual environment variables
-    const serviceAccount: admin.ServiceAccount = {
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'), // Ensure newlines are correctly formatted
-    };
-
-    // Check if all required service account properties are present
-    if (!serviceAccount.projectId || !serviceAccount.clientEmail || !serviceAccount.privateKey) {
-        throw new Error('Firebase Admin SDK service account credentials are not fully set in environment variables.');
-    }
-
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
-  }
-  return admin.app();
-}
 
 // Exchange the authorization code for an access token
 async function getPayPalAccessToken() {
@@ -57,7 +35,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    const app = initializeFirebaseAdmin();
     // 1. Verify the user's Firebase token
     const decodedToken = await getAuth(app).verifyIdToken(idToken);
     const userId = decodedToken.uid;
