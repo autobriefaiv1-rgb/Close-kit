@@ -1,8 +1,6 @@
 'use server';
 import {NextResponse} from 'next/server';
-import {getAuth} from 'firebase-admin/auth';
-import {getFirestore} from 'firebase-admin/firestore';
-import {app} from '@/firebase/admin'; // Import the initialized admin app
+import {adminAuth, adminDb} from '@/firebase/admin';
 import {headers} from 'next/headers';
 
 // Exchange the authorization code for an access token
@@ -36,7 +34,7 @@ export async function POST(req: Request) {
 
   try {
     // 1. Verify the user's Firebase token
-    const decodedToken = await getAuth(app).verifyIdToken(idToken);
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
     const userId = decodedToken.uid;
 
     const {subscriptionID, organizationId, planName} = await req.json();
@@ -64,7 +62,7 @@ export async function POST(req: Request) {
 
     // 3. If verification is successful, update Firestore
     if (subscriptionDetails.status === 'ACTIVE') {
-      const orgRef = getFirestore(app)
+      const orgRef = adminDb
         .collection('organizations')
         .doc(organizationId);
 
