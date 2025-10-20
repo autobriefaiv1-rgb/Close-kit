@@ -1,12 +1,11 @@
 'use client';
 
-import { useFirebase, useDoc, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
+import { useFirebase, useDoc, useMemoFirebase } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { UserProfile } from '@/lib/types';
 import { doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Skeleton } from './ui/skeleton';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -34,17 +33,17 @@ export const SubscriptionButton = ({ planId, planName }: SubscriptionButtonProps
     }
     
     const script = document.createElement('script');
-    script.src = 'https://www.paypal.com/sdk/js?client-id=AcfpjwLgDGThXpyOnYWUoWdFG7SM_h485vJULqGENmPyeiwfD20Prjfx6xRrqYOSZlM4s-Rnh3OfjXhk&vault=true&intent=subscription';
+    script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&vault=true&intent=subscription`;
     script.setAttribute('data-sdk-integration-source', 'button-factory');
     script.onload = () => setIsSdkReady(true);
     document.body.appendChild(script);
   }, []);
 
   useEffect(() => {
-    if (isSdkReady && userProfile) {
+    if (isSdkReady && userProfile && user) {
         const buttonContainerId = `paypal-button-container-${planId}`;
         const container = document.getElementById(buttonContainerId);
-        if (container && container.childElementCount === 0) {
+        if (container && container.childElementCount === 0) { // Prevent re-rendering
             paypal.Buttons({
               style: {
                 shape: 'rect',
@@ -57,20 +56,41 @@ export const SubscriptionButton = ({ planId, planName }: SubscriptionButtonProps
                   plan_id: planId,
                 });
               },
-              onApprove: function (data: any, _actions: any) {
+              onApprove: async function (data: any, _actions: any) {
                 setIsSubscribing(true);
-                if (userProfile?.organizationId) {
-                  const orgRef = doc(firestore, 'organizations', userProfile.organizationId);
-                  setDocumentNonBlocking(orgRef, {
-                    subscriptionPlan: planName,
-                    subscriptionStatus: 'active',
-                    paypalSubscriptionId: data.subscriptionID,
-                  }, { merge: true });
+                try {
+                  const idToken = await user.getIdToken();
+                  const response = await fetch('/api/paypal/capture-subscription', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${idToken}`
+                    },
+                    body: JSON.stringify({
+                      subscriptionID: data.subscriptionID,
+                      organizationId: userProfile.organizationId,
+                      planName: planName
+                    })
+                  });
+
+                  if (!response.ok) {
+                    throw new Error('Failed to verify subscription on the backend.');
+                  }
+
                   toast({
                     title: 'Subscription Successful!',
                     description: "Thank you for subscribing. You're all set.",
                   });
                    setTimeout(() => router.push('/dashboard'), 2000);
+
+                } catch (error) {
+                    console.error("Subscription approval error:", error);
+                    toast({
+                      variant: 'destructive',
+                      title: 'Subscription Failed',
+                      description: 'Something went wrong during verification. Please contact support.',
+                    });
+                    setIsSubscribing(false);
                 }
               },
               onError: (err: any) => {
@@ -78,13 +98,13 @@ export const SubscriptionButton = ({ planId, planName }: SubscriptionButtonProps
                    toast({
                     variant: 'destructive',
                     title: 'Subscription Failed',
-                    description: 'Something went wrong. Please try again.',
+                    description: 'Something went wrong with PayPal. Please try again.',
                   });
               }
             }).render(`#${buttonContainerId}`);
         }
     }
-  }, [isSdkReady, planId, planName, userProfile, firestore, router, toast]);
+  }, [isSdkReady, planId, planName, userProfile, user, router, toast]);
 
   if (!isSdkReady || isSubscribing) {
       return (
