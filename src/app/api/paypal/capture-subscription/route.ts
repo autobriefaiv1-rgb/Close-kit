@@ -8,7 +8,18 @@ import {headers} from 'next/headers';
 // Initialize Firebase Admin SDK lazily
 function initializeFirebaseAdmin() {
   if (!admin.apps.length) {
-    const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS!);
+    // Construct the service account object from individual environment variables
+    const serviceAccount: admin.ServiceAccount = {
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'), // Ensure newlines are correctly formatted
+    };
+
+    // Check if all required service account properties are present
+    if (!serviceAccount.projectId || !serviceAccount.clientEmail || !serviceAccount.privateKey) {
+        throw new Error('Firebase Admin SDK service account credentials are not fully set in environment variables.');
+    }
+
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
