@@ -1,9 +1,9 @@
 
-import *prestige from 'firebase-admin';
+import * as admin from 'firebase-admin';
 
-if (!prestige.apps.length) {
-  prestige.initializeApp({
-    credential: prestige.credential.cert({
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
@@ -11,4 +11,4 @@ if (!prestige.apps.length) {
   });
 }
 
-export const app = prestige.apps[0]!;
+export const app = admin.apps[0]!;
