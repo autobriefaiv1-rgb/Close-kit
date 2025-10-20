@@ -3,13 +3,13 @@
     {
       "id": "hero-image-new",
       "description": "A contractor using a tablet in front of an HVAC unit.",
-      "imageUrl": "https://images.unsplash.com/photo-1617978621419-f5a4a983e25b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb250cmFjdG9yJTIwdGFibGV0fGVufDB8fHx8MTc2MTU1ODU4N3ww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "contractor tablet"
+      "imageUrl": "https://images.unsplash.com/photo-1517048676732-d65bc937f952?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0ZWFtJTIwY29sbGFib3JhdGlvbnxlbnwwfHx8fDE3NjE1NjAwMDB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "team collaboration"
     },
     {
       "id": "user-avatar",
       "description": "Default user avatar.",
-      "imageUrl": "https://images.unsplash.com/photo-1535643302794-19c3804b874b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjA5MjcyMzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1521119989659-a83eee488004?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGVyc29uJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzYwOTI3MjMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person portrait"
     },
     {
@@ -20,56 +20,56 @@
     },
     {
       "id": "feature-translator-new",
-      "description": "An abstract image representing communication with connected nodes.",
-      "imageUrl": "https://images.unsplash.com/photo-1587049352851-d48753572832?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGNvbW11bmljYXRpb258ZW58MHx8fHwxNzYxNTU4ODg3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "description": "A more dynamic and interesting abstract image representing communication.",
+      "imageUrl": "https://images.unsplash.com/photo-1528747045269-3505c0e85ce8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
       "imageHint": "abstract communication"
     },
     {
       "id": "feature-proposal-new",
       "description": "A person working on a tablet in a modern setting.",
-      "imageUrl": "https://images.unsplash.com/photo-1544256718-3b62ff080b94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0YWJsZXQlMjB3b3JrfGVufDB8fHx8MTc2MTU1ODg4N3ww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "tablet work"
+      "imageUrl": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3ZWIlMjBkYXNoYm9hcmR8ZW58MHx8fHwxNzYxNTYwMjMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "web dashboard"
     },
     {
       "id": "feature-analytics-new",
       "description": "A modern, clean dashboard with various charts and graphs.",
-      "imageUrl": "https://images.unsplash.com/photo-1611926653458-09294b3142bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkYXNoYm9hcmQlMjB1aXxlbnwwfHx8fDE3NjE1NTg4ODd8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "dashboard ui"
+      "imageUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkYXNoYm9hcmQlMjBhbmFseXRpY3N8ZW58MHx8fHwxNzYxNTYwMjMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dashboard analytics"
     },
     {
       "id": "avatar-1",
       "description": "Avatar of a male construction worker.",
-      "imageUrl": "https://images.unsplash.com/photo-1624395213043-fa2e123b2656?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjA5MjE0MDR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1594672830234-ba4cfe1202dc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWFuJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzYwOTIxNDA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "man portrait"
     },
     {
       "id": "avatar-2",
       "description": "Avatar of a female professional.",
-      "imageUrl": "https://images.unsplash.com/photo-1580489944761-15a19d654956?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2MDk0MDg0N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2MDk0MDg0N3ww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "woman portrait"
     },
     {
       "id": "avatar-3",
       "description": "Avatar of a male professional.",
-      "imageUrl": "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW4lMjBwcm9mZXNzaW9uYWx8ZW58MHx8fHwxNzYwOTUxMTEwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtYW4lMjBwcm9mZXNzaW9uYWx8ZW58MHx8fHwxNzYwOTUxMTEwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "man professional"
     },
     {
       "id": "onboarding-avatar-1",
       "description": "Onboarding avatar option 1, woman.",
-      "imageUrl": "https://images.unsplash.com/photo-1579463148228-138296ac3b98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d29tYW4lMjBmYWNlfGVufDB8fHx8MTc2MDkxNDc5M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1579503841516-e0bd7fca5faa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b21hbiUyMGZhY2V8ZW58MHx8fHwxNzYwOTE0NzkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "woman face"
     },
     {
       "id": "onboarding-avatar-2",
       "description": "Onboarding avatar option 2, man.",
-      "imageUrl": "https://images.unsplash.com/photo-1595152452543-e5fc28ebc2b8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWFuJTIwZmFjZXxlbnwwfHx8fDE3NjA5MzQ1MjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1599834562135-b6fc90e642ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxtYW4lMjBmYWNlfGVufDB8fHx8MTc2MDkzNDUyNHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "man face"
     },
     {
       "id": "onboarding-avatar-3",
       "description": "Onboarding avatar option 3, woman.",
-      "imageUrl": "https://images.unsplash.com/photo-1573496527892-904f897eb744?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3b21hbiUyMHByb2Zlc3Npb25hbHxlbnwwfHx8fDE3NjA5Mjg1OTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b21hbiUyMHByb2Zlc3Npb25hbHxlbnwwfHx8fDE3NjA5Mjg1OTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "woman professional"
     },
     {
@@ -81,25 +81,25 @@
     {
       "id": "onboarding-avatar-5",
       "description": "Onboarding avatar option 5, person.",
-      "imageUrl": "https://images.unsplash.com/photo-1695470667338-e7e8608ff048?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBmYWNlfGVufDB8fHx8MTc2MDg1NDQyOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/flagged/photo-1570612861542-284f4c12e75f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwZXJzb24lMjBmYWNlfGVufDB8fHx8MTc2MDg1NDQyOXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person face"
     },
     {
       "id": "onboarding-avatar-6",
       "description": "Onboarding avatar option 6, person.",
-      "imageUrl": "https://images.unsplash.com/photo-1535643302794-19c3804b874b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjA5MjcyMzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjA5MjcyMzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person portrait"
     },
     {
       "id": "pricing-solo",
       "description": "An abstract image representing business growth.",
-      "imageUrl": "https://images.unsplash.com/photo-1757008284935-a26e7829af8a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxhYnN0cmFjdCUyMGdyb3d0aHxlbnwwfHx8fDE3NjA5NTIwMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1757008326449-2cc31c3005fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxhYnN0cmFjdCUyMGdyb3d0aHxlbnwwfHx8fDE3NjA5NTIwMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "abstract growth"
     },
     {
       "id": "pricing-team",
       "description": "An abstract image representing teamwork and collaboration.",
-      "imageUrl": "https://images.unsplash.com/photo-1561204652-a501fe30a82e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGNvbGxhYm9yYXRpb258ZW58MHx8fHwxNzYwOTI0ODQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1671422668840-9af25e9bc5aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxhYnN0cmFjdCUyMGNvbGxhYm9yYXRpb258ZW58MHx8fHwxNzYwOTI0ODQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "abstract collaboration"
     }
   ]
