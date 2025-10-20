@@ -41,22 +41,32 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (organization && organizationRef) {
-        if (organization.subscriptionStatus === 'trial' && organization.trialEndDate && organization.trialEndDate.toDate() < new Date()) {
-            setDocumentNonBlocking(organizationRef, { subscriptionStatus: 'expired' }, { merge: true });
-             toast({
-                variant: 'destructive',
-                title: 'Your free trial has expired.',
-                description: 'Please subscribe to a plan to continue using Close Kit.',
-            });
-            router.push('/pricing');
-        } else if (organization.subscriptionStatus === 'expired' || organization.subscriptionStatus === 'canceled') {
-            toast({
-                variant: 'destructive',
-                title: 'Subscription Required',
-                description: 'Please subscribe to a plan to access the dashboard.',
-            });
-            router.push('/pricing');
-        }
+      // If subscription is active, no need to check anything else.
+      if (organization.subscriptionStatus === 'active') {
+        return;
+      }
+  
+      // Check if trial has expired
+      if (organization.subscriptionStatus === 'trial' && organization.trialEndDate && organization.trialEndDate.toDate() < new Date()) {
+        setDocumentNonBlocking(organizationRef, { subscriptionStatus: 'expired' }, { merge: true });
+        toast({
+          variant: 'destructive',
+          title: 'Your free trial has expired.',
+          description: 'Please subscribe to a plan to continue using Close Kit.',
+        });
+        router.push('/pricing');
+        return; // Important: stop further execution
+      }
+  
+      // If subscription is not active (e.g., expired or canceled), redirect.
+      if (organization.subscriptionStatus === 'expired' || organization.subscriptionStatus === 'canceled') {
+        toast({
+          variant: 'destructive',
+          title: 'Subscription Required',
+          description: 'Please subscribe to a plan to access the dashboard.',
+        });
+        router.push('/pricing');
+      }
     }
   }, [organization, organizationRef, router, toast]);
 
