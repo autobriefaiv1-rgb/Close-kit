@@ -3,6 +3,7 @@ import {analyzeCompetitorPricingFlow} from '@/ai/flows/analyze-competitor-pricin
 import {translateTechnicalDetailsFlow} from '@/ai/flows/translate-technical-details';
 import {generateGoodBetterBestOptionsFlow} from '@/ai/flows/generate-good-better-best-options';
 import {ariaSupportFlow} from '@/ai/flows/aria-support-flow';
+import {analyzeDocumentFlow} from '@/ai/flows/analyze-document';
 import {NextRequest} from 'next/server';
 
 const flows: Record<string, typeof analyzeCompetitorPricingFlow> = {
@@ -10,6 +11,7 @@ const flows: Record<string, typeof analyzeCompetitorPricingFlow> = {
   translateTechnicalDetails: translateTechnicalDetailsFlow,
   generateGoodBetterBestOptions: generateGoodBetterBestOptionsFlow,
   ariaSupportFlow: ariaSupportFlow,
+  analyzeDocument: analyzeDocumentFlow,
 };
 
 const genkitHandler = appRoute({

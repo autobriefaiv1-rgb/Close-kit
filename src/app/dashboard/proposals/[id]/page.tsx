@@ -4,12 +4,16 @@ import {
   useDoc,
   useFirebase,
   useMemoFirebase,
+  setDocumentNonBlocking,
 } from '@/firebase';
 import type { Proposal, Customer, UserProfile } from '@/lib/types';
-import { doc } from 'firebase/firestore';
+import { doc, serverTimestamp } from 'firebase/firestore';
 import {
   ArrowLeft,
   Copy,
+  Share2,
+  Signature,
+  FileSignature,
 } from 'lucide-react';
 import { notFound, useParams } from 'next/navigation';
 import {
@@ -32,6 +36,19 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { SignaturePad } from '@/components/signature-pad';
+import { useState } from 'react';
+import Image from 'next/image';
 
 function ProposalDetailsSkeleton() {
     return (
@@ -100,6 +117,9 @@ export default function ProposalDetailsPage() {
   const proposalId = Array.isArray(id) ? id[0] : id;
 
   const { firestore, user } = useFirebase();
+  const { toast } = useToast();
+  const [isSignatureDialogOpen, setIsSignatureDialogOpen] = useState(false);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
 
   const userProfileRef = useMemoFirebase(
     () => (user ? doc(firestore, 'users', user.uid) : null),
@@ -144,6 +164,23 @@ export default function ProposalDetailsPage() {
   if (!isProposalLoading && !proposal) {
     notFound();
   }
+  
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: 'Link Copied!', description: 'Public proposal link copied to clipboard.' });
+  };
+  
+  const handleSignatureSave = async () => {
+    if (!proposalRef || !signatureDataUrl) return;
+    setDocumentNonBlocking(proposalRef, { 
+        status: 'Accepted',
+        signatureDataUrl: signatureDataUrl,
+        acceptedAt: serverTimestamp(),
+    }, { merge: true });
+    setIsSignatureDialogOpen(false);
+    toast({ title: 'Proposal Accepted!', description: 'The proposal has been signed and marked as accepted.' });
+  };
+
 
   const isLoading = isProfileLoading || isProposalLoading || isCustomerLoading;
   
@@ -159,6 +196,9 @@ export default function ProposalDetailsPage() {
     if (status === 'Draft') return 'outline';
     return 'destructive';
   };
+  
+  const publicUrl = typeof window !== 'undefined' ? `${window.location.origin}/proposal/${proposalId}` : '';
+
 
   return (
     <div className="mx-auto grid max-w-6xl flex-1 auto-rows-max gap-4">
@@ -176,8 +216,25 @@ export default function ProposalDetailsPage() {
           {proposal?.status}
         </Badge>
         <div className="hidden items-center gap-2 md:ml-auto md:flex">
-          <Button variant="outline">Print</Button>
-          <Button>Mark as Accepted</Button>
+          <Button variant="outline" size="sm" onClick={() => handleCopyToClipboard(publicUrl)}><Share2 className="mr-2 h-4 w-4"/>Share</Button>
+          <Dialog open={isSignatureDialogOpen} onOpenChange={setIsSignatureDialogOpen}>
+            <DialogTrigger asChild>
+                {proposal?.status !== 'Accepted' && (
+                    <Button><FileSignature className="mr-2 h-4 w-4"/>Accept & Sign</Button>
+                )}
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Accept Proposal</DialogTitle>
+                    <DialogDescription>Please provide a signature below to accept this proposal.</DialogDescription>
+                </DialogHeader>
+                <SignaturePad onSignatureEnd={setSignatureDataUrl} />
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsSignatureDialogOpen(false)}>Cancel</Button>
+                    <Button onClick={handleSignatureSave} disabled={!signatureDataUrl}>Save Signature & Accept</Button>
+                </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
@@ -264,6 +321,20 @@ export default function ProposalDetailsPage() {
                   </div>
                 </div>
               </div>
+               {proposal?.signatureDataUrl && (
+                <>
+                  <Separator className="my-4" />
+                  <div className="grid gap-3">
+                    <div className="font-semibold">Customer Signature</div>
+                    <div className="rounded-md border bg-muted p-2">
+                        <Image src={proposal.signatureDataUrl} alt="Customer Signature" width={200} height={100} />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                        Signed on {proposal.acceptedAt ? proposal.acceptedAt.toDate().toLocaleString() : 'N/A'}
+                    </p>
+                  </div>
+                </>
+                )}
             </CardContent>
           </Card>
         </div>

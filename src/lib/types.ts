@@ -42,6 +42,8 @@ export type Proposal = {
   amount: number;
   createdAt: Timestamp;
   photoURLs?: string[];
+  signatureDataUrl?: string; // For digital signature
+  acceptedAt?: Timestamp; // Timestamp for when it was accepted
 };
 
 export type PriceBookItem = {
@@ -52,5 +54,3 @@ export type PriceBookItem = {
   cost: number;
   unit: string;
 };
-
-    
