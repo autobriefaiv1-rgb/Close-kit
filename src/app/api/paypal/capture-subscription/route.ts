@@ -1,7 +1,36 @@
 'use server';
 import {NextResponse} from 'next/server';
-import {adminAuth, adminDb} from '@/firebase/admin';
+import {getAuth} from 'firebase-admin/auth';
+import {getFirestore} from 'firebase-admin/firestore';
+import admin from 'firebase-admin';
 import {headers} from 'next/headers';
+
+// Initialize Firebase Admin SDK lazily with robust error checking
+function initializeFirebaseAdmin() {
+  if (admin.apps.length > 0) {
+    return admin.app();
+  }
+
+  const creds = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  if (!creds) {
+    throw new Error(
+      'The GOOGLE_APPLICATION_CREDENTIALS environment variable is not set. Please add it to your Vercel project settings.'
+    );
+  }
+
+  try {
+    const serviceAccount = JSON.parse(creds);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+  } catch (e: any) {
+    throw new Error(
+      `Failed to parse GOOGLE_APPLICATION_CREDENTIALS. Make sure it's a valid JSON string. Error: ${e.message}`
+    );
+  }
+
+  return admin.app();
+}
 
 // Exchange the authorization code for an access token
 async function getPayPalAccessToken() {
@@ -33,8 +62,9 @@ export async function POST(req: Request) {
   }
 
   try {
+    const app = initializeFirebaseAdmin();
     // 1. Verify the user's Firebase token
-    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    const decodedToken = await getAuth(app).verifyIdToken(idToken);
     const userId = decodedToken.uid;
 
     const {subscriptionID, organizationId, planName} = await req.json();
@@ -62,7 +92,7 @@ export async function POST(req: Request) {
 
     // 3. If verification is successful, update Firestore
     if (subscriptionDetails.status === 'ACTIVE') {
-      const orgRef = adminDb
+      const orgRef = getFirestore(app)
         .collection('organizations')
         .doc(organizationId);
 
